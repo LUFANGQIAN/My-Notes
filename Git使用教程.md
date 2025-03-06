@@ -134,7 +134,7 @@ git init
 添加远程仓库的指令为
 
 ```git
-git remote add [仓库名]
+git remote add [仓库名] [链接]
 
 修改仓库名
 git remote [原仓库名] [修改后的仓库名]
