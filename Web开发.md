@@ -112,6 +112,35 @@
 
 
 
+#### 语义化标签
+
+| **标签名称**   | **用途描述**                                         | **示例用法**                                                 | **优点/特点**                                        |
+| -------------- | ---------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------- |
+| `<header>`     | 定义文档或节的页眉，通常包含标题、导航等。           | ```html<br><header><h1>网站标题</h1><nav>导航链接</nav></header>``` | 提高页面结构清晰度，增强SEO和可访问性。              |
+| `<footer>`     | 定义文档或节的页脚，通常包含版权信息、联系方式等。   | ```html<br><footer>© 2025 公司名称</footer>```               | 明确页面底部内容，便于屏幕阅读器解析。               |
+| `<nav>`        | 定义导航链接部分，如主导航菜单。                     | ```html<br><nav><a href="#home">首页</a></nav>```            | 标识核心导航区域，提升用户体验和SEO。                |
+| `<section>`    | 定义文档中的独立区域，通常带有标题。                 | ```html<br><section><h2>章节标题</h2><p>章节内容</p></section>``` | 结构化内容分段，便于组织和样式设计。                 |
+| `<article>`    | 定义独立、完整的内容块（如博客文章、新闻）。         | ```html<br><article><h2>文章标题</h2><p>文章内容</p></article>``` | 独立内容模块化，利于内容重用和SEO优化。              |
+| `<aside>`      | 定义与主内容相关但不直接关联的辅助内容（如侧边栏）。 | ```html<br><aside><h3>相关链接</h3><ul>链接列表</ul></aside>``` | 区分主次内容，提升页面可读性和可访问性。             |
+| `<main>`       | 定义文档的主要内容区域（页面只能有一个）。           | ```html<br><main><article>核心内容</article></main>```       | 标识核心内容，便于屏幕阅读器和搜索引擎快速定位重点。 |
+| `<figure>`     | 定义独立的流内容（如图片、图表、代码片段）。         | ```html<br><figure><img src="image.jpg"><figcaption>图片说明</figcaption></figure>``` | 将视觉元素与其描述绑定，提升内容的语义化。           |
+| `<figcaption>` | 为`<figure>`元素提供标题或描述。                     | ```html<br><figcaption>图1: 示例图片</figcaption>```         | 增强`<figure>`内容的可访问性和上下文信息。           |
+| `<mark>`       | 高亮显示文本内容（默认黄色背景）。                   | ```html<br><mark>关键词</mark>```                            | 突出显示重要信息，适用于搜索结果高亮。               |
+| `<time>`       | 定义日期或时间（通过`datetime`属性机器可读）。       | ```html<br><time datetime="2025-05-09">2025年5月9日</time>``` | 提供结构化的日期时间数据，便于机器解析。             |
+| `<details>`    | 定义可折叠的用户可切换内容块（如FAQ）。              | ```html<br><details><summary>点击展开</summary>详细内容</details>``` | 实现交互式内容折叠，减少页面冗余。                   |
+| `<summary>`    | 为`<details>`元素提供标题或摘要。                    | ```html<br><summary>标题</summary>```                        | 与`<details>`配合使用，提升用户交互体验。            |
+| `<dialog>`     | 定义对话框或模态窗口（如弹窗）。                     | ```html<br><dialog open>这是一个对话框</dialog>```           | 简化对话框实现，支持原生交互功能。                   |
+| `<progress>`   | 表示任务的进度（如文件上传进度）。                   | ```html<br><progress value="70" max="100">70%</progress>```  | 可视化进度状态，提升用户反馈体验。                   |
+| `<meter>`      | 表示标量值或分数（如磁盘使用率）。                   | ```html<br><meter value="0.6" min="0" max="1">60%</meter>``` | 直观展示数值范围，适用于数据可视化场景。             |
+
+---
+
+
+
+
+
+
+
 #### meta标签
 
 作用：用于提供关于 HTML 文档的元数据，这些元数据并不是直接显示在网页上，而是提供给浏览器与搜索引擎使用，同时一些属性能做到自动跳转等效果
@@ -122,7 +151,7 @@
 
 本属性经常与其他属性值同用，起到提供具体元数据内容的作用
 
-``
+
 
 ##### name属性
 
@@ -130,7 +159,7 @@
 
 
 
-###### http-equiv属性值
+##### **http-equiv属性值**
 
 本属性值用来模拟 http响应头，其中一个常见的用法就是通过refresh跳转到其他网页
 
@@ -140,13 +169,13 @@
 
 
 
-###### keywords属性值
+##### keywords属性值
 
 本属性值作用是搜索内容名称为网页关键字，搜索关键字的设置，需要搭配content属性使用，关键字之间使用逗号隔开
 
 
 
-###### description属性值
+##### description属性值
 
 本属性值作用是设置网站信息简述，就是浏览器搜索网站打开前标题下面的小字，同样需要搭配content使用
 
@@ -1068,6 +1097,69 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 | rgb表示法      | rgb(r,g,b)    | r,g,b表示红绿蓝三原色           |
 | rgba表示法     | rgba(r,g,b,a) | a表示透明度，取值0-1            |
 | 十六进制表示法 | #RRGGBB       | #000000，#ffcc00 简写:#000,#fc0 |
+
+
+
+##### 文本间距
+
+**作用**：控制字符（字母、汉字、符号）之间的间距  
+**属性名**：`letter-spacing`  
+**属性值**：
+
+| 属性值             | 效果                               |
+| ------------------ | ---------------------------------- |
+| `normal`           | 默认值，根据字体自动调整间距       |
+| `数值`（如 `2px`） | 增加字符间距（正数）或减少（负数） |
+
+**本质**：直接作用于文本中的每个字符（包括字母、汉字、符号），调整它们之间的间距。  
+**示例**：
+```html
+<p class="wide">WIDE LETTER SPACING</p>
+<p class="tight">TIGHT LETTER SPACING</p>
+```
+```css
+.wide {
+  letter-spacing: 3px; /* 字符间距变宽 */
+}
+.tight {
+  letter-spacing: -1px; /* 字符间距变窄 */
+}
+```
+
+---
+
+
+
+
+
+
+
+##### 单词间距
+
+**作用**：控制单词（由空格分隔的文本块）之间的间距  
+**属性名**：`word-spacing`  
+**属性值**：
+
+| 属性值             | 效果                         |
+| ------------------ | ---------------------------- |
+| `normal`           | 默认值，根据字体自动调整间距 |
+| `auto`             | 浏览器自动计算单词间距       |
+| `数值`（如 `2px`） | 增加或减少单词间距           |
+
+**本质**：仅作用于由空格分隔的单词（如英文句子中的单词），不影响字符间距。  
+**示例**：
+```html
+<p class="wide-words">This is a wide word spacing example.</p>
+<p class="tight-words">This is a tight word spacing example.</p>
+```
+```css
+.wide-words {
+  word-spacing: 5px; /* 单词间距变宽 */
+}
+.tight-words {
+  word-spacing: -2px; /* 单词间距变窄 */
+}
+```
 
 
 
@@ -3344,6 +3436,367 @@ Flex模型不会产生浮动布局中的脱标现象，布局网页更简单、�
 
 
 
+##### 尺寸与收缩设计
+
+---
+
+
+
+**`flex-grow`剩余空间比例分配**
+
+**作用**  
+
+`flex-grow` 定义了弹性项目在容器有 **剩余空间** 时的 **扩展比例**。  
+
+- **默认值**：`0`（不扩展）。  
+- **取值**：非负数字（如 `1`、`2` 等）。  
+
+**工作原理**  
+
+- 当容器的总空间 **大于** 所有弹性项目的 `flex-basis` 之和时，剩余空间会按照 `flex-grow` 的比例分配给各个项目。  
+- **分配规则**：  
+  - 如果所有项目的 `flex-grow` 相同，则平均分配剩余空间。  
+  - 如果不同，则按比例分配（例如：`flex-grow: 1` 和 `flex-grow: 2`，后者获得两倍的剩余空间）。  
+
+```css
+.item1 { flex-grow: 1; }  /* 占用 1 份剩余空间 */
+.item2 { flex-grow: 2; }  /* 占用 2 份剩余空间 */
+```
+- 若容器宽度为 `600px`，两个项目的 `flex-basis` 总和为 `400px`，剩余 `200px`：  
+  - `.item1` 得到 `200 * (1/3) ≈ 66.67px`  
+  - `.item2` 得到 `200 * (2/3) ≈ 133.33px`  
+
+---
+
+**`flex-shrink`是否按比例收缩**
+
+**作用**  
+
+`flex-shrink` 定义了弹性项目在容器空间 **不足** 时的 **收缩比例**。  
+- **默认值**：`1`（允许收缩）。  
+- **取值**：非负数字（如 `0`、`1`、`2` 等）。  
+
+**工作原理**  
+
+- 当容器的总空间 **小于** 所有弹性项目的 `flex-basis` 之和时，项目会按 `flex-shrink` 的比例 **缩小**。  
+- **收缩规则**：  
+  - 如果所有项目的 `flex-shrink` 相同，则按 `flex-basis` 的比例收缩。  
+  - 如果不同，则按 `flex-shrink * flex-basis` 的比例分配收缩量。  
+
+**示例**  
+
+```css
+.item1 { flex-shrink: 1; }  /* 允许收缩 */
+.item2 { flex-shrink: 0; }  /* 不允许收缩 */
+```
+- 若容器宽度为 `400px`，两个项目的 `flex-basis` 总和为 `600px`，需要收缩 `200px`：  
+  - `.item1` 会缩小，`.item2` 保持原大小（因为 `flex-shrink: 0`）。  
+
+---
+
+**`flex-basis`初始大小**
+
+**作用**  
+
+`flex-basis` 定义了弹性项目在 **分配剩余空间前** 的 **初始大小**。  
+- **默认值**：`auto`（根据内容自动调整）。  
+- **取值**：长度值（如 `200px`、`50%`）或 `auto`。  
+
+**工作原理**  
+
+- `flex-basis` 是项目的基础尺寸，优先级高于 `width` 或 `height`，但低于 `min-width`/`max-width`。  
+- **关键场景**：  
+  - 如果 `flex-basis` 为 `auto`，项目大小由内容决定。  
+  - 如果 `flex-basis` 为具体值（如 `200px`），项目会先占据该大小，再根据 `flex-grow` 和 `flex-shrink` 调整。  
+
+**示例**  
+
+```css
+.item1 { flex-basis: 100px; }  /* 初始宽度为 100px */
+.item2 { flex-basis: 200px; }  /* 初始宽度为 200px */
+```
+- 若容器宽度为 `400px`，两个项目的 `flex-basis` 总和为 `300px`，剩余 `100px`：  
+  - 若两者的 `flex-grow` 相同，则均分剩余空间。  
+
+ 
+
+**复合写法**：`flex: <flex-grow> <flex-shrink> <flex-basis>`  
+
+| 属性          | 控制方向 | 默认值 | 作用场景           |
+| ------------- | -------- | ------ | ------------------ |
+| `flex-grow`   | 扩展比例 | `0`    | 空间充足时拉伸项目 |
+| `flex-shrink` | 收缩比例 | `1`    | 空间不足时缩小项目 |
+| `flex-basis`  | 初始大小 | `auto` | 定义项目的基础尺寸 |
+
+
+
+
+
+### Grid布局
+
+Grid布局也叫网格布局，是目前唯一一种CSS二维布局方案，允许开发者通过行和列的方式来创建复杂的网页布局。与Flex布局不同，Grid布局同时控制水平和垂直方向，适合构建复杂的网格结构，尤其适用于页面级的整体布局。
+
+Grid布局不会产生浮动布局中的脱标现象，布局网页更简单、更灵活，尤其适合响应式设计和复杂布局场景。
+
+---
+
+#### 组成
+
+设置方式：给父元素设置 `display: grid` 或 `inline-grid`，子元素自动成为网格项目。
+
+组成部分：
+- **网格容器**：通过 `display: grid` 定义，是布局的起点。
+- **网格项目**：网格容器的直接子元素。
+- **网格线**：划分行和列的线，用于定位项目。
+- **网格轨道**：相邻两条网格线之间的空间（行轨道或列轨道）。
+- **网格单元格**：单个行和列交叉形成的最小单位。
+- **网格区域**：由多个单元格组成的矩形区域。
+
+---
+
+#### 布局
+
+##### 网格容器属性
+
+| 描述         | 属性                    |
+| ------------ | ----------------------- |
+| 创建网格容器 | `display: grid`         |
+| 定义列宽     | `grid-template-columns` |
+| 定义行高     | `grid-template-rows`    |
+| 设置行列间距 | `gap` / `grid-gap`      |
+| 自动填充网格 | `grid-auto-flow`        |
+| 定义命名区域 | `grid-template-areas`   |
+
+---
+
+##### 定义网格行列
+
+- **`grid-template-columns` 和 `grid-template-rows`**  
+  用于显式定义网格的列宽和行高。支持多种单位（`px`, `fr`, `auto`, `minmax()` 等）和函数（`repeat()`）。
+
+  **示例**：
+  
+  ```css
+  .container {
+    display: grid;
+    grid-template-columns: 100px 200px 1fr; /* 三列：固定宽度、固定宽度、剩余空间 */
+    grid-template-rows: auto 100px 2fr;    /* 三行：自动高度、固定高度、剩余空间的2份 */
+  }
+  ```
+  
+- **`repeat()` 函数**  
+  简化重复的行列定义。支持 `auto-fill` 和 `auto-fit` 自动填充容器。
+
+  **示例**：
+  
+  ```css
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  ```
+  
+- **`fr` 单位**  
+  表示剩余空间的比例分配，是Grid布局的核心特性之一。
+
+---
+
+##### 网格间距
+
+- **`gap` 属性**  
+  同时设置行间距和列间距的简写属性（替代 `grid-row-gap` 和 `grid-column-gap`）。
+
+  **示例**：
+  ```css
+  .container {
+    gap: 10px 20px; /* 行间距 10px，列间距 20px */
+  }
+  ```
+
+---
+
+##### 网格项目定位
+
+- **`grid-column` 和 `grid-row`**  
+  通过指定网格线的位置，定义项目占据的行列范围。
+
+  **示例**：
+  ```css
+  .item {
+    grid-column: 1 / 3;   /* 从第1列线到第3列线，跨越2列 */
+    grid-row: 2 / 4;      /* 从第2行线到第4行线，跨越2行 */
+  }
+  ```
+
+- **`grid-area`**  
+  简写属性，合并 `grid-column` 和 `grid-row` 的定义。
+
+  **示例**：
+  ```css
+  .item {
+    grid-area: 2 / 1 / 4 / 3; /* 行起始/列起始/行结束/列结束 */
+  }
+  ```
+
+---
+
+##### 命名网格区域
+
+- **`grid-template-areas`**  
+  通过命名区域实现更直观的布局定义，增强语义化。
+
+  **示例**：
+  ```css
+  .container {
+    display: grid;
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+  }
+  
+  .header { grid-area: header; }
+  .sidebar { grid-area: sidebar; }
+  .main { grid-area: main; }
+  .footer { grid-area: footer; }
+  ```
+
+---
+
+##### 对齐方式
+
+- **主轴对齐（水平方向）**  
+  使用 `justify-items` 控制项目在单元格内的水平对齐，`justify-content` 控制整个网格在容器中的水平对齐。
+
+  **属性值**：
+  | 属性值    | 效果                   |
+  | --------- | ---------------------- |
+  | `start`   | 靠左对齐               |
+  | `end`     | 靠右对齐               |
+  | `center`  | 居中对齐               |
+  | `stretch` | 拉伸填充单元格（默认） |
+
+- **侧轴对齐（垂直方向）**  
+  使用 `align-items` 控制项目在单元格内的垂直对齐，`align-content` 控制整个网格在容器中的垂直对齐。
+
+  **属性值**：
+  | 属性值    | 效果                   |
+  | --------- | ---------------------- |
+  | `start`   | 靠顶对齐               |
+  | `end`     | 靠底对齐               |
+  | `center`  | 居中对齐               |
+  | `stretch` | 拉伸填充单元格（默认） |
+
+- **复合属性 `place-items`**  
+  同时设置 `align-items` 和 `justify-items`。
+
+  **示例**：
+  ```css
+  .container {
+    place-items: center; /* 水平和垂直居中 */
+  }
+  ```
+
+---
+
+##### 自动布局（隐式网格）
+
+- **`grid-auto-flow`**  
+  控制未显式放置的项目的排列方向。默认值为 `row`（按行填充），可设置为 `column`（按列填充）或 `dense`（紧凑填充）。
+
+  **示例**：
+  ```css
+  .container {
+    grid-auto-flow: column; /* 按列排列未指定位置的项目 */
+  }
+  ```
+
+- **`grid-auto-columns` 和 `grid-auto-rows`**  
+  定义隐式生成的列宽和行高。
+
+  **示例**：
+  ```css
+  .container {
+    grid-auto-rows: 100px; /* 所有自动生成的行高为100px */
+  }
+  ```
+
+---
+
+##### 响应式布局
+
+Grid布局天然支持响应式设计，通过媒体查询和 `auto-fill`/`auto-fit` 实现动态调整。
+
+**示例**：
+```css
+.container {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+@media (max-width: 600px) {
+  .container {
+    grid-template-columns: 1fr; /* 移动端单列布局 */
+  }
+}
+```
+
+---
+
+#### 优势与适用场景
+
+- **优点**：
+  - **二维布局**：同时控制行和列，适合复杂页面布局。
+  - **简化HTML结构**：减少嵌套的 `div` 元素。
+  - **响应式设计**：通过 `fr` 和 `auto-fill` 实现灵活的自适应布局。
+  - **精确控制**：通过网格线和区域命名实现精准定位。
+
+- **缺点**：
+  - **属性较多**：学习曲线较陡。
+  - **兼容性**：部分旧版浏览器支持有限。
+
+---
+
+#### 示例代码
+
+**经典三栏布局**：
+```css
+.container {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  gap: 10px;
+}
+
+.header { grid-area: 1 / 1 / 2 / 4; }
+.sidebar { grid-area: 2 / 1 / 3 / 2; }
+.main { grid-area: 2 / 2 / 3 / 3; }
+.ads { grid-area: 2 / 3 / 3 / 4; }
+.footer { grid-area: 3 / 1 / 4 / 4; }
+```
+
+**响应式图片墙**：
+```css
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+@media (max-width: 600px) {
+  .gallery {
+    grid-template-columns: 1fr; /* 移动端单列 */
+  }
+}
+```
+
+---
+
+#### 总结
+
+Grid布局是CSS中最强大的布局工具，适合处理复杂的二维布局需求。通过显式定义行列、命名区域和精确控制项目位置，开发者可以高效实现响应式设计和复杂的页面结构。掌握Grid布局的核心属性（如 `grid-template-columns`、`grid-template-areas`、`gap` 等）是构建现代网页布局的关键。
+
+
+
+
+
 ### 项目样式属性
 
 以下6个属性设置在项目上。
@@ -5001,6 +5454,33 @@ body {
 ##### 总结
 
 通过上述方法，你可以有效地隐藏滚动条，同时确保内容仍然可以滚动。这种方法适用于现代浏览器，并且提供了良好的用户体验。选择适合你项目需求的具体实现方式，并始终关注用户体验和跨浏览器兼容性。
+
+
+
+
+
+#### translate水平垂直居中
+
+```css
+.parent {
+    position: relative; /* 父容器需要设置为相对定位 */
+    width: 100%; /* 根据你的设计需求设定宽度 */
+    height: 500px; /* 根据你的设计需求设定高度，这里仅为示例 */
+    /* 其他样式属性 */
+}
+
+.child {
+    position: absolute; /* 子元素使用绝对定位 */
+    top: 50%; /* 将子元素的上边缘移动到父容器垂直方向50%的位置 */
+    left: 50%; /* 将子元素的左边缘移动到父容器水平方向50%的位置 */
+    transform: translate(-50%, -50%); /* 使用transform平移，使元素中心点与父容器中心点对齐 */
+    /* 其他样式属性 */
+}
+```
+
+
+
+
 
 
 
@@ -6663,6 +7143,297 @@ for (let i = 1; i <= 9; i++) {
 </script>
 ```
 
+#### 数组遍历
+
+##### `.forEach` 方法
+
+**定义**  
+`.forEach` 是 JavaScript 数组的方法，用于 **遍历数组中的每个元素**，并对每个元素执行一次回调函数。它不会返回新数组，仅用于执行操作。
+
+**语法**  
+
+```javascript
+array.forEach((currentValue, index, array) => {
+  // 回调函数体
+});
+```
+
+- **参数说明**：
+  - `currentValue`：当前遍历到的元素。
+  - `index`（可选）：当前元素的索引。
+  - `array`（可选）：原数组本身。
+
+**示例**  
+
+```javascript
+const sites = [
+  { name: "Google", url: "https://www.google.com" },
+  { name: "GitHub", url: "https://github.com" }
+];
+
+sites.forEach((site, index) => {
+  console.log(`索引 ${index}：${site.name}`);
+});
+```
+
+**输出**  
+
+```
+索引 0：Google
+索引 1：GitHub
+```
+
+---
+
+##### **箭头函数作为 `.forEach` 的回调函数**
+
+**优势**  
+
+1. **语法简洁**：省略 `function` 关键字，代码更紧凑。  
+2. **词法作用域的 `this`**：继承外层作用域的 `this`，避免 `this` 指向混乱。  
+3. **隐式返回值**：适用于简单操作（如 `map`、`filter`），但 `.forEach` 通常不返回值。
+
+**示例代码**  
+
+```javascript
+sites.forEach(site => {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-content">
+      <h3>${site.name}</h3>
+      <p>${site.url}</p>
+    </div>
+  `;
+  document.body.appendChild(card);
+});
+```
+
+**关键点**  
+
+- **`site` 是参数**：由 `.forEach` 自动传入当前数组元素（如 `{ name: "Google", url: "..." }`）。  
+- **动态生成内容**：通过模板字符串 `${}` 插入 `site` 的属性值。  
+- **操作 DOM**：在回调中创建 HTML 元素并添加到页面中。
+
+---
+
+##### **注意事项**
+
+1. **箭头函数的局限性**  
+
+   - 不适合需要独立 `this` 的场景（如对象方法）。  
+   - 不能作为构造函数（`new` 不可用）。  
+
+2. **`.forEach` 的限制**  
+
+   - 无法通过 `break` 或 `return` 提前终止循环。  
+   - 不会改变原数组，仅用于遍历和执行操作。  
+
+3. **普通函数 vs 箭头函数**  
+
+   | 特性             | 普通函数               | 箭头函数                  |
+   | ---------------- | ---------------------- | ------------------------- |
+   | `this` 绑定      | 运行时动态绑定         | 词法作用域继承外层 `this` |
+   | 参数 `arguments` | 支持                   | 不支持（需用 `...args`）  |
+   | 适合作为回调场景 | 需要独立 `this` 的场景 | 简单逻辑、保持上下文一致  |
+
+---
+
+#### 数组寻找
+
+##### **`.find` 方法**
+
+**定义**  
+`.find` 是 JavaScript 数组的方法，用于 **查找数组中第一个满足条件的元素**。如果找到符合条件的元素，返回该元素；如果没找到，返回 `undefined`。
+
+**语法**  
+
+```javascript
+array.find((currentValue, index, array) => {
+  // 回调函数体（返回布尔值）
+});
+```
+
+- **参数说明**：
+  - `currentValue`：当前遍历到的元素。
+  - `index`（可选）：当前元素的索引。
+  - `array`（可选）：原数组本身。
+- **返回值**：第一个满足条件的元素，或 `undefined`。
+
+**示例**  
+
+```javascript
+const sites = [
+  { id: 1, name: "Google", url: "https://www.google.com" },
+  { id: 2, name: "GitHub", url: "https://github.com" },
+  { id: 3, name: "Baidu", url: "https://www.baidu.com" }
+];
+
+// 查找 id 为 2 的网站对象
+const site = sites.find(site => site.id === 2);
+console.log(site);
+```
+
+**输出**  
+
+```javascript
+{ id: 2, name: "GitHub", url: "https://github.com" }
+```
+
+
+
+**箭头函数作为 `.find` 的回调函数**
+
+**优势**  
+
+1. **语法简洁**：省略 `function` 关键字，代码更紧凑。  
+2. **词法作用域的 `this`**：继承外层作用域的 `this`，避免 `this` 指向混乱。  
+3. **直接返回布尔值**：通过条件表达式（如 `site.id === 2`）隐式返回 `true` 或 `false`。
+
+**示例代码**  
+
+```javascript
+// 查找特定 id 的网站
+const targetId = 3;
+const targetSite = sites.find(site => site.id === targetId);
+console.log(targetSite.name); // 输出: Baidu
+```
+
+**关键点**  
+
+- **回调函数逻辑**：通过 `site.id === targetId` 判断当前元素是否满足条件。  
+- **返回值**：`.find()` 返回第一个满足条件的元素，否则返回 `undefined`。  
+- **应用场景**：适用于唯一性查找（如通过 `id` 定位特定对象）。
+
+---
+
+
+
+**注意事项**
+
+1. **`.find` 的局限性**  
+
+   - **仅返回第一个匹配项**：即使有多个元素满足条件，也只返回第一个。  
+
+     ```javascript
+     const arr = [10, 20, 30, 20];
+     const result = arr.find(num => num === 20); // 返回 20（第一个匹配项）
+     ```
+
+   - **无法中断循环**：即使中途满足条件，也会继续执行后续迭代（但会立即返回结果）。  
+
+   - **不改变原数组**：`.find()` 不会修改原数组，仅返回查找结果。
+
+2. **普通函数 vs 箭头函数**  
+
+   | 特性             | 普通函数               | 箭头函数                  |
+   | ---------------- | ---------------------- | ------------------------- |
+   | `this` 绑定      | 运行时动态绑定         | 词法作用域继承外层 `this` |
+   | 参数 `arguments` | 支持                   | 不支持（需用 `...args`）  |
+   | 适合作为回调场景 | 需要独立 `this` 的场景 | 简单逻辑、保持上下文一致  |
+
+**示例对比**  
+
+```javascript
+// 普通函数（this 指向问题）
+const obj = {
+  sites: [1, 2, 3],
+  findFirstEven: function() {
+    return this.sites.find(function(num) {
+      return num % 2 === 0;
+    });
+  }
+};
+console.log(obj.findFirstEven()); // 输出 2（但 this 指向 window/undefined？）
+
+// 箭头函数（解决 this 指向）
+const obj = {
+  sites: [1, 2, 3],
+  findFirstEven: function() {
+    return this.sites.find(num => num % 2 === 0);
+  }
+};
+console.log(obj.findFirstEven()); // 正确输出 2
+```
+
+
+
+
+
+
+
+
+
+### 定时器
+
+#### 设定定时器
+
+##### **`setTimeout()`**
+
+- **用途**：在指定时间后**执行一次**代码。
+
+- **语法**：
+
+  ```javascript
+  setTimeout(函数, 延迟时间[毫秒], [参数1, 参数2...]);
+  ```
+
+- **示例**：
+
+  ```javascript
+  setTimeout(() => console.log("1秒后执行"), 1000);
+  ```
+
+##### **`setInterval()`**
+
+- **用途**：**重复执行**代码，按固定时间间隔。
+
+- **语法**：
+
+  ```javascript
+  setInterval(函数, 间隔时间[毫秒], [参数1, 参数2...]);
+  ```
+
+- **示例**：
+
+  ```javascript
+  setInterval(() => console.log("每2秒执行一次"), 2000);
+  ```
+
+注意：第一个参数必须是一个函数，而不是函数引用，也就是说
+
+这是正确的✔
+
+```js
+setInterval(()=>{updateTime("header-time")}, 1000);
+```
+
+这是错误的❌
+
+```js
+setInterval(updateTime("header-time"), 1000);
+```
+
+
+
+#### **清除定时器**
+
+- **`clearTimeout(timeoutID)`**：取消 `setTimeout` 定时器。
+
+- **`clearInterval(intervalID)`**：取消 `setInterval` 定时器。
+
+- **示例**：
+
+  ```javascript
+  let timer = setTimeout(...);
+  clearTimeout(timer); // 取消单次定时器
+  
+  let interval = setInterval(...);
+  clearInterval(interval); // 取消循环定时器
+  ```
+
+---
+
 
 
 
@@ -6975,6 +7746,7 @@ fn()
      ```
    
 6. **显式绑定**
+   
    - 通过`call()`、`apply()`或`bind()`方法可以显式地指定`this`的值。
      ```javascript
      function greet() {
@@ -7188,7 +7960,39 @@ class getArr{
 
 
 
+#### 回调函数
 
+**定义**  
+回调函数是一种编程模式，指将一个函数作为参数传递给另一个函数，在特定时机或条件满足时被调用。它常用于 **异步操作** 或 **函数式编程** 场景。
+
+**常见用途**  
+
+1. **异步操作**：如 `setTimeout`、`setInterval`、`fetch` 请求等。  
+
+   ```javascript
+   setTimeout(() => {
+     console.log("延迟执行");
+   }, 1000);
+   ```
+
+2. **数组方法**：如 `map`、`filter`、`forEach` 等。  
+
+   ```javascript
+   [1, 2, 3].forEach(num => console.log(num));
+   ```
+
+3. **事件处理**：如按钮点击、表单提交等。  
+
+   ```javascript
+   document.getElementById("btn").addEventListener("click", () => {
+     alert("按钮被点击！");
+   });
+   ```
+
+**特点**  
+
+- 回调函数可以是 **普通函数**、**箭头函数** 或 **匿名函数**。
+- 回调函数的核心是 **“将逻辑作为参数传递”**，实现解耦和复用。
 
 
 
@@ -8024,6 +8828,42 @@ console.log("时间的分钟数: ", currentDate.getMinutes());
  console.log("从 1970 年 1 月 1 日至今的毫秒数: ", currentDate.getTime());
 ```
 
+##### **格式化日期和时间**
+
+`Date` 对象提供了多种方法将日期转换为字符串：
+
+###### **ISO 格式（UTC 时间）**
+
+```javascript
+const isoString = new Date().toISOString();
+console.log(isoString); // 输出类似：2025-05-12T12:46:30.000Z
+```
+
+###### **本地时间格式**
+
+```javascript
+const localString = new Date().toLocaleString();
+console.log(localString); // 输出类似：2025/5/12 下午8:46:30（本地格式）
+```
+
+###### **自定义格式化**
+
+由于 JavaScript 没有内置的灵活格式化方法，通常需要手动拼接：
+
+```javascript
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+console.log(formatDate(new Date())); // 输出类似：2025-05-12 20:46:30
+```
+
 
 
 
@@ -8240,6 +9080,23 @@ console.log("时间的分钟数: ", currentDate.getMinutes());
 
 ---
 
+**字符串按条件插入字符**
+
+| 方法          | 填充位置 | 示例                   | 结果    |
+| ------------- | -------- | ---------------------- | ------- |
+| `.padStart()` | 左侧     | `"5".padStart(3, "0")` | `"005"` |
+| `.padEnd()`   | 右侧     | `"5".padEnd(3, "0")`   | `"500"` |
+
+---
+
+
+
+
+
+
+
+
+
 
 
 #### 全局对象
@@ -8350,6 +9207,7 @@ console.log("时间的分钟数: ", currentDate.getMinutes());
   - 注：可通过下标访问元素，使用`.length`获取元素数量。
 
 - **getElementsByClassName()**
+  
   - 返回值：NodeList
   - 功能：获取相同类名的元素集合。
   - 参数：String类型，类名（多个类名用空格分隔）。
@@ -8404,7 +9262,7 @@ var div2Cp = towDiv.getElementsByClassName("cp");
 
 
 
-#### 操作标签内容
+#### DOM操作标签内容
 
 **1. `element.innerHTML`**
 
@@ -8424,6 +9282,63 @@ var div2Cp = towDiv.getElementsByClassName("cp");
 
 - **innerText**: 只能获取到文本内容，标签不会被获取；设置的内容会被浏览器认为是纯文本。
 - **innerHTML**: 获取到所有内容，包括标签；设置的内容会被浏览器认为是HTML文本，如果存在标签会被解析。
+
+**语义化标签操纵**
+
+
+
+**time标签**
+
+```
+element.textContent = now.
+```
+
+
+
+| **属性/方法**                   | **作用**                | **示例值**             |
+| ------------------------------- | ----------------------- | ---------------------- |
+| `textContent`                   | 用户可见的本地时间      | `19:43:23`             |
+| `setAttribute("datetime", ...)` | 机器可读的 ISO 标准时间 | `2025-05-12T19:43:23Z` |
+
+
+
+#### DOM修改CSS样式
+
+通过获取对象后操作其style属性，设置对应的样式值并重新赋值即可设置内联式样式，其优先级非常高
+
+
+
+**`.style` 方法简记**  
+
+1. **作用**：直接操作 DOM 元素的 **内联样式（inline style）**。  
+2. **语法**：  
+   ```javascript  
+   element.style.属性 = 值;  
+   ```
+   - 示例：`element.style.display = 'none';`  
+
+3. **属性命名规则**：  
+   
+   - CSS 中的连字符（`-`）需转为 **驼峰命名**（如 `backgroundColor`）。  
+   
+4. **特点**：  
+   - 仅修改内联样式，**不影响外部 CSS 或类样式**。  
+   - 优先级高于外部样式，可直接覆盖。  
+
+5. **获取样式**：  
+   - `element.style.属性`：仅返回内联样式值。  
+   - `window.getComputedStyle(element)`：获取最终生效的样式（包括计算后的值）。  
+
+6. **注意事项**：  
+   - 频繁修改可能引发 **重排/重绘**，影响性能。  
+   - 推荐通过 **修改 CSS 类（`classList`）** 管理复杂样式。  
+
+7. **替代方案**：  
+   - `element.setAttribute('style', 'display:none')`：会覆盖所有内联样式。
+
+
+
+
 
 
 
@@ -8473,7 +9388,7 @@ document.getElementById('box').removeAttribute('style'); // 移除属性
 
 
 
-#### Document对象属性一览
+#### DOM对象属性一览
 
 ##### 常用属性
 
@@ -9114,7 +10029,11 @@ if (usernameReg.test(userInput)) {
 
 
 
-以下是整理后的笔记，内容涵盖了 AJAX 的基本概念、jQuery 中的常用方法（如 `$.get()`、`$.post()` 和 `$.ajax()`）、接口文档的定义与使用，以及实际案例中的图书管理功能实现。
+
+
+
+
+
 
 ---
 

@@ -1,6 +1,6 @@
 # **Python笔记**
 
-
+## 基础
 
 ### 变量与数据类型
 
@@ -433,7 +433,107 @@ BaseException
 > 
 > ```
 
-### Math模块方法列表
+
+
+## 内置方法
+
+### **1. 输入输出相关**
+| 函数      | 功能                         | 示例                           |
+| --------- | ---------------------------- | ------------------------------ |
+| `print()` | 输出内容到控制台             | `print("Hello, World!")`       |
+| `input()` | 从用户获取输入（返回字符串） | `name = input("请输入姓名：")` |
+
+---
+
+### **2. 类型与转换**
+| 函数      | 功能           | 示例                                    |
+| --------- | -------------- | --------------------------------------- |
+| `type()`  | 返回对象的类型 | `print(type(42))` → `<class 'int'>`     |
+| `str()`   | 转换为字符串   | `str(123)` → `"123"`                    |
+| `int()`   | 转换为整数     | `int("456")` → `456`                    |
+| `float()` | 转换为浮点数   | `float("3.14")` → `3.14`                |
+| `bool()`  | 转换为布尔值   | `bool(0)` → `False`，`bool(1)` → `True` |
+
+---
+
+### **3. 数学运算**
+| 函数              | 功能          | 示例                                           |
+| ----------------- | ------------- | ---------------------------------------------- |
+| `abs()`           | 返回绝对值    | `abs(-5)` → `5`                                |
+| `round()`         | 四舍五入      | `round(3.14159, 2)` → `3.14`                   |
+| `pow()`           | 幂运算        | `pow(2, 3)` → `8`                              |
+| `sum()`           | 求和          | `sum([1, 2, 3])` → `6`                         |
+| `max()` / `min()` | 最大值/最小值 | `max([1, 3, 2])` → `3`，`min([1, 3, 2])` → `1` |
+
+---
+
+### **4. 序列与迭代器**
+| 函数          | 功能               | 示例                                                     |
+| ------------- | ------------------ | -------------------------------------------------------- |
+| `len()`       | 返回长度           | `len("hello")` → `5`                                     |
+| `range()`     | 生成整数序列       | `list(range(3))` → `[0, 1, 2]`                           |
+| `enumerate()` | 索引+值的迭代      | `for i, v in enumerate(['a', 'b']): print(i, v)`         |
+| `zip()`       | 并行迭代多个序列   | `list(zip([1, 2], ['a', 'b']))` → `[(1, 'a'), (2, 'b')]` |
+| `sorted()`    | 排序（返回新列表） | `sorted([3, 1, 2])` → `[1, 2, 3]`                        |
+
+---
+
+### **5. 数据结构操作**
+| 函数       | 功能         | 示例                                  |
+| ---------- | ------------ | ------------------------------------- |
+| `list()`   | 转换为列表   | `list("abc")` → `['a', 'b', 'c']`     |
+| `tuple()`  | 转换为元组   | `tuple([1, 2, 3])` → `(1, 2, 3)`      |
+| `dict()`   | 创建字典     | `dict(a=1, b=2)` → `{'a': 1, 'b': 2}` |
+| `set()`    | 转换为集合   | `set([1, 1, 2])` → `{1, 2}`           |
+| `divmod()` | 返回商和余数 | `divmod(10, 3)` → `(3, 1)`            |
+
+---
+
+### **6. 字符串处理**
+| 函数                          | 功能         | 示例                                     |
+| ----------------------------- | ------------ | ---------------------------------------- |
+| `str.upper()` / `str.lower()` | 大小写转换   | `"hello".upper()` → `"HELLO"`            |
+| `str.split()`                 | 分割字符串   | `"a,b,c".split(',')` → `['a', 'b', 'c']` |
+| `str.join()`                  | 连接字符串   | `",".join(['a', 'b'])` → `"a,b"`         |
+| `str.strip()`                 | 去除首尾空格 | `"  hello  ".strip()` → `"hello"`        |
+
+---
+
+### **7. 逻辑判断**
+| 函数           | 功能                      | 示例                            |
+| -------------- | ------------------------- | ------------------------------- |
+| `all()`        | 所有元素为真则返回 `True` | `all([True, 1, "a"])` → `True`  |
+| `any()`        | 任意元素为真则返回 `True` | `any([False, 0, "a"])` → `True` |
+| `isinstance()` | 判断对象类型              | `isinstance(42, int)` → `True`  |
+
+---
+
+### **8. 文件与系统**
+| 函数     | 功能               | 示例                                                  |
+| -------- | ------------------ | ----------------------------------------------------- |
+| `open()` | 打开文件           | `with open("file.txt", "r") as f: content = f.read()` |
+| `dir()`  | 查看对象属性和方法 | `dir([])` → 列出列表的所有方法                        |
+
+---
+
+### **9. 其他实用函数**
+| 函数     | 功能                   | 示例                     |
+| -------- | ---------------------- | ------------------------ |
+| `help()` | 获取文档说明           | `help(len)`              |
+| `id()`   | 返回对象的内存地址     | `id("hello")`            |
+| `hash()` | 返回对象的哈希值       | `hash("hello")`          |
+| `eval()` | 执行字符串形式的表达式 | `eval("2 + 3")` → `5`    |
+| `exec()` | 执行动态代码           | `exec("print('Hello')")` |
+
+---
+
+
+
+
+
+## 标准库函数
+
+### Math数学函数
 
 #### **1. 常量**  
 
@@ -460,7 +560,9 @@ BaseException
 
 ---
 
-### Random模块方法列表
+
+
+### Random随机数
 
 #### **1. 基础方法**  
 
@@ -476,14 +578,98 @@ BaseException
 | `random.uniform(a, b)`                | 生成 [a, b] 范围内的随机小数             | `random.uniform(1, 100) → 45.6`    |
 | `random.randrange(start, stop, step)` | 生成指定范围和步长的随机整数             | `random.randrange(0, 100, 2) → 42` |
 | `random.choice(seq)`                  | 从序列（列表、字符串等）中随机选一个元素 | `random.choice([1,2,3]) → 2`       |
+| random.seed(num)                      | 设置随机种子                             | random.seed(123)                   |
 
 
 
 ---
 
+## 常用方法
+
+### 字符串函数
+
+#### 1. 基本操作
+
+- **定义字符串**：可以使用单引号`'`、双引号`"`或三重引号`'''`、`"""`来定义字符串。
+
+  ```python
+  str1 = 'Hello, World!'
+  str2 = "Python is great."
+  multi_line_str = '''This is a 
+  multiline string.'''
+  ```
+
+- **字符串拼接**：使用`+`操作符连接多个字符串。
+
+  ```python
+  greeting = "Hello" + ", " + "World!"
+  print(greeting)  # 输出: Hello, World!
+  ```
+
+- **重复字符串**：使用`*`操作符重复字符串。
+
+  ```python
+  repeated_str = "abc" * 3
+  print(repeated_str)  # 输出: abcabcabc
+  ```
+
+#### 2. 索引与切片
+
+- **索引**：从0开始计数，负数表示从末尾开始。
+
+  ```python
+  text = "Python"
+  print(text[0])  # 输出: P
+  print(text[-1])  # 输出: n
+  ```
+
+- **切片**：通过指定起始位置和结束位置获取子字符串。
+
+  ```python
+  text = "Python Programming"
+  print(text[0:6])  # 输出: Python
+  print(text[:6])   # 输出: Python
+  print(text[7:])   # 输出: Programming
+  ```
+
+#### 3. 常用方法
+
+- **查找子串**：使用`find()`或`index()`方法。
+
+  ```python
+  sentence = "Welcome to Python programming."
+  print(sentence.find("Python"))  # 输出: 11
+  print(sentence.index("Python"))  # 输出: 11
+  ```
+
+- **替换子串**：使用`replace()`方法。
+
+  ```python
+  text = "Hello, world!"
+  new_text = text.replace("world", "Python")
+  print(new_text)  # 输出: Hello, Python!
+  ```
+
+- **大小写转换**：使用`upper()`和`lower()`方法。
+
+  ```python
+  text = "Hello, World!"
+  print(text.upper())  # 输出: HELLO, WORLD!
+  print(text.lower())  # 输出: hello, world!
+  ```
+
+- **去除空白字符**：使用`strip()`、`lstrip()`、`rstrip()`方法。
+
+  ```python
+  text = "   Hello, World!   "
+  print(text.strip())  # 输出: Hello, World!
+  print(text.lstrip())  # 输出: Hello, World!   
+  print(text.rstrip())  # 输出:    Hello, World!
+  ```
 
 
-### 数据集合
+
+## 数据集合
 
 | **数据结构**           | **是否可变** | **是否有序**          | **是否允许重复**       | **定义符号**      | **常见操作**                                                 |
 | ---------------------- | ------------ | --------------------- | ---------------------- | ----------------- | ------------------------------------------------------------ |
@@ -667,7 +853,7 @@ from collections import Counter
 print(Counter(words))  # {'hello': 2, 'world': 1}
 ```
 
-
+具体操作参考字符串函数
 
 ### 元组
 
@@ -813,6 +999,7 @@ print(Counter(words))  # {'hello': 2, 'world': 1}
   ```python
   age1 = info_dict.get("age")        # 输出: 20
   hobby = info_dict.get("hobby")     # 输出: None（键不存在时不报错）
+  name = info_dict.get("name",0)     # 输出: 0
   ```
 
 #### **3. 遍历字典**
@@ -1008,6 +1195,8 @@ print(Counter(words))  # {'hello': 2, 'world': 1}
 
 - **空集合创建**：空集合必须用 `set()`，不能用 `{}`（后者是空字典）。
 
+## 算法
+
 ### 简单算法
 
 #### 冒泡排序
@@ -1045,3 +1234,232 @@ print(Counter(words))  # {'hello': 2, 'world': 1}
 
 
 ---
+
+
+
+## 函数
+
+---
+
+### **函数基础**
+
+- **定义**：`def 函数名(参数): 函数体`
+- **调用**：`函数名(参数值)`
+
+**示例**：
+
+```python
+def add(a, b): return a + b
+print(add(3, 5))  # 输出 8
+```
+
+---
+
+### **参数类型**
+
+| 类型       | 说明                                | 示例                             |
+| ---------- | ----------------------------------- | -------------------------------- |
+| 必需参数   | 调用时必须提供                      | `def func(a): ...`               |
+| 默认参数   | 定义时设置默认值                    | `def func(a=10): ...`            |
+| 关键字参数 | 通过参数名传递                      | `func(b=5, a=3)`                 |
+| 不定长参数 | `*args`（元组）、`**kwargs`（字典） | `def func(*args, **kwargs): ...` |
+
+---
+
+### **返回值**
+
+- 使用 `return` 返回结果，可返回多个值（自动打包为元组）。
+  **示例**：
+
+```python
+def calc(a, b):
+    return a + b, a - b  # 返回 (sum, diff)
+```
+
+---
+
+
+
+
+
+### 作用域
+
+#### **层级**
+
+- **L (Local)**：函数内部定义的变量。
+- **E (Enclosing)**：嵌套函数外层函数中的变量。
+- **G (Global)**：文件顶层定义的变量。
+- **B (Built-in)**：Python内置变量（如 `int`, `str`）。
+
+> **查找顺序**：`Local → Enclosing → Global → Built-in`
+
+---
+
+#### **示例分析**
+
+##### **示例1：多级作用域访问**
+
+```python
+num = 10        # 全局作用域
+
+def outer():
+    num = 20    # Enclosing 作用域
+    def inner():
+        num = 30  # Local 作用域
+        print("inner:", num)
+    print("outer:", num)
+    inner()
+
+outer()
+print("global:", num)
+```
+
+**输出**：
+
+```
+outer: 20
+inner: 30
+global: 10
+```
+
+##### **示例2：变量重名（就近原则）**
+
+```python
+num = 10
+def outer():
+    num = 20
+    def inner():
+        num = 30
+        print("inner:", num)
+    print('outer:', num)
+    return inner
+
+f = outer()
+f()
+print('global:', num)
+```
+
+**输出**：
+
+```
+outer: 20
+inner: 30
+global: 10
+```
+
+
+
+#### `global`修改全局变量
+
+- 用于在函数内部修改**全局变量**。
+
+```python
+a = 10
+def test():
+    global a
+    a += 1
+    print("函数内 a =", a)
+
+test()
+print("函数外 a =", a)
+```
+
+**输出**：
+
+```
+函数内 a = 11
+函数外 a = 11
+```
+
+#### `nonlocal` 修改嵌套函数外层变量
+
+- 用于在**嵌套函数**中修改**外层函数变量**（非全局）。
+
+```python
+def outer():
+    name = 'xyz'
+    def inner():
+        nonlocal name
+        name += '123'
+        print("inner:", name)
+    inner()
+    print("outer:", name)
+
+outer()
+```
+
+**输出**：
+
+```
+inner: xyz123
+outer: xyz123
+```
+
+
+
+### **高级用法**
+
+#### **1. 匿名函数（lambda）**
+
+```python
+lambda 参数列表: 表达式
+```
+
+举个例子
+
+```python
+squares = list(map(lambda x: x**2, [1,2,3]))  # [1,4,9]
+```
+
+#### **2. 递归函数**
+
+```python
+def factorial(n):
+    return 1 if n == 1 else n * factorial(n-1)
+```
+
+
+
+### 闭包
+
+#### 概念
+
+- **闭包**：如果两个函数嵌套定义，且**内部函数访问了外部函数中的变量**，则会形成一个闭包。
+  - **本质**：闭包是一个函数，可以“记住”其定义时所处的环境。
+  - **核心作用**：保存状态、实现装饰器、回调函数等。
+
+
+
+#### 食用方法
+
+#### **✅ 基本闭包结构**
+
+```python
+def outer():
+    num = 45
+    def inner():
+        print(num + 5)  # 访问外部函数的变量
+    return inner
+
+f = outer()
+f()  # 输出：50
+```
+
+- `inner` 是闭包函数，捕获了外部函数 `outer` 的变量 `num`。
+- 返回的是函数对象 `inner`，调用时会保留外部变量的状态。
+
+#### **✅ 带参数的闭包**
+
+```python
+def outer(a):
+    def inner(b):
+        print(a, b)  # a 是外部参数，b 是内部参数
+    return inner
+
+f = outer(23)
+f(2)  # 输出：23 2
+```
+
+- 外部函数传参 `a`，内部函数使用该参数。
+- 闭包保留了对外部作用域中变量的引用。
+
