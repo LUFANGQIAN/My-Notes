@@ -1732,6 +1732,9 @@ CSS 写在标签的 style 属性值里
 html {
   font-size: 16px;
 }
+
+
+
 .box {
   width: 10rem; /* 160px */
 }
@@ -2144,7 +2147,7 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 
 ##### 文本修饰线
 
-属性名：text-decoation
+属性名：text-decoration
 属性值：
 
 | 属性值       | 效果   |
@@ -2236,6 +2239,74 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 
 
 
+---
+
+#### 列表属性
+
+| **CSS 属性名**          | **功能**           | **属性值**                                                   |
+| ----------------------- | ------------------ | ------------------------------------------------------------ |
+| **list-style-type**     | 设置列表符号       | - `none`：不显示标识<br>- `square`：实心方块<br>- `disc`：圆形<br>- `decimal`：数字<br>- `lower-roman`：小写罗马字<br>- `upper-roman`：大写罗马字<br>- `lower-alpha`：小写字母<br>- `upper-alpha`：大写字母 |
+| **list-style-position** | 设置列表符号的位置 | - `inside`：在 `li` 内部<br>- `outside`：在 `li` 外部        |
+| **list-style-image**    | 自定义列表符号     | `url(图片地址)`                                              |
+| **list-style**          | 复合属性（简写）   | 同时设置 `list-style-type`、`list-style-position`、`list-style-image`（无顺序要求） |
+
+---
+
+**解释**
+
+1. **`list-style-type`**  
+   - 控制列表项符号类型（如 `disc`、`decimal` 等），`none` 可隐藏符号。
+2. **`list-style-position`**  
+   - `inside`：符号嵌入文本行内；`outside`：符号独立于文本左侧。
+3. **`list-style-image`**  
+   
+   - 通过 URL 替换默认符号为自定义图片（需确保图片路径有效）。
+4. **`list-style`**  
+   
+   - 简写属性，支持同时设置三种属性，顺序无关，如：  
+     ```css
+     list-style: square inside url(icon.png);
+     ```
+
+
+
+#### 表格属性
+
+| **CSS 属性名**      | **功能**                        | **属性值**                                                   |
+| ------------------- | ------------------------------- | ------------------------------------------------------------ |
+| **table-layout**    | 设置列宽度                      | - `auto`：自动，列宽根据内容计算（默认值）。<br>- `fixed`：固定列宽，平均分配。 |
+| **border-spacing**  | 单元格间距                      | - CSS 长度值（如 `10px`）。<br>- **生效前提**：单元格边框不合并。 |
+| **border-collapse** | 合并单元格边框                  | - `collapse`：合并。<br>- `separate`：不合并（默认值）。     |
+| **empty-cells**     | 控制空单元格显示                | - `show`：显示（默认值）。<br>- `hide`：隐藏。<br>- **生效前提**：单元格不合并。 |
+| **caption-side**    | 设置表格标题（`<caption>`）位置 | - `top`：标题在表格上方（默认值）。<br>- `bottom`：标题在表格下方。 |
+
+**关键解释**
+
+- **`table-layout`**  
+  - `auto`：列宽根据内容动态调整。  
+  - `fixed`：列宽固定，所有列宽度平均分配。  
+
+- **`border-spacing`**  
+  - 定义单元格之间的间距（如 `border-spacing: 5px 10px;`）。  
+  - **注意**：仅在 `border-collapse: separate;` 时生效。  
+
+- **`border-collapse`**  
+  - `collapse`：合并相邻单元格边框（如 Excel 表格效果）。  
+  - `separate`：保留独立边框（默认行为）。  
+
+- **`empty-cells`**  
+  - `show`：显示空单元格的边框和背景（默认）。  
+  - `hide`：隐藏空单元格的边框和背景。  
+  - **注意**：仅在 `border-collapse: separate;` 时生效。  
+
+- **`caption-side`**  
+  - `top`：表格标题位于表格上方（默认）。  
+  - `bottom`：表格标题位于表格下方。  
+
+
+
+
+
 #### 背景属性
 
 
@@ -2286,9 +2357,14 @@ div{
 以下是对各个属性值效果的描述：
 
 - no-repeat：只有一张图片，显示在容器的左上角不会扩展
+
 - repeat：复制图片填满容器
+
 - repeat-x：只有横向复制图片
+
 - repeat-y：只有竖向复制图片
+
+  
 
 
 
