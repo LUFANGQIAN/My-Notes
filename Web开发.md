@@ -2027,6 +2027,52 @@ font-family:Microsoft YaHei,Heiti SC,tahoma,arial,Hiragino Sans GB,"\5B8B\4F53",
 
 
 
+##### Web字体
+
+通过 `@font-face` 规则，我们可以指定字体的具体地址，让浏览器自动下载该字体，从而不依赖用户电脑上的字体。
+
+##### 语法（简写方式）
+```css
+@font-face {
+    font-family: "情书字体";
+    src: url('./方正手迹.ttf');
+}
+```
+
+**语法**（高兼容性写法）
+
+为了确保在不同浏览器中的兼容性，可以使用以下更详细的写法：
+```css
+@font-face {
+    font-family: "atguigu";
+    font-display: swap;
+    src: url('webfont.eot'); /* IE9 */
+    src: url('webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('webfont.woff2') format('woff2'), /* chrome、firefox */
+         url('webfont.woff') format('woff'), /* chrome、firefox */
+         url('webfont.ttf') format('truetype'), /* chrome、firefox、opera、Safari、Android */
+         url('webfont.svg#webfont') format('svg'); /* iOS 4.1- */
+}
+```
+
+**定制字体**
+
+由于中文的字体文件通常较大，直接使用完整的字体文件可能不切实际。因此，通常会针对特定的文字进行单独定制。
+
+**工具推荐**
+
+可使用阿里 Web 字体定制工具：[https://www.iconfont.cn/webfont](https://www.iconfont.cn/webfont) 来实现字体的定制和优化。
+
+---
+
+**笔记总结**
+
+- **基本用法**：利用 `@font-face` 规则指定字体文件路径，使浏览器能够自动下载并应用字体。
+- **高兼容性写法**：提供多种格式的字体文件以适应不同浏览器的需求。
+- **定制字体**：针对中文等大字体文件，采用定制化方案，提高加载效率和用户体验。
+
+
+
 ##### 字体风格
 
 属性名：font-style
@@ -2091,7 +2137,7 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 
 
 
-##### 基线对齐
+##### 文本基线对齐
 
 ---
 
@@ -2157,6 +2203,37 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 | dotted       | 虚线   |
 | wavy         | 波浪线 |
 
+```css
+text-decoration: text-decoration-line || text-decoration-style || text-decoration-color;
+```
+
+子属性及其含义
+
+1. **`text-decoration-line`**：设置文本装饰线的位置。
+   - `none`：指定文字无装饰（默认值）。
+   - `underline`：指定文字的装饰是下划线。
+   - `overline`：指定文字的装饰是上划线。
+   - `line-through`：指定文字的装饰是贯穿线。
+
+2. **`text-decoration-style`**：设置文本装饰线条的形状。
+   - `solid`：实线（默认）。
+   - `double`：双线。
+   - `dotted`：点状线条。
+   - `dashed`：虚线。
+   - `wavy`：波浪线。
+
+3. **`text-decoration-color`**：设置文本装饰线条的颜色。
+
+---
+
+笔记总结
+
+- **`text-decoration` 复合属性**：允许同时控制文本的装饰线位置、形状和颜色。
+- **子属性功能**：
+  - `text-decoration-line` 控制装饰线的位置。
+  - `text-decoration-style` 控制装饰线的形状。
+  - `text-decoration-color` 控制装饰线的颜色。
+
 
 
 ##### 文字颜色
@@ -2173,6 +2250,26 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 | 十六进制表示法 | #RRGGBB       | #000000，#ffcc00 简写:#000,#fc0 |
 
 
+
+##### 文本阴影
+
+- **在 CSS3 中，我们可以使用 `text-shadow` 属性给文本添加阴影。**
+- **语法：**
+
+  ```css
+  text-shadow: h-shadow v-shadow blur color;
+  ```
+
+| 值       | 描述                               |
+| -------- | ---------------------------------- |
+| h-shadow | 必需写，水平阴影的位置。允许负值。 |
+| v-shadow | 必需写，垂直阴影的位置。允许负值。 |
+| blur     | 可选，模糊的距离。                 |
+| color    | 可选，阴影的颜色                   |
+
+- **默认值：** `text-shadow: none` 表示没有阴影。
+
+（内容已按原始图片信息完整提取并结构化呈现）
 
 ##### 文本间距
 
@@ -2205,6 +2302,59 @@ text-align本质使控制内容的对齐方式，属性要设置给内容的父�
 
 
 
+
+##### 文本换行
+
+- 在 CSS3 中，我们可以使用 `white-space` 属性设置文本换行方式。
+- 常用值如下：
+
+| 值       | 含义                                                         |
+| -------- | ------------------------------------------------------------ |
+| normal   | 文本超出边界自动换行，文本中的换行被浏览器识别为一个空格。（默认值） |
+| pre      | 原样输出，与 `<pre>` 标签的效果相同。                        |
+| pre-wrap | 在 `pre` 效果的基础上，超出元素边界自动换行。                |
+| pre-line | 在 `pre` 效果的基础上，超出元素边界自动换行，且只识别文本中的换行，空格会忽略。 |
+| nowrap   | 强制不换行                                                   |
+
+**笔记重点**
+
+- `normal`：默认值，文本超出边界自动换行，换行符被视为空格。
+- `pre`：保持原始格式，类似于 `<pre>` 标签。
+- `pre-wrap`：在 `pre` 的基础上，允许文本在边界处自动换行。
+- `pre-line`：在 `pre` 的基础上，自动换行并忽略多余的空格。  
+- `nowrap`：文本不会换行，可能会导致溢出容器。
+
+
+
+##### 文本溢出
+
+属性名：`text-overflow` 
+
+在 CSS3 中，我们可以使用 `text-overflow` 属性来设置文本内容溢出时的呈现模式。
+
+**常用值及其含义**
+
+| 值         | 含义                                                    |
+| ---------- | ------------------------------------------------------- |
+| `clip`     | 当内联内容溢出时，将溢出部分裁切掉。（默认值）          |
+| `ellipsis` | 当内联内容溢出块容器时，将溢出部分替换为省略号（...）。 |
+
+**注意事项**
+
+要使得 `text-overflow` 属性生效，需要满足以下条件：
+- 块容器必须显式定义 `overflow` 属性为非 `visible` 值。
+- `white-space` 属性应设置为 `nowrap`。
+
+---
+
+**笔记总结**
+
+1. **`text-overflow` 属性**：用于控制文本溢出时的显示方式。
+2. **常用值**：
+   - `clip`：裁剪溢出的内容。
+   - `ellipsis`：用省略号表示溢出的内容。
+3. **生效条件**：
+   - 需要配合 `overflow` 和 `white-space` 属性使用。
 
 
 
@@ -2339,6 +2489,25 @@ div{
 
 
 
+##### 多背景图
+
+- **CSS3 允许元素设置多个背景图片**
+
+```css
+/* 添加多个背景图 */
+background: 
+    url(../images/bg-lt.png) no-repeat,
+    url(../images/bg-rt.png) no-repeat right top,
+    url(../images/bg-lb.png) no-repeat left bottom,
+    url(../images/bg-rb.png) no-repeat right bottom;
+```
+
+![image-20250908093652973](./img/image-20250908093652973.png)
+
+> 图片由上下左右四张不同方向的飘花组成，通过复合属性background与逗号隔开并定位实现的效果
+
+
+
 ##### 背景图平铺方式
 
 属性名：background-repeat (bgr)
@@ -2429,6 +2598,33 @@ div{
 
 
 
+
+
+##### 背景图渲染起点
+
+- **属性名：**background-origin
+- **作用：** 设置背景图的原点。
+- **语法：**
+  1. `padding-box`：从 padding 区域开始显示背景图像。-- 默认值
+  2. `border-box`：从 border 区域开始显示背景图像。
+  3. `content-box`：从 content 区域开始显示背景图像。
+
+
+
+##### 背景图裁切模式
+
+- **属性名：**background-clip
+- **作用：** 设置背景图的向外裁剪的区域。
+- **语法：**
+  1. `border-box`：从 border 区域开始向外裁剪背景。-- 默认值
+  2. `padding-box`：从 padding 区域开始向外裁剪背景。
+  3. `content-box`：从 content 区域开始向外裁剪背景。
+  4. `text`：背景图只呈现在文字上。
+
+- **注意：** 若值为 `text`，那么 `background-clip` 要加上 `-webkit-` 前缀。
+
+
+
 ##### 背景复合属性
 
 属性名：background (bg)
@@ -2452,10 +2648,6 @@ div()
 
 
 #### 布局属性
-
-
-
-
 
 ------
 
@@ -3019,6 +3211,8 @@ Example：CSS鼠标向右下箭头效果 <a href="#" style="cursor:se-resize">CS
 
 ##### 线性渐变
 
+**`linear-gradient`**
+
 - **基本语法**：
   
   ```css
@@ -3113,6 +3307,8 @@ Example：CSS鼠标向右下箭头效果 <a href="#" style="cursor:se-resize">CS
 
 径向渐变由它的中心定义。
 
+**`radial-gradient`**
+
 为了创建一个径向渐变，你也必须至少定义两种颜色结点。颜色结点即你想要呈现平稳过渡的颜色。同时，你也可以指定渐变的中心、形状（圆形或椭圆形）、大小。默认情况下，渐变的中心是 center（表示在中心点），渐变的形状是 ellipse（表示椭圆形），渐变的大小是 farthest-corner（表示到最远的角落）。
 
 **语法:**
@@ -3169,7 +3365,7 @@ shape 参数定义了形状。它可以是值 circle 或 ellipse。其中，circ
 
 size 参数定义了渐变的大小。它可以是以下四个值：
 
-closest-side:圆心到距离最近的边
+​	closest-side:圆心到距离最近的边
 
 ​    farthest-side:圆心到距离最远的边
 
@@ -4286,7 +4482,35 @@ div{
 
 
 
-![image-20250306093938067](./img/image-20250306093938067.png)
+#### 调整盒子大小
+
+##### `resize` 调整盒子大小
+
+**功能介绍**
+
+使用 `resize` 属性可以控制是否允许用户调整元素的尺寸。
+
+**常用值及其含义**
+
+| 值           | 含义                               |
+| ------------ | ---------------------------------- |
+| `none`       | 不允许用户调整元素大小。（默认值） |
+| `both`       | 用户可以调节元素的宽度和高度。     |
+| `horizontal` | 用户可以调节元素的宽度。           |
+| `vertical`   | 用户可以调节元素的高度。           |
+
+---
+
+**笔记总结**
+
+- **`resize` 属性**：用于控制用户是否能够调整元素的尺寸。
+- **常用值**：
+  - `none`：禁止调整，为默认设置。
+  - `both`：允许同时调整宽度和高度。
+  - `horizontal`：仅允许调整宽度。
+  - `vertical`：仅允许调整高度。
+
+
 
 #### 清除默认样式
 
@@ -4406,9 +4630,37 @@ div{
 
 > 其实吧，他是个复合属性，义眼顶针了，对吧
 
+```css
+/* 写六个值，含义：水平位置 垂直位置 模糊程度 外延值 阴影颜色 内阴影 */
+box-shadow: 10px 10px 20px 10px blue inset;
+```
 
 
 
+
+
+
+
+##### **边框外轮廓（了解）**
+
+- **outline-width**: 外轮廓的宽度。
+- **outline-color**: 外轮廓的颜色。
+- **outline-style**: 外轮廓的风格。
+  - `none`: 无轮廓
+  - `dotted`: 点状轮廓
+  - `dashed`: 虚线轮廓
+  - `solid`: 实线轮廓
+  - `double`: 双线轮廓
+
+- **outline-offset**: 设置外轮廓与边框的距离，正负值都可以设置。
+
+  注意：`outline-offset` 不是 `outline` 的子属性，是一个独立的属性。
+
+- **outline 复合属性**
+  
+  ```css
+  outline: 50px solid blue;
+  ```
 
 
 
@@ -5064,7 +5316,7 @@ order属性定义项目的排列顺序。数值越小，排列越靠前，默认
 
 .item {  order: integer;}
 
-![image-20250312170631653](./img/image-20250312170631653.png)
+![](./img/image-20250312170631653.png)
 
 
 
@@ -5113,6 +5365,8 @@ flex属性是flex-grow, flex-shrink 和 flex-basis的简写，默认值为0 1 au
 该属性有两个快捷值：auto (1 1 auto) 和 none (0 0 auto)。
 
 建议优先使用这个属性，而不是单独写三个分离的属性，因为浏览器会推算相关值。
+
+:hamburger:
 
 
 
@@ -5710,6 +5964,9 @@ element {
 - **`scale()`**：缩放元素
 - **`skew()`**：倾斜元素
 - **`matrix()`**：使用矩阵定义变换（高级用法）
+- **`origin`**：调整变换原点（设置锚点以它作为中心轴）
+
+
 
 
 
@@ -6339,6 +6596,33 @@ element {
 }
 ```
 
+
+
+##### 变换原点
+
+**关键点**
+
+- **默认变换原点**：元素进行变换时，默认的原点是元素的中心。可以通过 `transform-origin` 属性来设置变换的原点。
+- **变换原点对位移的影响**：修改变换原点对位移没有影响，但对旋转和缩放会产生影响。
+- **坐标值的指定**：
+  - 如果提供两个值，第一个用于横坐标（X轴），第二个用于纵坐标（Y轴）。
+  - 如果只提供一个值：
+    - 若是像素值，表示横坐标，纵坐标默认取50%。
+    - 若是关键词，则另一个坐标也默认取50%。
+
+**示例**
+
+1. `transform-origin: 50% 50%;` 
+   - 设置变换原点在元素的中心位置，百分比相对于元素自身计算。这是默认值。
+2. `transform-origin: left top;`
+   - 设置变换原点在元素的左上角。
+3. `transform-origin: 50px 50px;`
+   - 设置变换原点距离元素左上角50px 50px的位置。
+4. `transform-origin: 0;`
+   - 只写一个值的时候，第二个值默认为50%，即横坐标为0，纵坐标为50%。
+
+
+
 #### 三维变换函数
 
 除了二维变换，`transform` 还支持三维变换。要启用三维变换，你需要设置 `transform-style: preserve-3d;` 并使用适当的三维变换函数。
@@ -6475,6 +6759,36 @@ element {
 ### 常用解决方案
 
 就是常用效果的解决方案，例如居中等
+
+
+
+#### 常用布局命名
+
+1. **顶部导航条**  
+   - 英文术语：`topbar`
+
+2. **页头**  
+   - 英文术语：`header`、`page-header`
+
+3. **导航**  
+   - 英文术语：`nav`、`navigator`、`navbar`
+
+4. **搜索框**  
+   - 英文术语：`search`、`search-box`
+
+5. **横幅、广告、宣传图**  
+   - 英文术语：`banner`
+
+6. **主要内容**  
+   - 英文术语：`content`、`main`
+
+7. **侧边栏**  
+   - 英文术语：`aside`、`sidebar`
+
+8. **页脚**  
+   - 英文术语：`footer`、`page-footer`
+
+
 
 
 
@@ -12099,4 +12413,6 @@ A：动态伪类选择器LVHA与focus，通常用在超链接上，link访问前
 
 ### 盒子模型
 
-Q：
+Q：什么场景下用相对定位，绝对定位，固定定位，粘性定位？
+
+A：
