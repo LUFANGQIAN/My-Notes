@@ -1,5 +1,3 @@
-
-
 # Web开发
 
 开始了？
@@ -168,6 +166,7 @@ cs架构需要安装与更新 跨平台较差需要根据平台提供对应的�
 
 ##### **1.2 优先使用 WebKit 内核（针对双核浏览器）**
 - **代码**：
+  
   ```html
   <meta name="renderer" content="webkit">
   ```
@@ -2798,103 +2797,41 @@ div()
 
 
 
-##### 过渡动画属性
+##### 元素模糊
 
-属性名：transition (trs)
+**`filter`** 属性将模糊或颜色偏移等图形效果应用于元素。滤镜通常用于调整图像、背景和边框的渲染。
 
-属性值（简写语法）：
+有几个[函数](https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter#函数)（例如 `blur()` 和 `contrast()`）可以帮助你实现预定义的效果。
+
 ```css
-transition: <property> <duration> <timing-function> <delay>;
-/*常用就是这样的*/
-transition: all 1s;
-```
+/* <filter-function> 值 */
+filter: blur(5px);
+filter: brightness(0.4);
+filter: contrast(200%);
+filter: drop-shadow(16px 16px 20px blue);
+filter: grayscale(50%);
+filter: hue-rotate(90deg);
+filter: invert(75%);
+filter: opacity(25%);
+filter: saturate(30%);
+filter: sepia(60%);
 
-> 本属性写于标签本身的css，不要写在类似于hover的css中
+/* URL */
+filter: url("filters.svg#filter-id");
 
-###### 详细属性分解表
+/* 多个滤镜 */
+filter: contrast(175%) brightness(3%);
+filter: drop-shadow(3px 3px red) sepia(100%) drop-shadow(-3px -3px blue);
 
-| 子属性                     | 属性值示例                          | 默认值 | 作用描述                                           |
-| -------------------------- | ----------------------------------- | ------ | -------------------------------------------------- |
-| transition-property        | all, width, opacity                 | all    | 指定应用过渡的CSS属性（多个属性用逗号分隔）        |
-| transition-duration        | 0.3s, 500ms                         | 0s     | 定义动画持续时间（必须指定至少该属性才会触发动画） |
-| transition-timing-function | ease, cubic-bezier(.17,.67,.83,.67) | ease   | 控制动画速度曲线                                   |
-| transition-delay           | 0.2s, 100ms                         | 0s     | 设置动画开始前的延迟时间                           |
+/* 不使用滤镜 */
+filter: none;
 
-###### 缓动函数详解表
-| 函数值                | 运动曲线特征         | 典型应用场景         |
-| --------------------- | -------------------- | -------------------- |
-| ease                  | 先加速后减速（默认） | 通用动画效果         |
-| linear                | 匀速运动             | 进度条、机械运动     |
-| ease-in               | 逐渐加速             | 物体下落效果         |
-| ease-out              | 逐渐减速             | 弹窗关闭效果         |
-| ease-in-out           | 对称加减速           | 页面切换过渡         |
-| cubic-bezier(n,n,n,n) | 自定义贝塞尔曲线     | 需要特殊节奏的动画   |
-| steps(n)              | 分步跳跃变化         | 帧动画、数字切换效果 |
-
-###### 注意事项
-1. **生效前提**：
-   - 元素必须具有有效可过渡属性（如尺寸/位置/颜色等）
-   - 需要明确的属性值变化触发（如:hover状态切换）
-
-2. **性能优化**：
-   ```css
-   /* 优先使用以下高性能属性 */
-   transform: translate/scale/rotate;
-   opacity: 0-1;
-   filter: 简单效果;
-   ```
-
-3. **多属性控制**：
-   ```css
-   /* 同时控制多个属性的过渡 */
-   .box {
-     transition: 
-       transform 0.3s ease-out,
-       opacity 0.2s linear 50ms;
-   }
-   ```
-
-4. **隐式动画关闭**：
-   ```css
-   /* 强制禁用所有过渡 */
-   .no-transition {
-     transition: none !important;
-   }
-   ```
-
-###### 最佳实践示例
-```css
-/* 基础悬停效果 */
-.button {
-  transition: all 0.3s ease;
-  background: #3498db;
-}
-.button:hover {
-  background: #2980b9;
-  transform: translateY(-2px);
-}
-
-/* 级联动画控制 */
-.card {
-  transition: 
-    opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    transform 0.4s 0.1s ease-out;
-}
-.card.hidden {
-  opacity: 0;
-  transform: scale(0.9);
-}
-```
-
-###### 总结图示
-```
-[动画时间轴]
-│         ↗↘
-│       ↗    ↘       ease-in-out曲线示例
-│     ↗        ↘
-│   ↗            ↘
-├───┐              ┌───►
-0  delay         duration
+/* 全局值 */
+filter: inherit;
+filter: initial;
+filter: revert;
+filter: revert-layer;
+filter: unset;
 ```
 
 
@@ -4785,6 +4722,199 @@ span{
 
 
 
+### 媒体查询
+
+属性名：**@media{}**
+
+| 值     | 含义                                             |
+| ------ | ------------------------------------------------ |
+| all    | 检测所有设备                                     |
+| screen | 检测电子屏幕，包括：电脑屏幕、平板屏幕、手机屏幕 |
+| print  | 检测打印机                                       |
+
+```css
+/*这句话的意思是检测屏幕为小于768px的情况*/
+/*注意：使用关键字必须加括号，不能用> < = 等符号*/
+@media screen and (max-width: 768px)
+```
+
+
+
+
+
+---
+
+#### **媒体特性表**
+| **特性值**         | **检测目标**     | **说明**                                                     |
+| ------------------ | ---------------- | ------------------------------------------------------------ |
+| `width`            | 视口宽度         | 用于响应式设计，动态调整布局。                               |
+| `max-width`        | 视口最大宽度     | 当视口宽度小于等于设定值时触发样式。                         |
+| `min-width`        | 视口最小宽度     | 当视口宽度大于等于设定值时触发样式。                         |
+| `height`           | 视口高度         | 根据视口高度调整内容显示（如高度敏感布局）。                 |
+| `max-height`       | 视口最大高度     | 当视口高度小于等于设定值时触发样式。                         |
+| `min-height`       | 视口最小高度     | 当视口高度大于等于设定值时触发样式。                         |
+| `device-width`     | 设备屏幕宽度     | 检测设备实际物理屏幕宽度（常用于适配特定设备）。             |
+| `max-device-width` | 设备屏幕最大宽度 | 当设备宽度小于等于设定值时触发样式。                         |
+| `min-device-width` | 设备屏幕最小宽度 | 当设备宽度大于等于设定值时触发样式。                         |
+| `orientation`      | 屏幕方向         | 区分设备横屏或竖屏模式，支持 `portrait`（纵向）和 `landscape`（横向）。 |
+
+---
+
+**`orientation` 特性详解**
+
+- **`portrait`（纵向）**：  
+  视口高度 ≥ 宽度（如手机竖屏）。  
+- **`landscape`（横向）**：  
+  视口宽度 > 高度（如手机横屏或桌面浏览器）。
+
+---
+
+**应用场景**
+
+| **特性**                           | **典型用途**                                           |
+| ---------------------------------- | ------------------------------------------------------ |
+| `width / max-width / min-width`    | 响应式布局（如移动端适配、断点设计）。                 |
+| `height / max-height / min-height` | 高度敏感内容（如全屏轮播图、固定高度卡片）。           |
+| `device-width` 系列                | 针对设备尺寸优化样式（如平板、手机特定适配）。         |
+| `orientation`                      | 横竖屏切换时调整布局（如横屏显示双栏，竖屏显示单栏）。 |
+
+---
+
+**总结建议**
+
+- **核心作用**：通过检测视口/设备尺寸及方向，实现网页的自适应布局。  
+- **实践技巧**：  
+  - 结合 `@media` 查询和 CSS 变量（`var()`）动态管理样式。  
+  - 使用 `max-width` 和 `min-width` 设置断点（如 `768px`、`1024px`）。  
+  - 注意 `width` 与 `device-width` 的区别（前者是视口，后者是物理屏幕）。  
+
+---
+
+**参考资料**：[MDN Web Docs - @media](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@media)（可补充详细规则和兼容性说明）。
+
+
+
+#### 运算符
+
+| **值**      | **含义** |
+| ----------- | -------- |
+| `and`       | 并且     |
+| `,` 或 `or` | 或       |
+| `not`       | 否定     |
+| `only`      | 肯定     |
+
+- **`and`**：用于组合多个条件，所有条件都必须为真时才生效。
+- **`,` 或 `or`**：用于组合多个条件，只要有一个条件为真即可生效。
+- **`not`**：用于否定一个条件，当指定条件不满足时生效。
+- **`only`**：确保样式仅在特定条件下应用，常用于避免样式被更广泛的媒体查询覆盖。
+
+这些运算符通常与媒体查询（`@media`）结合使用，以实现复杂的响应式设计和设备适配。
+
+
+
+#### 常用阈值
+
+在实际开发中，通常会将屏幕划分成几个区间，例如：
+
+- **超小屏幕**：宽度小于等于 `768px`
+- **中等屏幕**：宽度大于 `768px` 且小于等于 `992px`
+- **大屏幕**：宽度大于 `992px` 且小于等于 `1200px`
+- **超大屏幕**：宽度大于 `1200px`
+
+我们通常用三种方法引入：
+
+##### link-media引入
+通过 `<link>` 标签结合具体的媒体查询来引入外部样式表。示例代码如下：
+
+```html
+<link rel="stylesheet" media="具体的媒体查询" href="mystylesheet.css">
+```
+
+##### 单个CSS文件
+使用 `@media` 规则在 CSS 文件中直接编写媒体查询。示例代码如下：
+
+```css
+/* 超小屏幕 */
+@media screen and (max-width: 768px) {
+    /* CSS Code */
+}
+
+/* 中等屏幕 */
+@media screen and (min-width: 768px) and (max-width: 992px) {
+    /* CSS Code */
+}
+
+/* 大屏幕 */
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+    /* CSS Code */
+}
+
+/* 超大屏幕 */
+@media screen and (min-width: 1200px) {
+    /* CSS Code */
+}
+```
+
+##### **多个CSS文件**
+
+使用多个css文件分别规定不同的media阈值尺寸，分别link进HTML文件中
+
+
+
+**总结**
+
+- **常用阈值**：根据屏幕宽度的不同，将设备划分为超小屏幕、中等屏幕、大屏幕和超大屏幕。
+- **结合外部样式的方法**：
+  - 使用 `<link>` 标签结合媒体查询引入外部样式表。
+  - 在 CSS 文件中直接使用 `@media` 规则编写媒体查询，实现响应式设计。
+
+
+
+
+
+
+
+### 多列布局
+
+定义：实现类似于报纸样式的多列效果
+
+> 给图片设置100%宽度可以正常在每列中显示
+
+##### 列数与列宽控制
+
+- **column-count**: 指定元素内容应被分隔成的列数，其值为一个正整数。例如，`column-count: 3;` 表示将内容分为三列。
+- **column-width**: 设置每列的理想宽度，实际宽度可能会根据可用空间和`column-count`的值进行调整。值为长度单位，如`column-width: 150px;`。
+
+##### 复合属性：columns
+
+- **columns**: 这是一个复合属性，可以同时设置`column-width`和`column-count`。它允许更简洁地定义列布局，例如`columns: 150px 3;`表示列宽为150px，列数为3。如果只提供一个值，则被视为`column-width`，列数会自动计算。
+
+##### 列间距
+
+- **column-gap**: 定义列之间的空白距离，即边距。值为长度单位，如`column-gap: 20px;`。
+
+##### 列间边框样式
+
+- **column-rule-style**: 设置列与列之间边框的样式，其可选值与`border-style`相同，如`solid`, `dashed`, `dotted`等。
+- **column-rule-width**: 设置列间边框的宽度，值为长度单位。
+- **column-rule-color**: 设置列间边框的颜色，值为颜色值，如`#ff0000`或`red`。
+
+##### 复合属性：column-rule
+
+- **column-rule**: 这是一个复合属性，用于一次性设置`column-rule-width`, `column-rule-style`, 和`column-rule-color`。例如，`column-rule: 2px solid red;`。
+
+##### 跨列设置
+
+- **column-span**: 控制元素是否跨越多列显示。接受两个值：
+  - `none`: 元素不跨列，这是默认值。
+  - `all`: 元素跨越所有列，常用于标题等需要突出显示的内容。
+
+
+
+
+
+
+
 ### Flex布局
 
 Flex布局也叫弹性布局，是浏览器提倡的布局模型，非常适合结构啊布局，提供了强大的空间分布和对齐能力。
@@ -4876,6 +5006,7 @@ Flex模型不会产生浮动布局中的脱标现象，布局网页更简单、�
 | center     | 弹性盒子沿侧轴居中排列                                       |
 | flex-start | 弹性盒子从起点开始依次排列                                   |
 | flex-end   | 弹性盒子从终点开始依次排列                                   |
+| baseline   | 基线对齐，内部文字基线对齐                                   |
 
 
 
@@ -4918,8 +5049,9 @@ Flex模型不会产生浮动布局中的脱标现象，布局网页更简单、�
 
 属性值：
 
-- wrap：换行
+- wrap：换行（从上向下换行）
 - nowrap：不换行（默认）
+- warp-reverse：向上换行（从下向上换行）
 
 
 
@@ -4970,6 +5102,7 @@ Flex模型不会产生浮动布局中的脱标现象，布局网页更简单、�
 **作用**  
 
 `flex-shrink` 定义了弹性项目在容器空间 **不足** 时的 **收缩比例**。  
+
 - **默认值**：`1`（允许收缩）。  
 - **取值**：非负数字（如 `0`、`1`、`2` 等）。  
 
@@ -4979,6 +5112,8 @@ Flex模型不会产生浮动布局中的脱标现象，布局网页更简单、�
 - **收缩规则**：  
   - 如果所有项目的 `flex-shrink` 相同，则按 `flex-basis` 的比例收缩。  
   - 如果不同，则按 `flex-shrink * flex-basis` 的比例分配收缩量。  
+
+**用人话说：三个盒子分别为200/300/200，收缩时按照 *七分之二* *七分之三* *七分之二* 这样按比例收缩**
 
 **示例**  
 
@@ -5024,6 +5159,104 @@ Flex模型不会产生浮动布局中的脱标现象，布局网页更简单、�
 | `flex-grow`   | 扩展比例 | `0`    | 空间充足时拉伸项目 |
 | `flex-shrink` | 收缩比例 | `1`    | 空间不足时缩小项目 |
 | `flex-basis`  | 初始大小 | `auto` | 定义项目的基础尺寸 |
+
+
+
+#### 项目样式属性
+
+以下6个属性设置在项目上。
+
+order
+
+flex-grow
+
+flex-shrink
+
+flex-basis
+
+Flex
+
+align-self
+
+##### order属性
+
+order属性定义项目的排列顺序。数值越小，排列越靠前，默认为0。
+
+.item {  order: integer;}
+
+![](./img/image-20250312170631653.png)
+
+
+
+##### flex-grow属性
+
+flex-grow属性定义项目的放大比例，默认为0，即如果存在剩余空间，也不放大。
+
+.item {  flex-grow: number; /* default 0 */}
+
+![image-20250312170700339](./img/image-20250312170700339.png)
+
+如果所有项目的flex-grow属性都为1，则它们将等分剩余空间（如果有的话）。如果一个项目的flex-grow属性为2，其他项目都为1，则前者占据的剩余空间将比其他项多一倍。
+
+
+
+##### flex-shrink属性
+
+flex-shrink属性定义了项目的缩小比例，默认为1，即如果空间不足，该项目将缩小。
+
+.item {  flex-shrink: number; /* default 1 */}
+
+![image-20250312170728419](./img/image-20250312170728419.png)
+
+如果所有项目的flex-shrink属性都为1，当空间不足时，都将等比例缩小。如果一个项目的flex-shrink属性为0，其他项目都为1，则空间不足时，前者不缩小。
+
+负值对该属性无效。
+
+
+
+##### flex-basis属性
+
+flex-basis属性定义了在分配多余空间之前，项目占据的主轴空间（main size）。
+
+其名为主轴基准长度，将通过主轴方向来覆盖高或宽的值
+
+浏览器根据这个属性，计算主轴是否有多余空间。它的默认值为auto，即项目的本来大小。
+
+.item {  flex-basis: length | auto; /* default auto */}
+
+它可以设为跟width或height属性一样的值（比如350px），则项目将占据固定空间。
+
+
+
+##### flex属性
+
+flex属性是flex-grow, flex-shrink 和 flex-basis的简写，默认值为0 1 auto。后两个属性可选。
+
+
+
+```css
+.item {  			是否可拉伸			是否可压缩  			zhuz
+    flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
+}
+```
+
+该属性有两个快捷值：auto (1 1 auto) 和 none (0 0 auto)。
+
+建议优先使用这个属性，而不是单独写三个分离的属性，因为浏览器会推算相关值。
+
+:hamburger:
+
+
+
+##### align-self属性
+
+align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。
+
+.item {  align-self: auto | flex-start | flex-end | center | baseline | stretch;}
+
+![image-20250312170759502](./img/image-20250312170759502.png)
+
+该属性可能取6个值，除了auto，其他都与align-items属性完全一致。  
 
 
 
@@ -5294,91 +5527,7 @@ Grid布局是CSS中最强大的布局工具，适合处理复杂的二维布局�
 
 
 
-### 项目样式属性
 
-以下6个属性设置在项目上。
-
-order
-
-flex-grow
-
-flex-shrink
-
-flex-basis
-
-Flex
-
-align-self
-
-#### order属性
-
-order属性定义项目的排列顺序。数值越小，排列越靠前，默认为0。
-
-.item {  order: integer;}
-
-![](./img/image-20250312170631653.png)
-
-
-
-#### flex-grow属性
-
-flex-grow属性定义项目的放大比例，默认为0，即如果存在剩余空间，也不放大。
-
-.item {  flex-grow: number; /* default 0 */}
-
-![image-20250312170700339](./img/image-20250312170700339.png)
-
-如果所有项目的flex-grow属性都为1，则它们将等分剩余空间（如果有的话）。如果一个项目的flex-grow属性为2，其他项目都为1，则前者占据的剩余空间将比其他项多一倍。
-
-
-
-#### flex-shrink属性
-
-flex-shrink属性定义了项目的缩小比例，默认为1，即如果空间不足，该项目将缩小。
-
-.item {  flex-shrink: number; /* default 1 */}
-
-![image-20250312170728419](./img/image-20250312170728419.png)
-
-如果所有项目的flex-shrink属性都为1，当空间不足时，都将等比例缩小。如果一个项目的flex-shrink属性为0，其他项目都为1，则空间不足时，前者不缩小。
-
-负值对该属性无效。
-
-
-
-#### flex-basis属性
-
-flex-basis属性定义了在分配多余空间之前，项目占据的主轴空间（main size）。浏览器根据这个属性，计算主轴是否有多余空间。它的默认值为auto，即项目的本来大小。
-
-.item {  flex-basis: length | auto; /* default auto */}
-
-它可以设为跟width或height属性一样的值（比如350px），则项目将占据固定空间。
-
-
-
-#### flex属性
-
-flex属性是flex-grow, flex-shrink 和 flex-basis的简写，默认值为0 1 auto。后两个属性可选。
-
-.item {  flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]}
-
-该属性有两个快捷值：auto (1 1 auto) 和 none (0 0 auto)。
-
-建议优先使用这个属性，而不是单独写三个分离的属性，因为浏览器会推算相关值。
-
-:hamburger:
-
-
-
-#### align-self属性
-
-align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。
-
-.item {  align-self: auto | flex-start | flex-end | center | baseline | stretch;}
-
-![image-20250312170759502](./img/image-20250312170759502.png)
-
-该属性可能取6个值，除了auto，其他都与align-items属性完全一致。  
 
 
 
@@ -6461,11 +6610,204 @@ div {
 
    
 
+#### 过渡动画
+
+属性名：transition (trs)
+
+属性值（简写语法）：
+
+```css
+transition: <property> <duration> <timing-function> <delay>;
+/*常用就是这样的*/
+transition: all 1s;
+```
+
+> 本属性写于标签本身的css，不要写在类似于hover的css中
+
+###### 详细属性分解表
+
+| 子属性                     | 属性值示例                          | 默认值 | 作用描述                                           |
+| -------------------------- | ----------------------------------- | ------ | -------------------------------------------------- |
+| transition-property        | all, width, opacity                 | all    | 指定应用过渡的CSS属性（多个属性用逗号分隔）        |
+| transition-duration        | 0.3s, 500ms                         | 0s     | 定义动画持续时间（必须指定至少该属性才会触发动画） |
+| transition-timing-function | ease, cubic-bezier(.17,.67,.83,.67) | ease   | 控制动画速度曲线                                   |
+| transition-delay           | 0.2s, 100ms                         | 0s     | 设置动画开始前的延迟时间                           |
+
+###### 缓动函数详解表
+
+| 函数值                    | 运动曲线特征         | 典型应用场景         |
+| ------------------------- | -------------------- | -------------------- |
+| ease                      | 先加速后减速（默认） | 通用动画效果         |
+| linear                    | 匀速运动             | 进度条、机械运动     |
+| ease-in                   | 逐渐加速             | 物体下落效果         |
+| ease-out                  | 逐渐减速             | 弹窗关闭效果         |
+| ease-in-out               | 对称加减速           | 页面切换过渡         |
+| **cubic-bezier(n,n,n,n)** | **自定义贝塞尔曲线** | 需要特殊节奏的动画   |
+| steps(n)                  | 分步跳跃变化         | 帧动画、数字切换效果 |
+
+###### 注意事项
+
+1. **生效前提**：
+
+   - 元素必须具有有效可过渡属性（如尺寸/位置/颜色等）
+   - 需要明确的属性值变化触发（如:hover状态切换）
+
+2. **性能优化**：
+
+   ```css
+   /* 优先使用以下高性能属性 */
+   transform: translate/scale/rotate;
+   opacity: 0-1;
+   filter: 简单效果;
+   ```
+
+3. **多属性控制**：
+
+   ```css
+   /* 同时控制多个属性的过渡 */
+   .box {
+     transition: 
+       transform 0.3s ease-out,
+       opacity 0.2s linear 50ms;
+   }
+   ```
+
+4. **隐式动画关闭**：
+
+   ```css
+   /* 强制禁用所有过渡 */
+   .no-transition {
+     transition: none !important;
+   }
+   ```
+
+###### 最佳实践示例
+
+```css
+/* 基础悬停效果 */
+.button {
+  transition: all 0.3s ease;
+  background: #3498db;
+}
+.button:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* 级联动画控制 */
+.card {
+  transition: 
+    opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.4s 0.1s ease-out;
+}
+.card.hidden {
+  opacity: 0;
+  transform: scale(0.9);
+}
+```
+
+###### 总结图示
+
+```
+[动画时间轴]
+│         ↗↘
+│       ↗    ↘       ease-in-out曲线示例
+│     ↗        ↘
+│   ↗            ↘
+├───┐              ┌───►
+0  delay         duration
+```
+
 
 
 
 
 ### 函数
+
+
+
+---
+
+#### 变量var()
+
+- **作用**：`var(--name)` 用于引用 CSS 自定义变量（Custom Properties），实现样式值的复用和动态管理。
+- **定义变量**：
+  ```css
+  :root {
+    --main-color: #3498db;  /* 全局变量，作用域为整个文档 */
+    --padding: 10px;
+  }
+  ```
+- **使用变量**：
+  ```css
+  .button {
+    background-color: var(--main-color);  /* 引用变量 */
+    padding: var(--padding);
+  }
+  ```
+- **备用值**（可选）：
+  ```css
+  color: var(--text-color, black);  /* 如果 --text-color 未定义，使用 black */
+  ```
+- **作用域**：
+  - **全局变量**：在 `:root` 中定义，可在整个文档中使用。
+  - **局部变量**：在某个选择器内定义，仅在该选择器及其子元素中有效。
+
+
+
+------
+
+
+
+####  动态计算calc()
+
+- **作用**：`calc(expression)` 允许在 CSS 中执行数学运算（加减乘除），支持混合单位（如 `%`、`px`、`rem` 等）。
+- **语法**：
+  ```css
+  width: calc(100% - 50px);  /* 计算宽度 */
+  margin: calc(var(--padding) * 2);  /* 结合变量使用 */
+  ```
+- **运算符规则**：
+  - `+` 和 `-` 两侧必须有空格（如 `100% - 50px`）。
+  - `*` 和 `/` 不强制要求空格（如 `2 * var(--gap)`）。
+- **典型场景**：
+  - 响应式布局：`width: calc(100vw - 200px);`（视口宽度减去固定值）。
+  - 动态间距：`padding: calc(var(--base-gap) + 10px);`。
+  - 等分布局：`grid-template-columns: repeat(auto-fit, minmax(calc(25% - 10px), 1fr));`。
+
+---
+
+**结合 `:root` 的最佳实践**
+
+- **全局样式管理**：在 `:root` 中定义常用变量（如颜色、间距、字体等），方便统一修改和维护。
+  ```css
+  :root {
+    --primary-color: #e74c3c;
+    --secondary-color: #3498db;
+    --font-size-base: 16px;
+  }
+  ```
+- **动态计算示例**：
+  ```css
+  .container {
+    width: calc(100% - 2 * var(--padding));  /* 结合变量和 calc */
+  }
+  ```
+
+---
+
+**4. 使用场景对比**
+
+| **功能**     | **`var()`**                     | **`calc()`**                 |
+| ------------ | ------------------------------- | ---------------------------- |
+| **目的**     | 复用和管理样式值                | 动态计算数值（如尺寸、间距） |
+| **典型用途** | 颜色、字体、间距等变量          | 响应式布局、动态尺寸调整     |
+| **语法示例** | `color: var(--main-color);`     | `width: calc(100% - 20px);`  |
+| **混合使用** | `var(--gap) * 2` 在 `calc()` 中 | `calc(var(--base) + 10px)`   |
+
+---
+
+
 
 
 
@@ -6625,7 +6967,42 @@ element {
 
 #### 三维变换函数
 
-除了二维变换，`transform` 还支持三维变换。要启用三维变换，你需要设置 `transform-style: preserve-3d;` 并使用适当的三维变换函数。
+除了二维变换，`transform` 还支持三维变换。要启用三维变换，你需要
+
+1. 为父级设置 `transform-style: preserve-3d;` 
+2. 为父级添加景深`perspective: xxxpx`
+3. 为子元素设置**transform**并使用特定函数
+
+
+
+
+
+##### 透视点位置（摄像机位置）
+
+**定义**：
+
+- 所谓透视点位置，就是观察者位置，默认的透视点在元素的中心。
+
+**设置方法**：
+
+- 使用 `perspective-origin` 设置观察者位置（透视点的位置）。例如：
+
+```css
+/* 相对坐标轴往右偏移400px，往下偏移300px（相当于人蹲下300像素，然后向右移动400像素看元素）*/
+perspective-origin: 400px 300px;
+```
+
+**注意事项**：
+
+- 通常情况下，我们不需要调整透视点位置
+
+
+
+##### 背部可见
+
+backface-visibility: hidden背部不可见，类似于背面透明，默认背面可见
+
+
 
 ##### 三维移动`translate3d()`
 
@@ -12414,5 +12791,13 @@ A：动态伪类选择器LVHA与focus，通常用在超链接上，link访问前
 ### 盒子模型
 
 Q：什么场景下用相对定位，绝对定位，固定定位，粘性定位？
+
+A：
+
+
+
+### 布局
+
+Q：有什么方法能够实现水平垂直居中？
 
 A：
