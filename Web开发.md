@@ -7457,7 +7457,7 @@ JavaScript 程序不能独立运行，它需要被嵌入 HTML 中，然后浏览
 <body>
   <!-- 内联形式：通过 script 标签包裹 JavaScript 代码 -->
   <script>
-    alert('嗨，欢迎来传智播学习前端技术！')
+    alert('这是内部引用！')
   </script>
 </body>
 </html>
@@ -7467,13 +7467,13 @@ JavaScript 程序不能独立运行，它需要被嵌入 HTML 中，然后浏览
 
 
 
-#### 外部形式
+#### 外部方式
 
 一般将 JavaScript 代码写在独立的以 .js 结尾的文件中，然后通过 `script` 标签的 `src` 属性引入
 
 ```javascript
 // demo.js
-document.write('嗨，欢迎来传智播学习前端技术！')
+document.write('这是独立文件外部引入！')
 ```
 
 ```html
@@ -7513,6 +7513,26 @@ document.write('嗨，欢迎来传智播学习前端技术！')
 
 
 
+#### 行内方式
+
+**代码写在标签内部**
+
+**语法：**
+
+- 注意：此处作为了解即可，但是后面 Vue 框架会用这种模式。
+
+**示例代码：**
+
+```html
+<body>
+    <button onclick="alert('逗你玩~~~')">点击我月薪过万</button>
+</body>
+```
+
+---
+
+
+
 ###  注释和结束符
 
 通过注释可以屏蔽代码被执行或者添加备注信息，JavaScript 支持两种形式注释语法：
@@ -7534,7 +7554,7 @@ document.write('嗨，欢迎来传智播学习前端技术！')
     // 这种是单行注释的语法
     // 一次只能注释一行
     // 可以重复注释
-    document.write('嗨，欢迎来传智播学习前端技术！');
+    document.write('单行注释！');
   </script>
 </body>
 </html>
@@ -7560,7 +7580,7 @@ document.write('嗨，欢迎来传智播学习前端技术！')
     	在些可以任意换行
     	多少行都可以
       */
-    document.write('嗨，欢迎来传智播学习前端技术！')
+    document.write('多行注释！')
   </script>
 </body>
 </html>
@@ -7638,7 +7658,24 @@ JavaScript 可以接收用户的输入，然后再将输入的结果输出：
 
 
 
-当然可以！以下是关于JavaScript模板字符串的详细说明，并将其整理成表格形式，方便你作为笔记使用。
+### 字面量
+
+字面量就是源代码中直接写出的、编译器能直接识别并转化为对应数据类型的值
+
+大概就是可以直接呗编译器理解的值
+
+例如
+
+```js
+123
+"Hello"
+true
+false
+```
+
+
+
+
 
 ### 模板字符串
 
@@ -7744,20 +7781,22 @@ console.log(greeting); // 输出: Hello Alice!
 ```html
 <script>
   // x 符号代表了 5 这个数值
-  x = 5
+  let x = 5
   // y 符号代表了 6 这个数值
-  y = 6
+  let y = 6
     
   //举例： 在 JavaScript 中使用变量可以将某个数据（数值）记录下来！
 
   // 将用户输入的内容保存在 num 这个变量（容器）中
-  num = prompt('请输入一数字!')
+  let num = prompt('请输入一数字!')
 
   // 通过 num 变量（容器）将用户输入的内容输出出来
   alert(num)
   document.write(num)
 </script>
 ```
+
+
 
 
 
@@ -7788,6 +7827,22 @@ console.log(greeting); // 输出: Hello Alice!
 关键字是 JavaScript 中内置的一些英文词汇（单词或缩写），它们代表某些特定的含义，如 `let` 的含义是声明变量的，看到 `let`  后就可想到这行代码的意思是在声明变量，如 `let age;` 
 
 `let` 和 `var` 都是 JavaScript 中的声明变量的关键字，推荐使用 `let` 声明变量！！！
+
+二者的区别在于 let 声明局部变量，不可重复声明，作用域在局部，先使用后声明会报错；var声明全局变量，变量可重复声明，二次声明的值将覆盖原值，如果声明在函数，则作用域在函数全局，如果声明在全局作用域时才会作用在全局，并且var的声明在编译阶段会提升至所在作用域的全局位置，但是注意其赋值行为不会被提升，所以可以先使用，后声明；
+
+
+
+```js
+//报错
+i = 1
+console.log(i)
+let i
+
+//输出100
+j = 100
+console.log(j)
+var j
+```
 
 
 
@@ -7891,6 +7946,8 @@ const PI = 3.14
 ~~~
 
 >注意： 常量不允许重新赋值,声明的时候必须赋值（初始化）
+
+引用类型可以修改里面的值
 
 
 
@@ -8038,6 +8095,42 @@ JavaScript 中的数值类型与数学中的数字是一样的，分为正数、
 
 **注：JavaScript 中变量的值决定了变量的数据类型。**
 
+
+
+#### 基本数据类型
+
+定义：基本数据类型又叫 **值类型** 或 **简单数据类型**
+
+其在存储时变量中存储的时值的本身，因此叫做值类型
+
+代表类型有：string number Boolean undefined null
+
+所以在进行类似于调用函数传参的时候，其复制的是本身，此类值存储在栈中
+
+
+
+#### 引用数据类型
+
+定义：引用数据类型是复杂数据类型，在存储时变量中存储的仅仅是地址（引用），因此做引用数据类型
+
+也就是说栈中存放的是对应堆中数据的地址
+
+代表类型有：对象 函数 数组
+
+
+
+
+
+堆栈空间分配区别：
+
+栈：由操作系统自动分配释放存放函数的参数值、局部变量的值等。其操作方式类似于数据结构中的栈；
+简单数据类型存放到栈里面
+
+堆：存储复杂类型(对象)，一般由程序员分配释放，若程序员不释放，由垃圾回收机制回收。
+引用数据类型存放到堆里面
+
+
+
 ### 类型转换
 
 > 理解弱类型语言的特征，掌握显式类型转换的方法
@@ -8103,9 +8196,9 @@ arr.toString()
 
 
 
-#### Number
+##### Number
 
-通过 `Number` 显示转换成数值类型，当转换失败时结果为 `NaN`（Not a Number）即不是一个数字。
+通过 `Number` 显示转换成数值类型，还可以在数值前加上 + 进行转换，当转换失败时结果为 `NaN`（Not a Number）即不是一个数字。
 
 ```html
 <!DOCTYPE html>
@@ -8136,13 +8229,36 @@ arr.toString()
 </html>
 ```
 
+**parselnt只保留整数**
 
+**parseFloat可以保留小数**
 
 
 
 
 
 ### 运算符
+
+
+
+#### 运算顺序
+
+| **运算符**      | **优先级** | **示例**                                              | **结合性**                        |
+| --------------- | ---------- | ----------------------------------------------------- | --------------------------------- |
+| `()`            | 19         | `(1 + 2) * 3` → `9`                                   | 无                                |
+| `**`            | 14         | `2 ** 3 ** 2` → `512`                                 | 右到左                            |
+| `* / %`         | 13         | `8 / 4 * 2` → `(8 / 4) * 2 = 4`                       | 左到右                            |
+| `+ -`           | 12         | `3 + 4 - 2` → `(3 + 4) - 2 = 5`                       | 左到右                            |
+| `< <= > >=`     | 10         | `5 > 3 && 2 < 4` → `(true) && (true) = true`          | 左到右                            |
+| `== === != !==` | 9          | `5 == "5" && 5 === "5"` → `(true) && (false) = false` | 左到右                            |
+| `&&`            | 5          | `true && false                                        |                                   |
+| `               |            | `                                                     | 4                                 |
+| `?:`            | 3          | `a > 5 ? 10 : 20` → 先比较 `a > 5`，再决定返回值      | 右到左                            |
+| `= += -=`       | 2          | `a = b = 5` → `b = 5` 先执行，再 `a = 5`              | 右到左**3. 常见运算符优先级对比** |
+
+
+
+
 
 
 
@@ -8180,6 +8296,8 @@ console.log('pink老师' - 2)
 console.log('pink老师' * 2)
 console.log('pink老师' + 2)   // pink老师2
 ```
+
+
 
 #### 赋值运算符
 
@@ -8283,9 +8401,17 @@ console.log(num)
 </script>
 ```
 
+> NaN不等于任何人，包括他自己
+
+
+
 #### 逻辑运算符
 
 使用场景：可以把多个布尔值放到一起运算，最终返回一个布尔值
+
+注意顺序 **非与或**
+
+**非与或**！！！
 
 | 符号 | 名称   | 日常读法 | 特点                       | 口诀           |
 | ---- | ------ | -------- | -------------------------- | -------------- |
@@ -8325,9 +8451,25 @@ console.log(num)
   </script>
 ```
 
+注意**短路**行为，&&与：如果左边是假的，不看后面就是假的；||或：如果左边是真的，就不看后面，就是真的
+
+注意返回值，&&与：两边都是真时，运算结果返回&&后一值；||或：当第一个值为真时，运算结果返回||前一值
+
 
 
 ### 语句
+
+**定义**:构成程序执行指令的语法单元。它是一个完整的指令，表示程序要执行的操作
+
+> 表达式的定义:由一个或多个常量、变量、运算符和函数调用组成的组合，它在执行后会计算出一个值
+
+
+
+#### ！表达式与语句的区别
+
+**表达式是生成值的代码片段，语句是执行操作的完整指令**
+
+
 
 #### 分支语句
 
@@ -8479,7 +8621,7 @@ num = num >= 10 ? num : 0 + num
 alert(num)
 ~~~
 
-#### switch语句（了解）
+#### switch语句
 
 使用场景： 适合于有多个条件的时候，也属于分支语句，大部分情况下和 if多分支语句 功能相同
 
@@ -8547,6 +8689,16 @@ alert(num)
 1.while循环
 
 2.for 循环（重点）
+
+
+
+二者的区别不大，只不过有不同的使用场景
+
+通常明确循环次数使用for循环
+
+不明确循环次数使用while循环
+
+
 
 #### while循环
 
@@ -9060,7 +9212,7 @@ for (let i = 1; i <= 9; i++) {
 2. unshit 动态向数组头部添加一个单元
 3. pop 删除最后一个单元
 4. shift 删除第一个单元
-5. splice 动态删除任意单元
+5. splice 动态删除添加任意单元
 
 使用以上4个方法时，都是直接在原数组上进行操作，即成功调任何一个方法，原数组都跟着发生相应的改变。并且在添加或删除单元时 `length` 并不会发生错乱。
 
@@ -9081,6 +9233,8 @@ for (let i = 1; i <= 9; i++) {
   // 3. splice 动态删除任意单元
   arr.splice(2, 1) // 从索引值为2的位置开始删除1个单元
   console.log(arr)
+    //splice 动态添加元素
+  arr.splice(2,0,123) //从索引值为2的位置添加一个123元素，索引值为2的元素就是123
 
   // 4. pop 删除最后一个单元
   arr.pop()
@@ -9093,6 +9247,93 @@ for (let i = 1; i <= 9; i++) {
 ```
 
 #### 数组遍历
+
+
+
+##### `for...of` 方法
+
+---
+
+**定义**  
+
+`for...of` 是 ES6 引入的循环语法，用于遍历 **可迭代对象**（如数组、字符串、Set、Map 等），直接获取元素的**值**，而非索引或键名。它不会遍历原型链上的属性。
+
+---
+
+**使用方法**  
+
+- **适用对象**：数组、字符串、Set、Map 等可迭代对象。  
+- **特点**：  
+  - 可与 `break`、`continue` 配合使用，提前终止或跳过循环。  
+  - 无法直接获取索引，需结合 `.entries()` 方法。  
+
+---
+
+**返回值**  
+
+- `for...of` 本身无返回值，但每次迭代会将当前元素的值赋给变量，供循环体内使用。  
+
+---
+
+**语法**  
+
+```javascript
+for (const variable of iterable) {
+  // 循环体
+}
+```
+
+- `variable`：存储当前元素的变量（可使用 `let` 或 `const`）。  
+- `iterable`：可迭代对象（如数组、字符串、Map 等）。  
+
+---
+
+**示例**  
+
+**遍历数组**  
+
+```javascript
+const arr = [1, 2, 3];
+for (const num of arr) {
+  console.log(num); // 输出：1, 2, 3
+}
+```
+
+**遍历字符串**  
+
+```javascript
+const str = "Hello";
+for (const char of str) {
+  console.log(char); // 输出：H, e, l, l, o
+}
+```
+
+**遍历 Map**  
+
+```javascript
+const map = new Map([["a", 1], ["b", 2]]);
+for (const [key, value] of map) {
+  console.log(key, value); // 输出：a 1, b 2
+}
+```
+
+**获取索引与值**  
+
+```javascript
+const arr = ["a", "b", "c"];
+for (const [index, value] of arr.entries()) {
+  console.log(index, value); // 输出：0 a, 1 b, 2 c
+}
+```
+
+---
+
+**注意**：  
+
+- 不能用于普通对象
+- 与 `forEach` 的区别：`for...of` 支持 `break`，而 `forEach` 不支持。
+
+
 
 ##### `.forEach` 方法
 
@@ -9505,10 +9746,28 @@ setInterval(updateTime("header-time"), 1000);
 </html>
 ```
 
+##### 参数默认值
+
+```js
+    function count(x=0, y=10) {
+      console.log(x + y);
+    }
+
+	let a = 10,b = 20
+
+    function count(a=100, b=200) {
+      console.log(x + y);//输出30
+    }
+```
+
 总结：
 
 1. 声明（定义）函数时的形参没有数量限制，当有多个形参时使用 `,` 分隔
 2. 调用函数传递的实参要与形参的顺序一致
+
+
+
+
 
 #### 形参和实参
 
@@ -9542,6 +9801,18 @@ setInterval(updateTime("header-time"), 1000);
 </body>
 </html>
 ```
+
+
+
+#### 值传递与引用传递
+
+本质上来说，js只有值传递，但是js中 数组array 对象object 函数function等比较复杂的引用类型他们中存储的都是引用的地址
+
+变量中存储的是值，在实参向形参传递时会将值复制给形参
+
+对象中存储的是在堆上对应数据的地址，在传参时是将地址复制进去，所以修改引用类型的对象会修改其堆上的数据，而不是修改引用的地址
+
+
 
 #### 返回值
 
@@ -9582,6 +9853,10 @@ setInterval(updateTime("header-time"), 1000);
 
 #### 作用域
 
+定义：指的是程序中变量、函数、对象的可访问性和生命周期
+
+
+
 通常来说，一段程序代码中所用到的名字并不总是有效和可用的，而限定这个名字的可用性的代码范围就是这个名字的作用域。
 
 作用域的使用提高了程序逻辑的局部性，增强了程序的可靠性，减少了名字冲突。
@@ -9602,11 +9877,17 @@ setInterval(updateTime("header-time"), 1000);
 >
 >但是有一种情况，函数内部的形参可以看做是局部变量。
 
+
+
 #### 匿名函数
 
 函数可以分为具名函数和匿名函数
 
-匿名函数：没有名字的函数,无法直接使用。
+匿名函数：也叫闭包函数，没有名字的函数，无法直接使用。
+
+匿名函数必须先声明后使用，具名函数类似var在编译阶段会函数提升，而匿名函数不行，所以仍要先声明后使用
+
+作用：经常用在回调函数，作为参数传入
 
 ##### 函数表达式
 
@@ -9659,6 +9940,7 @@ fn()
      ```
 
 3. **方法调用**
+   
    - 当一个函数作为对象的方法被调用时，`this`指向该对象。
      ```javascript
      const obj = {
@@ -9669,7 +9951,7 @@ fn()
      };
      obj.greet(); // 输出: Hello, Alice
      ```
-
+   
 4. **构造函数调用**
    
    - 当使用`new`关键字创建一个新的对象实例时，`this`指向新创建的对象实例。
@@ -9914,6 +10196,8 @@ class getArr{
 **定义**  
 回调函数是一种编程模式，指将一个函数作为参数传递给另一个函数，在特定时机或条件满足时被调用。它常用于 **异步操作** 或 **函数式编程** 场景。
 
+人话来说：被函数当作参数的函数就是回调函数
+
 **常见用途**  
 
 1. **异步操作**：如 `setTimeout`、`setInterval`、`fetch` 请求等。  
@@ -9942,6 +10226,195 @@ class getArr{
 
 - 回调函数可以是 **普通函数**、**箭头函数** 或 **匿名函数**。
 - 回调函数的核心是 **“将逻辑作为参数传递”**，实现解耦和复用。
+
+
+
+### OOP
+
+---
+
+##### **类（Class）**
+- **定义**：类是对象的模板，包含属性和方法。
+- **示例**：
+  ```javascript
+  class Dog {
+    constructor(name) {
+      this.name = name; // 属性
+    }
+  
+    bark() { // 方法
+      console.log(`${this.name} is barking!`);
+    }
+  }
+  
+  const myDog = new Dog("Buddy");
+  myDog.bark(); // 输出: Buddy is barking!
+  ```
+
+---
+
+##### **子类与继承**
+- **定义**：子类通过 `extends` 继承父类的属性和方法。
+
+> 注意，不论父类子类都要有constructor()构造函数，所有属性声明应放在其构造函数内，子类要先使用super()来调用父类构造函数才能够添加自己的属性
+
+- **示例**：
+
+  ```javascript
+  class Animal {
+    constructor(name) {
+      this.name = name;
+    }
+  
+    speak() {
+      console.log(`${this.name} makes a noise.`);
+    }
+  }
+  
+  class Cat extends Animal {
+    constructor(name) {
+      super(name); // 调用父类构造函数
+    }
+  
+    speak() {
+      console.log(`${this.name} meows.`);
+    }
+  }
+  
+  const myCat = new Cat("Whiskers");
+  myCat.speak(); // 输出: Whiskers meows.
+  ```
+
+---
+
+##### **对象（Object）**
+- **定义**：对象是类的实例，通过 `new` 创建。
+- **示例**：
+  ```javascript
+  const myDog = new Dog("Buddy"); // Dog 类的实例
+  console.log(myDog.name); // 访问属性
+  myDog.bark(); // 调用方法
+  ```
+
+---
+
+##### **方法（Method）**
+- **定义**：类中定义的函数，描述对象的行为。
+- **示例**：
+  ```javascript
+  class Car {
+    drive() {
+      console.log("Driving...");
+    }
+  }
+  
+  const myCar = new Car();
+  myCar.drive(); // 输出: Driving...
+  ```
+
+---
+
+##### **属性（Property）**
+- **定义**：对象的状态数据，通常在构造函数中定义。
+- **示例**：
+  ```javascript
+  class User {
+    constructor(name, age) {
+      this.name = name; // 公有属性
+      this._age = age; // 用下划线约定私有属性（非严格私有）
+    }
+  
+    getAge() {
+      return this._age;
+    }
+  }
+  
+  const user = new User("Alice", 25);
+  console.log(user.name); // Alice
+  console.log(user.getAge()); // 25
+  ```
+
+---
+
+##### **封装（Encapsulation）**
+- **定义**：隐藏对象内部细节，通过方法控制访问。
+- **示例**（使用 `Symbol` 模拟私有属性）：
+  ```javascript
+  const _balance = Symbol("balance");
+  
+  class BankAccount {
+    constructor(balance) {
+      this[_balance] = balance;
+    }
+  
+    getBalance() {
+      return this[_balance];
+    }
+  }
+  
+  const account = new BankAccount(1000);
+  console.log(account.getBalance()); // 1000
+  console.log(account._balance); // undefined（外部无法直接访问）
+  ```
+
+---
+
+##### **多态（Polymorphism）**
+- **定义**：同一接口的不同实现（运行时动态绑定）。
+- **示例**：
+  ```javascript
+  class Dog extends Animal {
+    constructor(name) {
+      super(name);
+    }
+  
+    speak() {
+      console.log(`${this.name} barks.`);
+    }
+  }
+  
+  function makeSound(animal) {
+    animal.speak();
+  }
+  
+  const animals = [new Cat("Fluffy"), new Dog("Mitzie")];
+  animals.forEach(animal => makeSound(animal));
+  // 输出:
+  // Fluffy meows.
+  // Mitzie barks.
+  ```
+
+用人话说就是 **子类会从父类继承的同名方法，但是方法功能经过子类修改、经过子类重写的，这时候同名不同效果就是多态**
+所以从同一父类中继承出来的不同子类对象在调用相同的方法时，因为方法重写，触发的效果是不同的，这就是多态， 只需要回答我对错
+
+
+
+
+
+##### **函数（Function）**
+- **说明**：函数是通用概念，作为独立逻辑块存在；在类中称为 **方法**。
+- **示例**（独立函数 vs 方法）：
+  ```javascript
+  // 独立函数
+  function add(a, b) {
+    return a + b;
+  }
+  
+  // 方法
+  class Calculator {
+    add(a, b) {
+      return a + b;
+    }
+  }
+  ```
+
+
+
+##### 重点
+
+
+
+
 
 
 
@@ -10170,11 +10643,101 @@ class getArr{
 
 **注：无论是属性或是方法，同一个对象中出现名称一样的，后面的会覆盖前面的。**
 
+
+
+#### 增删查改
+
+
+
+##### 增加
+
+**语法**：对象名.新属性名 = 新值
+
+```js
+let obj = {
+  sayWhat: '你好',
+  say: function () {
+    console.log(this.sayWhat)
+  }
+}
+
+obj.say()
+```
+
+
+
+##### 删除
+
+**语法**：delete 对象名.属性名
+
+```js
+let obj = {
+  sayWhat: '你好',
+  say: function () {
+    console.log(this.sayWhat)
+  }
+}
+
+delete obj.say
+obj.say()
+```
+
+
+
+##### 查询
+
+**语法**： **对象名.属性名**（使用 `.` 查询声明时固定的属性） **对象名[属性名]**（使用`[]` 查询动态添加的属性，动态添加的属性用[],加`''`；动态添加的方法二者皆可但 [] 查询方法要加 `''`）
+
+
+
+```
+let obj = {
+  sayWhat: '你好',
+  say: function () {
+    console.log(this.sayWhat)
+  }
+}
+
+obj.saymore = function () {
+  console.log(this.sayWhat + '世界')
+}
+
+obj.saybey = 'bey'
+
+console.log(obj.saymore);//动态方法用 .
+console.log(obj['saymore']);//动态方法用 []
+console.log(obj.saybey);//动态属性用 .
+console.log(obj['saybey']);//动态属性用 []
+```
+
+
+
+##### 修改
+
+**语法**：对象名.属性名 = 新值
+
+```js
+let obj = {
+  sayWhat: '你好',
+}
+
+obj.sayWhat = '再见'
+console.log(obj.sayWhat)
+```
+
+
+
 #### null
 
 null 也是 JavaScript 中数据类型的一种，通常只用它来表示不存在的对象。使用 typeof 检测类型它的类型时，结果为 `object`。
 
+
+
 #### 遍历对象
+
+我们通常使用
+
+for……in……枚举对象中的属性名，注意是属性名，可以使用 **对象名[forin枚举属性名]** 来得到值
 
 ~~~javascript
 let obj = {
@@ -10186,7 +10749,7 @@ for(let k in obj) {
 }
 ~~~
 
-for in 不提倡遍历数组 因为 k 是 字符串  
+for in 不提倡遍历数组 因为 k 是 字符串 其取出的是下标  
 
 
 
@@ -10342,7 +10905,17 @@ Math.pow(2, 3) // 求 2 的 3 次方
 Math.sqrt(16)
 ```
 
-数学对象提供了比较多的方法，这里不要求强记，通过演示数学对象的使用，加深对对象的理解。
+
+
+##### 随机数函数
+
+着重说一下随机数函数，因为其只能生成[ 0 , 1 )的函数，所以要生成一定范围内的数值要通过下面的公式曲线救国
+
+以下是生成N - M之间的随机数
+
+```js
+(Math.random() * (M - N + 1)) + N
+```
 
 
 
@@ -11106,6 +11679,14 @@ console.log(formatDate(new Date())); // 输出类似：2025-05-12 20:46:30
 
 ### DOM文档对象模型
 
+#### DOM树
+
+定义：将 HTML 文档以树状结构直观的表现出来，我们称之为树文档或DOM树
+
+作用：文档树直观的体现了标签与标签之间的关系
+
+DOM对象：浏览器根据HTML标签生成的JS对象
+
 #### DOM 节点简介
 
 - **DOM**：文档对象模型，将HTML/XML文档表示为节点树，允许通过编程接口访问和操作文档内容、结构及样式。
@@ -11255,6 +11836,54 @@ newDiv.remove(); // 直接调用元素的 remove() 方法
 #### DOM获取 HTML 标签
 
 ##### 常用方法介绍
+
+常用的方式**querySelector**获取页面元素
+
+**`querySelector()`**
+
+**使用方法**：queryselector('css选择器') 
+
+> 注意：一定要加 `''` 单引号
+
+**返回值**：`Element` 或 `null`（返回的是一个对象）
+
+**功能**：通过 **CSS 选择器** 获取 **第一个匹配的元素**，返回的是一个对象。
+
+**示例**：
+
+```javascript
+document.querySelector('.item'); // 获取第一个 class 为 "item" 的元素
+document.querySelector('#header'); // 获取 id 为 "header" 的元素
+document.querySelector('[type="text"]'); // 获取第一个 type 为 "text" 的元素
+```
+
+**注意事项**：
+
+若未找到匹配元素，返回 `null`。
+
+支持所有 CSS 选择器（类选择器 `.class`、ID 选择器 `#id`、属性选择器 `[attr=value]` 等）。
+
+与 `querySelectorAll()` 对比：
+
+`querySelector()`：返回单个元素。
+
+`querySelectorAll()`：返回所有匹配元素的 `NodeList`。
+
+
+
+选择所有的用**querySelectorAll**
+
+**querySelectorAll()**
+
+返回值：CSS选择器匹配的 NodeList 对象集合（推荐使用for…of… forEach方法也不是不行）
+
+
+
+剩下的不太常用了
+
+
+
+
 - **getElementById()**
   
   - 返回值：Element
@@ -11262,6 +11891,7 @@ newDiv.remove(); // 直接调用元素的 remove() 方法
   - 示例：`document.getElementById('box')`
   
 - **getElementsByName()**
+  
   - 返回值：NodeList/HTMLCollection
   - 功能：获取相同name属性的元素集合。
   - 示例：
@@ -11269,8 +11899,9 @@ newDiv.remove(); // 直接调用元素的 remove() 方法
     document.getElementsByName('goods'); // 获取所有name为goods的元素
     document.getElementsByName('goods')[0]; // 获取第一个name为goods的元素
     ```
-
+  
 - **getElementsByTagName()**
+  
   - 返回值：NodeList/HTMLCollection
   - 功能：获取相同标签名的元素集合。
   - 示例：
@@ -11281,7 +11912,7 @@ newDiv.remove(); // 直接调用元素的 remove() 方法
     document.getElementsByTagName('li').length; // 获取<li>元素的数量
     ```
   - 注：可通过下标访问元素，使用`.length`获取元素数量。
-
+  
 - **getElementsByClassName()**
   
   - 返回值：NodeList
@@ -11378,11 +12009,13 @@ element.textContent = now.
 
 
 
-#### DOM修改CSS样式
+#### DOM修改样式
+
+
+
+##### 行内样式
 
 通过获取对象后操作其style属性，设置对应的样式值并重新赋值即可设置内联式样式，其优先级非常高
-
-
 
 **`.style` 方法简记**  
 
@@ -11414,11 +12047,222 @@ element.textContent = now.
 
 
 
+##### className添加类名
+
+遇到修改的样式比较多的情况可以直接向元素的class中添加类名
+
+语法：
+
+```js
+element.className = '类名'
+```
+
+注意：
+
+1. 由于class是关键字，所以使用className去替代
+2. className是使用新值换旧值，如果要添加类 ，需要同时将原来类中的值同时加进去
+
+
+
+##### classList 操作类名
+
+- **为了解决className容易覆盖以前的类名，我们可以通过classList方式追加和删除类名**
+
+**语法**：
+
+1. **追加一个类**
+   ```javascript
+   元素.classList.add('类名')
+   ```
+
+2. **删除一个类**
+   ```javascript
+   元素.classList.remove('类名')
+   ```
+
+3. **切换一个类**
+   ```javascript
+   元素.classList.toggle('类名')
+   ```
 
 
 
 
-#### HTML方法操作属性
+
+#### DOM修改标签属性
+
+在 DOM 操作中，**经常修改的属性**主要包括以下几类，这些属性用于控制元素的样式、内容、行为和数据存储。以下是常见的属性及其使用示例：
+
+##### **基础属性**
+
+- **`id`**：唯一标识元素。
+
+  ```javascript
+  element.id = "newId";
+  ```
+
+- **`class` / `className`**：控制元素的 CSS 类名。
+
+  ```javascript
+  element.className = "new-class"; // 替换所有类名
+  element.classList.add("active"); // 添加类
+  element.classList.remove("old-class"); // 移除类
+  ```
+
+- **`style`**：修改元素的样式（通过 `CSSStyleDeclaration` 对象）。
+
+  ```javascript
+  element.style.color = "red";
+  element.style.backgroundColor = "lightblue";
+  ```
+
+##### **内容相关属性**
+
+- **`innerHTML`**：修改元素的 HTML 内容（包含标签）。
+
+  ```javascript
+  element.innerHTML = "<strong>Hello</strong>";
+  ```
+
+- **`textContent`**：修改元素的纯文本内容（不解析 HTML）。
+
+  ```javascript
+  element.textContent = "Hello, World!";
+  ```
+
+
+
+##### **表单相关属性**
+
+- **`value`**：获取或设置表单元素的值（如 `<input>`、`<textarea>`）。
+
+  ```javascript
+  inputElement.value = "New Value";
+  ```
+
+- **`checked`**：控制复选框或单选按钮的选中状态。
+
+  ```javascript
+  checkbox.checked = true;
+  ```
+
+- **`disabled`**：禁用或启用元素。
+
+  ```javascript
+  button.disabled = true;
+  ```
+
+##### **链接和媒体属性**
+
+- **`href`**：修改超链接的目标地址。
+
+  ```javascript
+  link.href = "https://example.com";
+  ```
+
+- **`src`**：修改图片或脚本的源地址。
+
+  ```javascript
+  image.src = "new-image.jpg";
+  ```
+
+---
+
+##### **自定义属性（`data-*` 属性）**
+
+自定义属性以 `data-` 为前缀，用于存储页面或应用的私有数据。
+
+**读取和设置**
+
+```javascript
+// 设置 data 属性
+element.setAttribute("data-user-id", "123");
+// 读取 data 属性
+const userId = element.getAttribute("data-user-id");
+//或者使用element.dataset.属性名 使用dataset方法来读取与赋值
+element.dataset.userId = 123
+```
+
+> 使用dataset方法时，如果自定义属性中使用 `-` 来连接，则使用小驼峰命名法来进行转化
+>
+> 如果非要使用-，可以这样写 element.dataset[user-id] = 123
+
+**使用场景**
+
+- 存储额外信息（如用户 ID、状态标识等）：
+
+  ```html
+  <div data-role="user" data-id="456">User Info</div>
+  ```
+
+---
+
+##### **事件属性**
+
+通过修改事件属性，可以绑定或解绑事件处理函数。
+
+**直接绑定事件**
+
+```javascript
+element.onclick = function() {
+  alert("Clicked!");
+};
+```
+
+**使用 `addEventListener`（推荐）**
+
+```javascript
+element.addEventListener("click", function() {
+  alert("Clicked with addEventListener!");
+});
+```
+
+---
+
+**其他常用属性**
+
+**`contenteditable`**
+
+允许用户直接编辑元素内容：
+
+```javascript
+element.contentEditable = "true"; // 开启编辑
+```
+
+**`hidden`**
+
+控制元素是否隐藏：
+
+```javascript
+element.hidden = true; // 隐藏元素
+```
+
+**`tabindex`**
+
+设置元素的键盘导航顺序：
+
+```javascript
+element.tabIndex = 1; // 设置焦点顺序
+```
+
+---
+
+
+
+
+
+##### **修改属性的方法**
+
+| 方法                        | 说明                           | 示例                                         |
+| --------------------------- | ------------------------------ | -------------------------------------------- |
+| `setAttribute(name, value)` | 设置任意属性（包括自定义属性） | `element.setAttribute("class", "new-class")` |
+| `getAttribute(name)`        | 获取属性值                     | `element.getAttribute("data-user-id")`       |
+| `removeAttribute(name)`     | 删除属性                       | `element.removeAttribute("disabled")`        |
+| `hasAttribute(name)`        | 检查属性是否存在               | `element.hasAttribute("data-flag")`          |
+
+---
+
+
 
 **1. `element.getAttribute()`**
 
@@ -11737,77 +12581,274 @@ box.addEventListener('click', function () {
 
 
 
-##### 常用事件
+#### 常见事件
 
-JavaScript可以处理的事件类型包括：鼠标事件、键盘事件、HTML事件。
+##### **焦点事件**
 
-所有的事件处理函数都会有两个部分组成：`on + 事件名称`，例如`onclick`事件的事件处理函数就是`onclick`。在这里，我们主要谈论脚本的方式来构建事件，违反分离原则的内联，我们忽略掉。
+焦点事件发生在元素获得或失去键盘焦点时，常用于表单元素（如 `<input>`, `<textarea>`, `<select>`）。
 
-###### 鼠标事件
+*   **`focus`**: 当元素获得焦点时触发（例如，用户点击输入框或按 Tab 键切换到该元素）。
+*   **`blur`**: 当元素失去焦点时触发（例如，用户点击页面其他地方或按 Tab 键离开该元素）。
 
-1. **click**：当用户单击鼠标按钮时触发。
+---
 
-   ```javascript
-   input.onclick = function () { alert('Lee'); };
-   ```
+##### **鼠标事件**
 
-2. **dblclick**：当用户双击鼠标按钮时触发。
+鼠标事件由用户的鼠标操作触发。
 
-   ```javascript
-   input.ondblclick = function () { alert('Lee'); };
-   ```
+*   **`click`**: 鼠标单击（按下并松开）元素时触发。
+*   **`dblclick`**: 鼠标双击元素时触发。
+*   **`mousedown`**: 鼠标按钮在元素上被按下时触发。
+*   **`mouseup`**: 鼠标按钮在元素上被松开时触发。
+*   **`mouseover`**: 鼠标指针移动到元素上方时触发（会冒泡，进入子元素也会触发）。
+*   **`mouseenter`**: 鼠标指针进入元素时触发（**不冒泡**，推荐用于 hover 效果）。
+*   **`mouseout`**: 鼠标指针移出元素时触发（会冒泡，移出到子元素也会触发）。
+*   **`mouseleave`**: 鼠标指针离开元素时触发（**不冒泡**，推荐用于 hover 效果）。
+*   **`mousemove`**: 鼠标指针在元素内移动时持续触发。
 
-3. **mousedown**：当用户按下鼠标按钮时触发。
+**示例代码：**
 
-   ```javascript
-   input.onmousedown = function () { alert('Lee'); };
-   ```
+```html
+<div id="box" style="width: 200px; height: 100px; background-color: lightblue; margin: 20px;">
+    鼠标放上来试试
+</div>
+<button id="btn">点我</button>
 
-4. **mouseup**：当用户释放鼠标按钮时触发。
+<script>
+    const box = document.getElementById('box');
+    const btn = document.getElementById('btn');
 
-   ```javascript
-   input.onmouseup = function () { alert('Lee'); };
-   ```
+    // 点击事件
+    btn.addEventListener('click', function() {
+        alert('按钮被点击了！');
+    });
 
-5. **mouseover**：当鼠标移到某个元素上方时触发。
+    // mouseenter / mouseleave (推荐用于悬停效果)
+    box.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = 'lightgreen';
+        console.log('鼠标进入');
+    });
 
-   ```javascript
-   input.onmouseover = function () { alert('Lee'); };
-   ```
+    box.addEventListener('mouseleave', function() {
+        this.style.backgroundColor = 'lightblue';
+        console.log('鼠标离开');
+    });
 
-6. **mouseout**：当鼠标移出某个元素上方时触发。
+    // mousemove 事件 (注意性能，会频繁触发)
+    box.addEventListener('mousemove', function(event) {
+        // event.clientX, event.clientY: 相对于视口的位置
+        // event.offsetX, event.offsetY: 相对于当前元素的位置
+        console.log(`鼠标在元素内位置: X=${event.offsetX}, Y=${event.offsetY}`);
+    });
+</script>
+```
 
-   ```javascript
-   input.onmouseout = function () { alert('Lee'); };
-   ```
+---
 
-7. **mousemove**：当鼠标指针在元素上移动时触发。
+##### **键盘事件**
 
-   ```javascript
-   input.onmousemove = function () { alert('Lee'); };
-   ```
+键盘事件在用户按下或释放键盘按键时触发，通常绑定到可以获取焦点的元素（如 `input`, `textarea`）或 `document`（监听全局按键）。
 
-###### 键盘事件
+*   **`keydown`**: **按键被按下时**触发。可以捕获所有按键（包括功能键如 Ctrl, Shift, F1 等），并且会持续触发（如果按住不放）。
+*   **`keyup`**: **按键被释放时**触发。
+*   **`keypress`**: **已废弃**。过去用于捕获字符键按下并释放，现在应使用 `keydown` 并结合 `event.key` 来判断。
 
-1. **keydown**：当用户按下键盘上的任意键触发，如果按住不放，会重复触发。
+**关键属性 (`event` 对象):**
 
-   ```javascript
-   onkeydown = function () { alert('Lee'); };
-   ```
+*   `event.key`: 返回按下的键的**值**（如 `"a"`, `"Enter"`, `"Shift"`）。
+*   `event.code`: 返回按下的键的**物理代码**（如 `"KeyA"`, `"Enter"`, `"ShiftLeft"`），不受键盘布局或修饰键影响。
+*   `event.keyCode`: **已废弃**，不推荐使用。
 
-2. **keypress**：当用户按下键盘上的字符键触发，如果按住不放，会重复触发。
+---
 
-   ```javascript
-   onkeypress = function () { alert('Lee'); };
-   ```
+##### **输入事件**
 
-3. **keyup**：当用户释放键盘上的按键触发。
+输入事件主要与表单元素的内容变化相关。
 
-   ```javascript
-   onkeyup = function () { alert('Lee'); };
-   ```
+*   **`input`**: **元素的 `value` 值发生改变时立即触发**。适用于 `<input>`, `<textarea>`, `<select>`。这是监听用户输入内容变化最常用、最实时的事件。
+*   **`change`**: 元素的 `value` 值发生改变**并且失去焦点 (`blur`)** 时触发。对于 `<select>` 下拉框，选择后立即触发（无需失去焦点）。
 
-###### HTML常用事件
+**`input` vs `change`:**
+
+*   使用 `input` 事件可以实时响应用户的每一个输入（如打字、粘贴、删除）。
+*   使用 `change` 事件通常在用户完成输入并离开该字段时才触发。
+
+
+
+##### 页面加载事件
+
+页面加载事件是指在网页加载过程中触发的事件，主要有以下几种：
+
+页面完全加载
+
+```javascript
+window.load = function() { /* 页面全部加载完毕后执行 */ }
+```
+
+- **触发时机**：页面所有资源（包括图片、CSS、JS等）加载完毕后才触发
+
+文档加载完成
+
+```javascript
+window.load = function() { /* 页面全部加载完毕后执行 */ }
+```
+
+- **触发时机**： 只要文档加载完毕，即可触发，不用等图片、样式等资源加载完成
+
+
+
+
+
+##### 页面滚动事件
+
+页面滚动事件是指用户滚动页面时触发的事件：
+
+```javascript
+// 原生JS
+window.addEventListener('scroll', function() {
+  console.log('页面正在滚动');
+});
+
+// jQuery
+$(window).on('scroll', function() {
+  console.log('页面正在滚动');
+});
+```
+
+- **触发时机**：当用户滚动页面时触发
+- **常见用途**：
+  - 实现滚动动画效果
+  - 懒加载图片（当图片进入视口时再加载）
+  - 固定导航栏（当页面滚动到一定位置时固定导航栏）
+  - 滚动进度指示器
+
+**区别**：页面加载事件关注的是页面初次加载完成，而页面滚动事件关注的是用户与页面的交互过程。
+
+
+
+**滚动卷去**
+
+scrollLeft 和 scrollTop（属性）
+
+- 获取被卷去的大小
+- 获取元素内容往左、往上滚出去看不到的距离
+- 这两个值是可读写的
+
+![image-20250923113123599](./img/image-20250923113123599.png)
+
+- **开发中，我们经常检测页面滚动的距离，比如页面滚动100像素，就可以显示一个元素，或者固定一个元素**
+
+```javascript
+// 页面滚动事件
+window.addEventListener('scroll', function () {
+    // document.documentElement 是html元素获取方式
+    const n = document.documentElement.scrollTop;
+    console.log(n);
+});
+```
+
+**滚动指定**
+
+- **scrollTo() 方法可把内容滚动到指定的坐标**
+- **语法：**
+  - 元素.scrollTo(x, y)
+  
+
+**示例代码：**
+
+```javascript
+// 让页面滚动到 y 轴1000像素的位置
+window.scrollTo(0, 1000);
+```
+
+**要点：**
+
+- `scrollTo()`方法用于将页面或元素的内容滚动到指定的坐标位置。
+- 参数`x`和`y`分别表示水平和垂直方向上的滚动距离。
+- 示例中，`window.scrollTo(0, 1000)`将页面滚动到垂直方向上1000像素的位置。
+
+
+
+##### 页面尺寸事件
+
+作用：窗口尺寸改变触发
+
+语法：resize
+
+```js
+window.addEventListener('resize', function () {
+    // 执行的代码
+});
+```
+
+
+
+总的来说，resize事件可以给监听某个元素窗口大小发生变化，
+
+获取元素宽度高度分为两种：
+
+1. 使用带边框：offsetWidth与offsetHeight获取 内容+padding+border 的宽高
+2. 不带边框：clientWidth与clientHeight获取 只有内容区+padding
+
+offsetTop和offsetLeft 获取元素位置，获取规则是：
+- 带有定位的父级
+- 如果都没有则以文档左上角为准
+
+
+
+###### **检测屏幕宽度**
+
+```
+// 监听窗口大小变化事件
+window.addEventListener('resize', function () {
+    // 获取文档元素的宽度
+    let w = document.documentElement.clientWidth;
+    // 输出当前屏幕宽度到控制台
+    console.log(w);
+});
+```
+
+
+
+###### 获取元素宽高
+
+作用：获取元素的可见部分宽高（不包含边框，margin，滚动条等）
+
+语法：clientWidth与clientHeight
+
+![image-20250923142736679](./img/image-20250923142736679.png)
+
+###### 元素尺寸与位置
+
+**使用场景：**
+
+- 前面案例滚动多少距离，都是我们自己算的，最好是页面滚动到某个元素，就可以做某些事。
+- 简单说，就是通过js的方式，得到元素在页面中的位置
+- 这样我们可以做，页面滚动到这个位置，就可以做某些操作，省去计算了
+
+
+
+获取宽高：
+
+作用：获取元素的自身宽高、包含元素自身设置的宽高、padding、border
+
+语法：offsetWidth和offsetHeight
+
+- 获取出来的是数值，方便计算
+- 注意：获取的是可视宽高，如果盒子是隐藏的，获取的结果是0
+- offset与client的区别是offset包含border，client只包含内容区
+
+获取位置：
+
+获取元素距离自己定位父级元素的左、上距离
+
+offsetLeft和offsetTop 注意这是只读属性
+
+
+
+
+
+##### HTML常用事件
 
 1. **load**：当页面完全加载后在`window`上面触发，或当框架集加载完毕后在框架集上触发。
 
@@ -11861,7 +12902,7 @@ JavaScript可以处理的事件类型包括：鼠标事件、键盘事件、HTML
     </script>
    ```
 
-8. resize：窗口或框架大小变化时触发
+8. **resize**：窗口或框架大小变化时触发
 
 - 当窗口或框架的大小发生变化时，在`window`或框架上触发。
 
@@ -11871,9 +12912,11 @@ JavaScript可以处理的事件类型包括：鼠标事件、键盘事件、HTML
   };
   ```
 
-9. scroll：用户滚动时触发
+9. **scroll**：用户滚动时触发
 
 - **描述**：当用户在页面上进行滚动操作时触发。
+
+- 
 
   ```javascript
   window.onscroll = function () {
@@ -11881,7 +12924,7 @@ JavaScript可以处理的事件类型包括：鼠标事件、键盘事件、HTML
   };
   ```
 
-10. input：用户输入触发
+10. **input**：用户输入触发
 
 - **描述**：当用户在表单元素（如`<input>`、`<textarea>`等）中输入内容时触发。
 
@@ -11894,17 +12937,153 @@ JavaScript可以处理的事件类型包括：鼠标事件、键盘事件、HTML
 
 
 
+
+
+
+
+##### 注意
+
+*   **统一使用 `addEventListener`**: 避免使用 HTML 内联事件 (`onclick="..."`) 或 DOM 属性 (`element.onclick = ...`)，因为 `addEventListener` 支持绑定多个监听器且更灵活。
+*   **理解事件对象 (`event`)**: 在事件处理函数中，`event` 对象提供了丰富的信息（如触发元素 `target`、坐标、按键 `key` 等）和方法（如 `preventDefault()`, `stopPropagation()`）。
+*   **选择合适的事件**:
+    *   实时响应输入用 `input`。
+    *   完成编辑后响应用 `change`。
+    *   监听键盘全局操作用 `keydown`/`keyup` 绑定到 `document`。
+    *   悬停效果优先用 `mouseenter`/`mouseleave`。
+
+
+
+#### 事件对象
+
+定义：当元素的监听事件被触发时，会自动创建事件对象，其保存的是监听被触发时的相关属性
+
+- 浏览器在**事件触发时自动创建**的对象。
+- 作为**第一个参数**传入事件处理函数：`function(event) { ... }`
+- 常用命名：`event`、`e`、`evt`
+
+```js
+element.addEventListener('click', function(e) {
+    console.log(e.type); // 事件类型
+});
+```
+
+---
+
+##### 通用属性
+
+| 属性名                         | 说明                                           |
+| ------------------------------ | ---------------------------------------------- |
+| `e.type`                       | 事件类型（如 `'click'`, `'keydown'`）          |
+| `e.target`                     | **实际触发事件的元素**（最重要！）             |
+| `e.currentTarget`              | **当前绑定事件监听器的元素**（常用于事件委托） |
+| `e.bubbles`                    | 是否支持冒泡（布尔值）                         |
+| `e.cancelable`                 | 是否可阻止默认行为（布尔值）                   |
+| `e.preventDefault()`           | **阻止默认行为**（如链接跳转、表单提交）       |
+| `e.stopPropagation()`          | **阻止事件冒泡**（不向父元素传播）             |
+| `e.stopImmediatePropagation()` | 阻止冒泡 + 阻止同元素后续监听器执行            |
+
+> ✅ `target` vs `currentTarget`：   
+> 在事件委托中，`target` 是子元素，`currentTarget` 是父容器。
+
+##### 常用特有
+
+🖱️ **鼠标事件**
+
+| 属性          | 说明                                  |
+| ------------- | ------------------------------------- |
+| `e.clientX/Y` | 相对于**视口**的坐标                  |
+| `e.pageX/Y`   | 相对于**文档**的坐标（含滚动）        |
+| `e.offsetX/Y` | 相对于**当前元素**的坐标              |
+| `e.button`    | 按下的鼠标键（0=左键，2=右键）        |
+| `e.ctrlKey`等 | 是否按下修饰键（Ctrl/Shift/Alt/Meta） |
+
+⌨️ **键盘事件**
+
+| 属性          | 说明                                                |
+| ------------- | --------------------------------------------------- |
+| `e.key`       | **推荐！** 按键值（如 `"a"`, `"Enter"`, `"Shift"`） |
+| `e.code`      | 物理按键码（如 `"KeyA"`, `"Enter"`, `"ShiftLeft"`） |
+| `e.repeat`    | 是否长按重复触发                                    |
+| `e.ctrlKey`等 | 同鼠标事件                                          |
+
+> ❌ 避免使用 `keyCode`（已废弃）
+
+🔍 **焦点事件**
+
+| 属性              | 说明                                        |
+| ----------------- | ------------------------------------------- |
+| `e.relatedTarget` | 焦点切换相关的另一个元素（如从哪来/到哪去） |
+
+✍️ **输入事件**
+
+| 属性             | 说明                                      |
+| ---------------- | ----------------------------------------- |
+| `e.target.value` | **最常用！** 获取输入框当前值             |
+| `e.inputType`    | 输入类型（如 `"insertText"`，兼容性有限） |
+
+---
+
+##### 举个栗子
+
+✅ 事件委托
+
+```js
+// 父元素监听，通过 e.target 判断子元素
+document.querySelector('ul').addEventListener('click', function(e) {
+    if (e.target.tagName === 'LI') {
+        console.log('点击了：', e.target.textContent);
+    }
+});
+```
+
+✅ 阻止默认行为
+
+```js
+link.addEventListener('click', function(e) {
+    e.preventDefault(); // 阻止跳转
+});
+```
+
+✅ 实时输入监听
+
+```js
+input.addEventListener('input', function(e) {
+    console.log('当前输入：', e.target.value);
+});
+```
+
+---
+
+
+
+
+
 #### 事件的冒泡与捕获
+
+首先我们要明白事件流
+
+##### 事件流
+
+定义：事件流指的是事件完整执行过程中的流动路径
+
+事件流有两个阶段，先捕获，后冒泡
+
+![image-20250923082232073](./img/image-20250923082232073.png)
+
+
 
 ##### 概念
 
 - **冒泡**：事件从最具体的元素（触发事件的元素）开始，然后向外传播到其父元素，直到传播至文档根节点。就像是把石头扔进水里，波纹是从中心向外扩散。
+  总的来说就是当一个元素触发事件后，会依次向上调用所有父级元素的同名事件
 - **捕获**：相反，事件从最外层的祖先元素开始，向内传播直至到达触发事件的具体元素。
 
 ##### 区别
 
 - **顺序不同**：冒泡是从内到外，捕获是从外到内。
 - **默认行为**：大多数浏览器默认采用的是冒泡机制，除非特别指定使用捕获。
+
+
 
 ##### 使用方法
 
@@ -11928,6 +13107,65 @@ element.addEventListener('click', function() {
 - 如果你希望事件从祖先元素向下传播到具体元素，使用捕获阶段（将第三个参数设为`true`）。
 
 
+
+![image-20250923083221519](./img/image-20250923083221519.png)
+
+我给粉色方块与紫色方块分别添加监听事件
+
+当处于捕获状态时：点击紫色方块会先触发粉色方块的事件，再触发紫色方块的事件（从外向内）
+
+当处于冒泡状态时：点击紫色方块会触发紫色方块的事件，再触发粉色方块的事件（从内向外）
+
+
+
+##### 阻止冒泡
+
+**问题：**
+因为默认就有冒泡模式的存在，所以容易导致事件影响到父级元素
+
+**需求：**
+若想把事件就限制在当前元素内，就需要阻止事件冒泡
+
+**前提：**
+阻止事件冒泡需要拿到事件对象
+
+**语法：**
+```javascript
+事件对象.stopPropagation()
+```
+
+**注意：**
+此方法可以阻断事件流动传播，不光在冒泡阶段有效，捕获阶段也有效
+
+
+
+
+
+#### 事件委托
+
+**事件委托**（也称为事件代理）是一种利用事件冒泡机制，将事件处理程序绑定到父元素而非子元素的技术
+
+将事件绑定至父元素后，触发子元素，子元素会冒泡，然后触发父元素的事件，
+
+##### 原理
+
+- 利用事件冒泡原理：当子元素触发事件时，事件会从子元素向上冒泡到父元素
+- 不是为每个子节点单独设置事件监听器，而是将事件监听器设置在父节点上
+- 通过`event.target`属性获取实际触发事件的子元素，进行相应处理
+
+##### 举个栗子
+
+```javascript
+// 给ul注册点击事件
+document.querySelector('ul').addEventListener('click', function(event) {
+  // 通过event.target判断是否是需要处理的li元素
+  if (event.target.tagName === 'LI') {
+    console.log('点击了:', event.target.textContent);
+  }
+});
+```
+
+  
 
 
 
@@ -12800,4 +14038,85 @@ A：
 
 Q：有什么方法能够实现水平垂直居中？
 
-A：
+A：  display: flex;
+
+ justify-content: center;
+
+ align-items: center;
+
+
+
+### JS
+
+
+
+#### 变量声明var与let
+
+Q：var与let的区别在哪
+
+A：二者的区别在于 let 声明局部变量，不可重复声明，作用域在局部，先使用后声明会报错；var声明全局变量，变量可重复声明，二次声明的值将覆盖原值，如果声明在函数，则作用域在函数全局，如果声明在全局作用域时才会作用在全局，并且var声明在编译阶段会提升至全局位置，所以可以先使用，后声明；
+
+
+
+Q：const常量声明的引用类型可以修改值吗？
+
+A：实际上常量内部存储的是引用类型其指向堆中数据的地址，所以绑定的数据地址不可变，但是地址中的值可以变
+
+
+
+Q：什么是隐式转换与什么是显示转换
+
+A：隐式转换在编译器计算时会自动转换成需要的数据类型，例如+-*/在运算时
+
+
+
+Q：数据类型有哪些？
+
+A：number数值型 string字符串型 boolean布偶型 NaN undefined NULL
+
+
+
+Q：作用域的定义？
+
+A：指的是程序中变量、函数、对象的可访问范围和生命周期，也就是可使用范围
+
+
+
+Q：for循环与while循环的区别？
+
+A：for循环明确执行次数 while确定循环次数
+
+
+
+Q：数组的基础操作方法？
+
+A：前加unshift 后加push 前减shift 后减pop splice切片删除
+
+
+
+Q：函数有几种？
+
+A：具名函数 匿名函数 箭头函数 构造函数 立即执行函数
+
+
+
+Q：定义数组有几种方式？
+
+A：两种，
+一种直接声明赋值，let arr = [……]
+
+另一种使用内置对象Array的构造函数,let arr = new Array(1,2,3,4)
+
+
+
+Q：立即执行函数与匿名函数的作用
+
+A：主要起到隔离作用域的作用，因其不需要被调用，声明是就被自调，所以可以起到隔离变量与避免全局污染
+匿名函数通常作为回调函数的参数使用
+
+
+
+Q：逻辑中断指的是什么
+
+A：逻辑运算的短路行为，与在第一个为假时直接返回false，二者皆为真时返回后面的值
+或在第一个为真时直接返回true，不会执行后面的的代码
