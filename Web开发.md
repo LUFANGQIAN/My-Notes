@@ -5926,6 +5926,7 @@ css
 ```
 
 **应用场景**：
+
 - **导航栏**：让导航栏在用户滚动页面时固定在屏幕顶部，方便用户操作。
 - **侧边栏**：让侧边栏在用户滚动页面时固定在屏幕一侧，便于访问相关内容。
 - **目录**：在长篇文章中，使目录部分固定在屏幕一侧，方便用户快速跳转。
@@ -11274,7 +11275,9 @@ milliseconds);
   返回 `Date` 对象的秒数 (0 ~ 59)。
 
 - **getTime()**  
-  返回自 1970 年 1 月 1 日 00:00:00 UTC 至今的毫秒数。
+  返回自 1970 年 1 月 1 日 00:00:00 UTC 至今的毫秒数（时间戳）。
+
+
 
 ---
 
@@ -11349,6 +11352,47 @@ console.log("时间的分钟数: ", currentDate.getMinutes());
  console.log("时间的秒数: ", currentDate.getSeconds());
  console.log("从 1970 年 1 月 1 日至今的毫秒数: ", currentDate.getTime());
 ```
+
+
+
+##### 时间戳
+
+以下是图中文字的完整提取：
+
+***
+
+**三种方式获取时间戳：**
+
+1. 使用 getTime() 方法
+
+```js
+const date = new Date()
+console.log(date.getTime())
+```
+
+
+
+
+2. 简写 +new Date()
+
+<pre style="background: none"><code class="language-javascript" data-language="javascript" identifier="ee6be7ad39af4ae7b3d3bd63908514a3-1" index="1" total="3">console.log(+new Date())</code></pre>
+
+3. 使用 Date.now()
+
+> 无需实例化\
+> 但是只能得到当前的时间戳，而前面两种可以返回指定时间的时间戳
+
+```js
+console.log(Date.now())
+```
+
+
+
+***
+
+
+
+
 
 ##### **格式化日期和时间**
 
@@ -12394,23 +12438,29 @@ document.forms[0].elements[1];
 
 
 
-#### 获取层次节点
+#### 层次节点
 
-| 属性/方法                | 描述                                 |
-| ------------------------ | ------------------------------------ |
-| `firstChild`             | 获取当前元素节点的第一个子节点       |
-| `firstElementChild`      | 获取当前元素节点的第一个元素子节点   |
-| `lastChild`              | 获取当前元素节点的最后一个子节点     |
-| `lastElementChild`       | 获取当前元素节点的最后一个元素子节点 |
-| `parentNode`             | 获取当前节点的父节点                 |
-| `previousSibling`        | 获取当前节点的前一个同级节点         |
-| `previousElementSibling` | 获取当前节点的前一个同级元素节点     |
-| `nextSibling`            | 获取当前节点的后一个同级节点         |
-| `nextElementSibling`     | 获取当前节点的后一个同级元素节点     |
-| `attributes`             | 获取当前元素节点的所有属性节点集合   |
-| `childElementCount`      | 获取当前节点的元素子节点的个数       |
-| `children`               | 获取当前节点的所有元素子节点         |
-| `childNodes`             | 获取当前节点的所有子节点             |
+定义：在具有层次结构的数DOM树中表示层级关系的**节点对象**
+
+##### 获取节点
+
+| 属性/方法                    | 描述                                 |
+| ---------------------------- | ------------------------------------ |
+| `firstChild`                 | 获取当前元素节点的第一个子节点       |
+| `firstElementChild`          | 获取当前元素节点的第一个元素子节点   |
+| `lastChild`                  | 获取当前元素节点的最后一个子节点     |
+| `lastElementChild`           | 获取当前元素节点的最后一个元素子节点 |
+| **`parentNode`**             | 获取当前节点的父节点                 |
+| `previousSibling`            | 获取当前节点的前一个同级节点         |
+| **`previousElementSibling`** | 获取当前节点的前一个同级元素节点     |
+| `nextSibling`                | 获取当前节点的后一个同级节点         |
+| **`nextElementSibling`**     | 获取当前节点的后一个同级元素节点     |
+| `attributes`                 | 获取当前元素节点的所有属性节点集合   |
+| `childElementCount`          | 获取当前节点的元素子节点的个数       |
+| `children`                   | 获取当前节点的所有元素子节点         |
+| **`childNodes`**             | 获取当前节点的所有子节点             |
+
+加粗的是常用的节点
 
 
 
@@ -12464,7 +12514,7 @@ console.log('前一个同级节点内容:', previousNode.nodeValue);
 
 ---
 
-##### 获取同级节点
+**获取同级节点**
 
  `previousElementSibling` - 获取当前节点的前一个同级元素节点
 
@@ -12492,7 +12542,11 @@ console.log('后一个同级元素节点内容:', nextElement.textContent);
 
 ---
 
-##### 获取节点的属性、子节点和元素子节点
+
+
+
+
+**获取节点的属性、子节点和元素子节点**
 
  `attributes` - 获取当前元素节点的所有属性节点集合
 
@@ -12531,6 +12585,150 @@ for (let i = 0; i < allChildNodes.length; i++) {
     console.log('子节点内容:', allChildNodes[i].nodeValue);
 }
 ```
+
+**注释**
+
+- `HTMLCollection` 是一个集合，表示 HTML 元素的集合，它提供了可以遍历列表的方法和属性。
+- `HTML DOM` 中的 `HTMLCollection` 是“活”的；如果基本的文档改变时，那些改变通过所有 `HTMLCollection` 对象会立即显示出来。
+- `HTMLCollection` 对象是只读的，不能给它添加新元素，即使采用 JavaScript 数组语法也是如此。
+- `HTMLCollection` 对象和 `NodeList` 对象很相似。
+
+
+
+##### 创建节点
+
+分为三种：元素节点，文本节点 属性节点
+
+###### 元素节点
+
+```js
+// 创建 div 元素
+const newDiv = document.createElement('div');
+newDiv.id = 'newDiv'; // 设置属性
+newDiv.className = 'box'; // 设置类名
+```
+
+###### 文本节点
+
+```js
+// 创建文本节点
+const textNode = document.createTextNode('这是新文本内容');
+```
+
+###### 属性节点
+
+```js
+// 创建属性节点（较少用，通常用直接设置属性）
+const attr = document.createAttribute('data-role');
+attr.value = 'button';
+```
+
+
+
+##### 追加节点
+
+
+
+###### 追加队尾
+
+语法：appendChild(新元素)
+
+```js
+// 创建新元素
+const newElement = document.createElement('p');
+newElement.textContent = '新段落内容';
+
+// 获取父容器
+const container = document.getElementById('container');
+
+// 追加到末尾
+container.appendChild(newElement);
+```
+
+
+
+###### 插入指定位置
+
+语法：insertBefore(新元素,元素位置)
+
+```js
+// 创建新元素
+const newElement = document.createElement('div');
+newElement.textContent = '插入的元素';
+
+// 获取目标位置
+const target = document.getElementById('target');
+const referenceNode = target.nextElementSibling;
+
+// 插入到目标节点之前
+target.parentNode.insertBefore(newElement, referenceNode);
+```
+
+
+
+##### 替换节点
+
+**定义**：用新节点替换指定的旧节点，**保留旧节点的父节点位置**
+
+> **关键点**：必须通过父节点调用，且新节点会**取代**旧节点的位置
+
+```js
+// 创建新元素
+const newElement = document.createElement('span');
+newElement.textContent = '替换内容';
+
+// 获取要替换的节点
+const oldElement = document.getElementById('oldElement');
+
+// 执行替换
+oldElement.parentNode.replaceChild(newElement, oldElement);
+```
+
+
+
+##### 移除节点
+
+**定义**：从父节点中移除指定的子节点
+
+> **关键点**：必须通过父节点调用，移除后**节点仍存在于内存中**（可重新使用）
+
+```js
+// 获取父节点
+const parent = document.getElementById('parent');
+
+// 获取要移除的子节点
+const child = document.getElementById('child');
+
+// 移除节点
+parent.removeChild(child);
+```
+
+
+
+##### 克隆节点
+
+**定义**：创建现有节点的副本
+
+| 克隆类型     | 参数    | 说明                             |
+| ------------ | ------- | -------------------------------- |
+| **深度克隆** | `true`  | 克隆节点及其**所有子节点**       |
+| **浅度克隆** | `false` | 仅克隆**节点本身**（不含子节点） |
+
+> **重要提示**：
+>
+> 1. 克隆后**不会复制事件监听器**
+> 2. 保留原始节点的属性（包括`id`，需手动修改避免重复）
+> 3. 深度克隆后节点树结构完整，浅度克隆后子节点为空
+
+```js
+// 深度克隆（包含子节点）
+const deepClone = document.getElementById('target').cloneNode(true);
+
+// 浅度克隆（仅节点本身）
+const shallowClone = document.getElementById('target').cloneNode(false);
+```
+
+
 
 
 
@@ -12726,6 +12924,35 @@ $(window).on('scroll', function() {
 
 
 
+**窗口滚动位置**
+
+scrollX
+
+- **作用**：获取水平方向的滚动位置
+- **用法**：`window.scrollX`
+- **适用场景**：当页面有水平滚动条时
+
+scrollY
+
+- **作用**：获取垂直方向的滚动位置
+- **用法**：`window.scrollY`
+- **适用场景**：当页面有水平滚动条时
+
+scrollTop
+
+- **作用**：获取元素的垂直滚动位置
+- **用法**：`element.scrollTop`
+- **与 scrollY 的关系**：`window.scrollY === document.documentElement.scrollTop`（在大多数浏览器中）
+- **区别**：`scrollY` 适用于整个文档，`scrollTop` 适用于特定元素
+
+scrollLeft
+
+- **作用**：获取元素的水平滚动位置
+- **用法**：`element.scrollLeft`
+- **与 scrollX 的关系**：`window.scrollX === document.documentElement.scrollLeft`
+
+
+
 **滚动卷去**
 
 scrollLeft 和 scrollTop（属性）
@@ -12832,7 +13059,7 @@ window.addEventListener('resize', function () {
 
 作用：获取元素的自身宽高、包含元素自身设置的宽高、padding、border
 
-语法：offsetWidth和offsetHeight
+语法：元素.offsetWidth或offsetHeight
 
 - 获取出来的是数值，方便计算
 - 注意：获取的是可视宽高，如果盒子是隐藏的，获取的结果是0
@@ -12950,6 +13177,29 @@ offsetLeft和offsetTop 注意这是只读属性
     *   完成编辑后响应用 `change`。
     *   监听键盘全局操作用 `keydown`/`keyup` 绑定到 `document`。
     *   悬停效果优先用 `mouseenter`/`mouseleave`。
+
+
+
+#### M端事件
+
+M端，也就是mobile移动端
+
+移动端有自己独特的事件，例如**触屏事件 touch**（也称触摸事件），Android 和 iOS 都支持。
+
+##### 触屏事件
+
+- **touch 对象**：代表一个触摸点，可能是手指或触控笔
+- **功能**：响应用户手指或触控笔对屏幕/触控板的操作
+
+##### 常见触屏事件
+
+| 触屏 touch 事件 | 说明                            |
+| --------------- | ------------------------------- |
+| `touchstart`    | 手指触摸到一个 DOM 元素时触发   |
+| `touchmove`     | 手指在一个 DOM 元素上滑动时触发 |
+| `touchend`      | 手指从一个 DOM 元素上移开时触发 |
+
+> **提示**：这些事件是移动端特有的，用于处理触摸操作，与桌面端的鼠标事件对应。
 
 
 
@@ -13820,6 +14070,32 @@ if (isNaN(numericValue)) {
 - **`Number()` 构造函数**：`Number(value)` 可以将各种类型的值转换为数值。
 - **`parseInt()` 和 `parseFloat()`**：专门用于解析字符串并将其转换为整数或浮点数。
 - **算术运算符**：如乘法 (`*`)、减法 (`-`)、除法 (`/`) 等也可以用于类型转换。
+
+
+
+#### **获取子元素在父元素中的索引**
+
+这行代码用在监听事件的回调函数中，
+this指向绑定事件的元素，
+.children获取元素的所有子元素并生成一个**HTMLCollection**,
+Array的.from()将**HTMLCollection**转化成array
+Array的.indexOf是寻找给定值在数组中的索引
+
+```js
+let index = Array.from(this.children).indexOf(target);
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
