@@ -2856,12 +2856,13 @@ filter: unset;
 
 ###### 属性值详解
 - **0**：
+  
   - 元素完全透明，但依然可交互（可点击/聚焦）
   - 常用于实现淡出效果或无障碍隐藏
   ```css
   .hidden { opacity: 0; }
   ```
-
+  
 - **0~1之间数值**：
   - 实现元素半透明效果
   - 叠加计算公式：`最终透明度 = 父元素opacity * 当前元素opacity`
@@ -15113,6 +15114,51 @@ window.scrollTo(0, 1000);
 
 
 
+##### 滚动至锚点
+
+**作用**  
+让指定元素平滑滚动到视口可见位置
+
+**方法**
+`scrollIntoView`
+
+**核心语法**  
+
+```javascript
+element.scrollIntoView({ 
+  behavior: 'smooth'  // 平滑滚动
+});
+```
+
+**关键参数**  
+
+| 参数       | 值              | 作用             |
+| ---------- | --------------- | ---------------- |
+| `behavior` | `smooth`        | 平滑滚动（推荐） |
+| `block`    | `start`（默认） | 元素顶部对齐视口 |
+|            | `center`        | 元素中心对齐视口 |
+|            | `end`           | 元素底部对齐视口 |
+
+**使用示例**  
+
+```javascript
+// 点击链接平滑跳转到锚点
+document.querySelector('a[href="#section1"]').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('section1').scrollIntoView({
+    behavior: 'smooth'
+  });
+});
+```
+
+**浏览器支持**  
+✅ Chrome 61+ / Firefox 49+ / Safari 13.1+ / Edge 79+  
+❌ IE 不支持
+
+> 💡 **一句话记住**：`scrollIntoView({ behavior: 'smooth' })` = 点击链接后优雅滚动到目标区域
+
+
+
 ##### 页面尺寸事件
 
 作用：窗口尺寸改变触发
@@ -18378,7 +18424,7 @@ app.listen(port, () => {
 
 
 
-### 小技巧
+## 小技巧
 
 
 
