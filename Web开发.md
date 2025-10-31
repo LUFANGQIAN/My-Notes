@@ -7665,129 +7665,6 @@ setTimeout(() => console.log('定时器'), 1000);
 
 
 
-### 垃圾回收机制
-
-#### 定义
-- **GC**：Garbage Collection，自动回收程序不再使用的内存空间
-- **垃圾**：程序不再需要的内存或之前用过以后不会再用的内存
-- **特点**：JS引擎自动执行，对开发者相对无感
-
-```javascript
-let obj = {name: "obj"};  // 分配内存
-obj = null;               // 原对象成为垃圾，需要回收
-```
-
-
-
-#### 回收策略
-
-##### 标记清除算法
-
-**流程：**
-
-1. **标记阶段**：从根对象出发，标记所有可达对象
-2. **清除阶段**：回收所有未标记的对象
-
-**根对象包括：**
-- 全局对象（window）
-- 当前执行上下文中的变量
-- DOM树
-
-**缺点：**
-- 内存碎片化
-- 分配速度较慢
-
-
-
-##### 引用计数算法
-**原理：** 跟踪每个对象的引用次数，引用为0时立即回收
-
-**问题：**
-- 无法处理循环引用
-- 计数器占用空间大
-
-
-
-#### V8引擎回收
-
-##### 分代式垃圾回收
-将堆内存分为两个区域：
-
-**新生代**
-
-- **特点**：新产生的对象，容量小（1-8M）
-- **算法**：Scavenge算法（Cheney算法）
-- **过程**：
-  1. 使用区 → 标记活动对象
-  2. 复制到空闲区 → 排序整理
-  3. 角色互换 → 使用区↔空闲区
-- **晋升条件**：
-  - 经历多次GC仍存活
-  - 空闲区占用超过25%
-
-**老生代**
-
-- **特点**：存活时间长的对象，容量大
-- **算法**：标记清除 + 标记整理
-- **优化**：解决内存碎片问题
-
-
-
-#### 性能优化策略
-
-##### 并行回收
-
-- 主线程执行GC时，开启多个辅助线程同时回收
-- 主要用于新生代
-
-##### 增量标记
-- 将标记过程分成多个小步骤
-- 与JS执行交替进行，减少卡顿
-- **三色标记法**：
-  - 白色：未标记
-  - 灰色：自身标记，引用未标记
-  - 黑色：自身和引用都已标记
-
-##### 写屏障机制
-- 黑色对象引用白色对象时，强制将白色改为灰色
-- 保证增量标记的正确性
-
-##### 惰性清理
-- 标记完成后不立即清理
-- 按需分批清理，减少单次暂停时间
-
-##### 并发回收
-- 辅助线程在后台执行GC
-- 主线程继续执行JS，完全无阻塞
-
-
-
-#### ❗参考文章
-
-```txt
-https://juejin.cn/post/6981588276356317214?searchId=20251009093548BAF5BA141C1496307A9A
-```
-
-
-
-#### 内存结构
-
-```txt
-Global Environment (全局环境)
-├── Global Object (全局对象) → window
-│   ├── var 声明的变量
-│   ├── 内置属性 (document, console, etc.)
-│   └── ...
-├── Global Environment Record (全局环境记录)
-│   ├── Declarative Environment Record (声明式环境记录)
-│   │   ├── let 声明的变量
-│   │   ├── const 声明的变量  
-│   │   └── class 声明的类
-│   └── Object Environment Record (对象环境记录)
-│       └── var 声明的变量 (与window对象共享)
-└── Outer Environment Reference → null
-```
-
 
 
 ### 引入方式
@@ -10261,6 +10138,92 @@ console.log(adults);
 
 ---
 
+#### fill() 方法
+
+##### 定义
+
+**fill()** 方法用一个固定值填充数组中从起始索引到终止索引内的全部元素。
+
+##### 语法
+
+```javascript
+arr.fill(value[, start[, end]])
+```
+
+##### 参数说明
+
+- **value**：用来填充数组元素的值
+- **start**（可选）：起始索引，默认为 0
+- **end**（可选）：终止索引，默认为 `arr.length`
+
+##### 原理
+
+```javascript
+原数组: [1, 2, 3, 4, 5]
+    ↓ fill(9, 1, 4)
+新数组: [1, 9, 9, 9, 5]
+```
+
+##### 示例
+
+基本用法
+
+```javascript
+const numbers = [1, 2, 3, 4, 5];
+
+// 用0填充整个数组
+numbers.fill(0);
+console.log(numbers); // [0, 0, 0, 0, 0]
+
+const arr = [1, 2, 3, 4, 5];
+// 用9填充索引1到3（不包括3）
+arr.fill(9, 1, 3);
+console.log(arr); // [1, 9, 9, 4, 5]
+```
+
+指定起始位置
+
+```javascript
+const numbers = [1, 2, 3, 4, 5];
+
+// 从索引2开始填充为7
+numbers.fill(7, 2);
+console.log(numbers); // [1, 2, 7, 7, 7]
+```
+
+创建并填充新数组
+
+```javascript
+// 创建长度为5的数组并用-1填充
+const newArray = new Array(5).fill(-1);
+console.log(newArray); // [-1, -1, -1, -1, -1]
+```
+
+填充对象引用
+
+```javascript
+// 注意：所有元素引用同一个对象
+const objArray = new Array(3).fill({ value: 1 });
+objArray[0].value = 2;
+console.log(objArray);
+// [{value: 2}, {value: 2}, {value: 2}]
+```
+
+##### 注意事项
+
+- **会修改原数组**：fill() 方法会改变调用它的数组
+- **对象引用**：当填充值为对象时，所有元素都引用同一个对象
+- **负索引**：支持负索引，-1 表示最后一个元素
+
+```javascript
+const arr = [1, 2, 3, 4, 5];
+// 使用负索引：从倒数第3个到倒数第1个
+arr.fill(0, -3, -1);
+console.log(arr); // [1, 2, 0, 0, 5]
+```
+
+------
+
 
 
 #### reduce() 方法
@@ -11157,178 +11120,7 @@ document.addEventListener('click', () => {
 
 
 
-####  `this` 关键字
 
-
-
-在JavaScript中，`this`关键字指的是当前执行上下文中的对象。它的值取决于函数是如何被调用的，并且在不同的情况下，其值也会有所不同。理解`this`的行为对于编写高效和可靠的代码至关重要。
-
-
-
-##### 基本规则
-
-1. **全局上下文**
-   
-   - 在全局执行上下文中（即不在任何函数内），`this`指向全局对象。
-     ```javascript
-     console.log(this === window); // 在浏览器中输出: true
-     ```
-   
-2. **普通函数调用**
-   - 当一个函数不是作为对象的方法被调用时，`this`通常指向全局对象（在严格模式下为`undefined`）。
-     ```javascript
-     function foo() {
-         console.log(this);
-     }
-     foo(); // 在非严格模式下输出: window，在严格模式下输出: undefined
-     ```
-
-3. **方法调用**
-   
-   - 当一个函数作为对象的方法被调用时，`this`指向该对象。
-     ```javascript
-     const obj = {
-         name: 'Alice',
-         greet: function() {
-             console.log(`Hello, ${this.name}`);
-         }
-     };
-     obj.greet(); // 输出: Hello, Alice
-     ```
-   
-4. **构造函数调用**
-   
-   - 当使用`new`关键字创建一个新的对象实例时，`this`指向新创建的对象实例。
-     ```javascript
-     function Person(name) {
-         this.name = name;
-     }
-     const person = new Person('Bob');
-     console.log(person.name); // 输出: Bob
-     ```
-   
-5. **箭头函数**
-   
-   - 箭头函数不绑定自己的`this`，它会捕获其所在上下文的`this`值。
-     ```javascript
-     const obj = {
-         name: 'Alice',
-         sayHello: () => {
-             console.log(`Hello, ${this.name}`); // 这里的 this 继承自外层作用域
-         }
-     };
-     obj.sayHello(); // 输出: Hello, undefined 或者 Hello, [global object name]
-     ```
-   
-6. **显式绑定**
-   
-   - 通过`call()`、`apply()`或`bind()`方法可以显式地指定`this`的值。
-     ```javascript
-     function greet() {
-         console.log(`Hello, ${this.name}`);
-     }
-     
-     const person1 = { name: 'Alice' };
-     const person2 = { name: 'Bob' };
-     
-     greet.call(person1); // 输出: Hello, Alice
-     greet.apply(person2); // 输出: Hello, Bob
-     
-     const greetPerson1 = greet.bind(person1);
-     greetPerson1(); // 输出: Hello, Alice
-     ```
-
-
-
-##### `call()` 方法
-- **作用**：立即调用函数，并指定`this`值以及以逗号分隔的参数列表。
-- **语法**：
-  ```javascript
-  function.call(thisArg, arg1, arg2, ...)
-  ```
-- **示例**：
-  ```javascript
-  const obj = { name: 'Alice' };
-  function greet(greeting) {
-      console.log(`${greeting}, ${this.name}`);
-  }
-  greet.call(obj, 'Hello'); // 输出: Hello, Alice
-  ```
-
-##### `apply()` 方法
-- **作用**：与`call()`类似，但参数是以数组形式传递的。
-- **语法**：
-  ```javascript
-  function.apply(thisArg, [argsArray])
-  ```
-- **示例**：
-  ```javascript
-  const obj = { name: 'Alice' };
-  function greet(greeting, punctuation) {
-      console.log(`${greeting}, ${this.name}${punctuation}`);
-  }
-  greet.apply(obj, ['Hello', '!']); // 输出: Hello, Alice!
-  ```
-
-##### `bind()` 方法
-- **作用**：返回一个新函数，在调用这个新函数时，它的`this`值会被设置成提供的值，同时还可以预设部分参数。
-- **语法**：
-  ```javascript
-  const boundFunc = function.bind(thisArg[, arg1[, arg2[, ...]]])
-  ```
-- **示例**：
-  ```javascript
-  const obj = { name: 'Alice' };
-  function greet(greeting, punctuation) {
-      console.log(`${greeting}, ${this.name}${punctuation}`);
-  }
-  const boundGreet = greet.bind(obj, 'Hello');
-  boundGreet('!'); // 输出: Hello, Alice!
-  ```
-
-##### 常用场景
-
-1. **改变函数内部的`this`指向**
-   
-   - 使用`call()`或`apply()`来动态设置`this`值。
-     ```javascript
-     const person = { name: 'Bob' };
-     function sayName() {
-         console.log(this.name);
-     }
-     sayName.call(person); // 输出: Bob
-     ```
-   
-2. **借用其他对象的方法**
-   
-   - 使用`call()`或`apply()`来借用另一个对象的方法。
-     ```javascript
-     const arrayLike = { 0: 'a', 1: 'b', length: 2 };
-     Array.prototype.push.call(arrayLike, 'c');
-     console.log(arrayLike); // 输出: { '0': 'a', '1': 'b', '2': 'c', length: 3 }
-     ```
-   
-3. **部分应用函数（柯里化）**
-   
-   - 使用`bind()`方法可以预先设置某些参数，从而创建一个新的函数。
-     ```javascript
-     function multiply(a, b) {
-         return a * b;
-     }
-     const double = multiply.bind(null, 2);
-     console.log(double(5)); // 输出: 10
-     ```
-
-
-
-**总结**
-
-- **全局上下文**：在全局执行上下文中，`this`指向全局对象。
-- **普通函数调用**：在非严格模式下，`this`指向全局对象；在严格模式下，`this`为`undefined`。
-- **方法调用**：当函数作为对象的方法被调用时，`this`指向该对象。
-- **构造函数调用**：当使用`new`关键字创建一个新的对象实例时，`this`指向新创建的对象实例。
-- **箭头函数**：箭头函数不会创建自己的`this`上下文，而是继承自外层作用域。
-- **显式绑定**：通过`call()`、`apply()`或`bind()`方法可以显式地指定`this`的值。
 
 
 
@@ -11472,6 +11264,229 @@ class getArr{
 
 - 回调函数可以是 **普通函数**、**箭头函数** 或 **匿名函数**。
 - 回调函数的核心是 **“将逻辑作为参数传递”**，实现解耦和复用。
+
+
+
+###  this关键字
+
+
+
+在JavaScript中，`this`关键字指的是当前执行上下文中的对象。它的值取决于函数是如何被调用的，并且在不同的情况下，其值也会有所不同。理解`this`的行为对于编写高效和可靠的代码至关重要。
+
+
+
+##### 基本规则
+
+1. **全局上下文**
+
+   - 在全局执行上下文中（即不在任何函数内），`this`指向全局对象。
+
+     ```javascript
+     console.log(this === window); // 在浏览器中输出: true
+     ```
+
+2. **普通函数调用**
+
+   - 当一个函数不是作为对象的方法被调用时，`this`通常指向全局对象（在严格模式下为`undefined`）。
+
+     ```javascript
+     function foo() {
+         console.log(this);
+     }
+     foo(); // 在非严格模式下输出: window，在严格模式下输出: undefined
+     ```
+
+3. **方法调用**
+
+   - 当一个函数作为对象的方法被调用时，`this`指向该对象。
+
+     ```javascript
+     const obj = {
+         name: 'Alice',
+         greet: function() {
+             console.log(`Hello, ${this.name}`);
+         }
+     };
+     obj.greet(); // 输出: Hello, Alice
+     ```
+
+4. **构造函数调用**
+
+   - 当使用`new`关键字创建一个新的对象实例时，`this`指向新创建的对象实例。
+
+     ```javascript
+     function Person(name) {
+         this.name = name;
+     }
+     const person = new Person('Bob');
+     console.log(person.name); // 输出: Bob
+     ```
+
+5. **箭头函数**
+
+   - 箭头函数不绑定自己的`this`，它会捕获其所在上下文的`this`值。
+
+     ```javascript
+     const obj = {
+         name: 'Alice',
+         sayHello: () => {
+             console.log(`Hello, ${this.name}`); // 这里的 this 继承自外层作用域
+         }
+     };
+     obj.sayHello(); // 输出: Hello, undefined 或者 Hello, [global object name]
+     ```
+
+6. **显式绑定**
+
+   - 通过`call()`、`apply()`或`bind()`方法可以显式地指定`this`的值。
+
+     ```javascript
+     function greet() {
+         console.log(`Hello, ${this.name}`);
+     }
+     
+     const person1 = { name: 'Alice' };
+     const person2 = { name: 'Bob' };
+     
+     greet.call(person1); // 输出: Hello, Alice
+     greet.apply(person2); // 输出: Hello, Bob
+     
+     const greetPerson1 = greet.bind(person1);
+     greetPerson1(); // 输出: Hello, Alice
+     ```
+
+
+
+##### `call()` 方法
+
+- **作用**：立即调用函数，并指定`this`值以及以逗号分隔的参数列表。
+
+- **语法**：
+
+  ```javascript
+  function.call(thisArg, arg1, arg2, ...)
+  ```
+
+- **示例**：
+
+  ```javascript
+  const obj = { name: 'Alice' };
+  function greet(greeting) {
+      console.log(`${greeting}, ${this.name}`);
+  }
+  greet.call(obj, 'Hello'); // 输出: Hello, Alice
+  ```
+
+![image-20251023085253534](./img/image-20251023085253534.png)
+
+![image-20251023085613176](./img/image-20251023085613176.png)
+
+##### `apply()` 方法
+
+- **作用**：与`call()`类似，但参数是以数组形式传递的。
+
+- **语法**：
+
+  ```javascript
+  function.apply(thisArg, [argsArray])
+  ```
+
+- **示例**：
+
+  ```javascript
+  const obj = { name: 'Alice' };
+  function greet(greeting, punctuation) {
+      console.log(`${greeting}, ${this.name}${punctuation}`);
+  }
+  greet.apply(obj, ['Hello', '!']); // 输出: Hello, Alice!
+  ```
+
+##### `bind()` 方法
+
+- **作用**：返回一个新函数，在调用这个新函数时，它的`this`值会被设置成提供的值，同时还可以预设部分参数。
+
+- **语法**：
+
+  ```javascript
+  const boundFunc = function.bind(thisArg[, arg1[, arg2[, ...]]])
+  ```
+
+- **示例**：
+
+  ```javascript
+  //示例1
+  const obj = { name: 'Alice' };
+  function greet(greeting, punctuation) {
+      console.log(`${greeting}, ${this.name}${punctuation}`);
+  }
+  const boundGreet = greet.bind(obj, 'Hello');
+  boundGreet('!'); // 输出: Hello, Alice!
+  
+  //示例2
+  const btn = document.querySelector('button')
+  btn.addEventListener('click', function () {
+      // 禁用按钮
+      this.disabled = true
+      
+      window.setTimeout(function () {
+          // 在这个普通函数里面，我们要this由原来的window 改为 btn
+          this.disabled = false
+      }.bind(btn), 2000)
+  })
+  ```
+
+##### 常用场景
+
+1. **改变函数内部的`this`指向**
+
+   - 使用`call()`或`apply()`来动态设置`this`值。
+
+     ```javascript
+     const person = { name: 'Bob' };
+     function sayName() {
+         console.log(this.name);
+     }
+     sayName.call(person); // 输出: Bob
+     ```
+
+2. **借用其他对象的方法**
+
+   - 使用`call()`或`apply()`来借用另一个对象的方法。
+
+     ```javascript
+     const arrayLike = { 0: 'a', 1: 'b', length: 2 };
+     Array.prototype.push.call(arrayLike, 'c');
+     console.log(arrayLike); // 输出: { '0': 'a', '1': 'b', '2': 'c', length: 3 }
+     ```
+
+3. **部分应用函数（柯里化）**
+
+   - 使用`bind()`方法可以预先设置某些参数，从而创建一个新的函数。
+
+     ```javascript
+     function multiply(a, b) {
+         return a * b;
+     }
+     const double = multiply.bind(null, 2);
+     console.log(double(5)); // 输出: 10
+     ```
+
+
+
+##### new绑定
+
+
+
+
+
+**总结**
+
+- **全局上下文**：在全局执行上下文中，`this`指向全局对象。
+- **普通函数调用**：在非严格模式下，`this`指向全局对象；在严格模式下，`this`为`undefined`。
+- **方法调用**：当函数作为对象的方法被调用时，`this`指向该对象。
+- **构造函数调用**：当使用`new`关键字创建一个新的对象实例时，`this`指向新创建的对象实例。
+- **箭头函数**：箭头函数不会创建自己的`this`上下文，而是继承自外层作用域。
+- **显式绑定**：通过`call()`、`apply()`或`bind()`方法可以显式地指定`this`的值。
 
 
 
@@ -18007,7 +18022,1002 @@ console.log(deepCopy.b.c); // 2
 
 
 
+   
 
+
+
+### 防抖与节流 
+
+#### 基本概念
+
+##### 防抖 (Debounce)
+
+在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。
+
+##### 节流 (Throttle)
+
+在一定时间内，只执行一次函数，稀释函数执行频率。
+
+#### 代码实现
+
+##### 防抖函数实现
+
+```javascript
+function debounce(func, delay) {
+    let timeoutId;
+    
+    return function(...args) {
+        clearTimeout(timeoutId);
+        
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+```
+
+##### 节流函数实现
+
+```javascript
+function throttle(func, delay) {
+    let lastTime = 0;
+    
+    return function(...args) {
+        const now = Date.now();
+        
+        if (now - lastTime >= delay) {
+            func.apply(this, args);
+            lastTime = now;
+        }
+    };
+}
+```
+
+#### 使用示例
+
+##### 防抖应用场景
+
+搜索框输入
+
+```javascript
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', debounce(function() {
+    console.log('搜索:', this.value);
+}, 500));
+```
+
+窗口调整
+
+```javascript
+window.addEventListener('resize', debounce(function() {
+    console.log('窗口大小改变');
+}, 300));
+```
+
+##### 节流应用场景
+
+滚动事件
+
+```javascript
+window.addEventListener('scroll', throttle(function() {
+    console.log('滚动位置:', window.scrollY);
+}, 100));
+```
+
+鼠标移动
+
+```javascript
+document.addEventListener('mousemove', throttle(function(e) {
+    console.log('鼠标位置:', e.clientX, e.clientY);
+}, 50));
+```
+
+#### 区别对比
+
+| 特性         | 防抖 (Debounce)    | 节流 (Throttle) |
+| ------------ | ------------------ | --------------- |
+| **执行时机** | 停止触发后执行     | 按固定频率执行  |
+| **重置机制** | 每次触发都重置计时 | 固定时间间隔    |
+| **适用场景** | 搜索、窗口调整     | 滚动、鼠标移动  |
+| **效果**     | 合并多次为一次     | 稀释执行频率    |
+
+#### 可视化理解
+
+防抖执行模式
+
+```
+---x-----x----x---------x---|执行
+↑ 每次触发都重新计时，直到停止
+```
+
+节流执行模式
+
+```
+x----x----x----x----x----x--  
+↑ 固定间隔执行，不管触发多频繁
+```
+
+#### 实际应用技巧
+
+##### 立即执行防抖
+
+```javascript
+function debounceImmediate(func, delay, immediate = false) {
+    let timeoutId;
+    
+    return function(...args) {
+        const callNow = immediate && !timeoutId;
+        
+        clearTimeout(timeoutId);
+        
+        timeoutId = setTimeout(() => {
+            timeoutId = null;
+            if (!immediate) {
+                func.apply(this, args);
+            }
+        }, delay);
+        
+        if (callNow) {
+            func.apply(this, args);
+        }
+    };
+}
+```
+
+##### 带取消功能的节流
+
+```javascript
+function throttleCancelable(func, delay) {
+    let lastTime = 0;
+    let timeoutId;
+    
+    const throttled = function(...args) {
+        const now = Date.now();
+        const remaining = delay - (now - lastTime);
+        
+        if (remaining <= 0) {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            func.apply(this, args);
+            lastTime = now;
+        } else if (!timeoutId) {
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+                lastTime = Date.now();
+                timeoutId = null;
+            }, remaining);
+        }
+    };
+    
+    throttled.cancel = () => {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+    };
+    
+    return throttled;
+}
+```
+
+#### 总结
+
+- **防抖**：适合多次触发，只需最终结果的场景，类似于游戏回城，每次触发重新读条
+- **节流**：适合持续触发，需要均匀响应的场景，类似于游戏技能，一段时间只触发一次
+
+
+
+
+
+## JS高级
+
+
+
+### 内核渲染
+
+Trident IE
+
+Webkit
+
+Blink
+
+Gecko 
+
+![image-20251029203940866](./img/image-20251029203940866.png)
+
+
+
+![image-20251027093158748](./img/image-20251027093158748.png)
+
+浏览器内核的作用是将HTML和CSS加载
+
+1. HTML将被Parser解析成DOM Tree（DOM树）|| 同时CSS将被Parser解析成Style Rules（样式规则）
+2. DOM Tree加载时遇到JS代码将推给V8引擎来加载并进行操作
+3. 在此之后DOM树与样式规则将混合，混成Render Tree（渲染树）
+4. Render Tree将通过Layout布局器来进行布局
+5. Painting将绘出元素
+6. Display显示出绘制完成的页面
+
+
+
+### V8引擎
+
+![image-20251027092735587](./img/image-20251027092735587.png)
+
+拿到js代码后会进行以下步骤
+
+1. 浏览器内核将js源代码推入V8引擎
+2. 词法分析（Tokenization）将字符流分解为Token流
+3. 将Token流进行语法分析（parsing），通过预解析与全解析两个模块分析
+4. 根据分析结果生成AST（抽象语法树）
+5. 通过lgnition模块将AST转化为bytecode字节码
+6. 字节码转化为机器码执行
+7. 多次执行的函数将被标记为热函数
+8. 热函数将被TurboFan模块直接转化为当前执行平台的对应的机器码
+9. 并将优化后的函数机器码添加入lgnition模块生成的字节码对应函数位置
+10. 优化后的机器码将优先被使用再生成运行结果
+11. 如果优化的函数发生改变则执行去优化
+12. 去优化（Deoptimization）：回退到字节码执行
+
+
+
+### 变量提升
+
+#### 核心概念定义
+
+##### 1. **执行上下文**
+
+- **GEC（Global Execution Context）**：全局执行上下文，代码执行时的最外层环境
+- **FEC（Function Execution Context）**：函数执行上下文，函数调用时创建的执行环境
+- **ECStack（Execution Context Stack）**：执行上下文栈，用于管理所有执行上下文的后进先出栈结构
+
+##### 2. **变量环境**
+
+- **GO（Global Object）**：全局对象，在浏览器中为 window 对象，存储全局变量和函数
+- **VO（Variable Object）**：变量对象，存储当前上下文中的变量和函数声明
+- **AO（Activation Object）**：活动对象，函数执行上下文中的变量对象
+
+
+
+#### 包含关系
+
+VO包含GO 和 AO GO是在GEC的VO中  AO是在FEC的VO中
+
+![image-20251028082247345](./img/image-20251028082247345.png)
+
+
+
+#### GEC全局执行上下文
+
+其内部包含GO
+
+```js
+// GEC 的完整结构示意
+GEC = {
+    // 1. 变量环境（Variable Environment）
+    variableEnvironment: {
+        environmentRecord: {
+            // 存储 var 声明的变量和函数声明
+            // 在全局上下文中指向 GO
+            bindings: GO  // 引用全局对象
+        },
+        outer: null  // 全局上下文没有外部引用
+    },
+    
+    // 2. 词法环境（Lexical Environment）
+    lexicalEnvironment: {
+        environmentRecord: {
+            // 存储 let/const 声明的变量（全局块级作用域）
+            bindings: {
+                // let/const 变量存储在这里
+                // 例如：let blockScoped = "value"
+            }
+        },
+        outer: null
+    },
+    
+    // 3. this 绑定
+    thisBinding: GO,  // 在全局上下文中，this 指向全局对象
+    
+    // 4. 外部环境引用（作用域链顶端）
+    outerEnvironment: null,  // 全局上下文是作用域链的终点
+    
+    // 5. 可执行代码
+    code: {
+        type: "global",
+        instructions: [...]  // 全局代码的字节码指令
+    },
+    
+    // 6. 执行状态
+    status: "executing" | "suspended" | "completed",
+    
+    // 7. 变量声明记录
+    declarations: {
+        varDeclarations: ["name", "foo"],     // var 声明的标识符
+        functionDeclarations: ["foo", "bar"], // 函数声明的标识符  
+        letDeclarations: ["blockScoped"],     // let 声明的标识符
+        constDeclarations: ["PI"]             // const 声明的标识符
+    }
+}
+```
+
+
+
+#### 执行上下文生命周期
+
+##### 阶段一：创建阶段（编译阶段）
+
+```javascript
+// 示例代码
+var name = 'why';
+function foo() {
+    console.log('hello');
+}
+var bar = function() {
+    console.log('world');
+};
+```
+
+**执行过程：**
+
+```
+1. 创建 GEC（全局执行上下文）
+2. 创建 GO（全局对象）
+3. 变量提升：
+   - GO.name = undefined
+   - GO.foo = function(){...}（完整函数）
+   - GO.bar = undefined（函数表达式）
+4. 将 GEC 推入 ECStack
+```
+
+##### 阶段二：执行阶段（代码执行）
+
+```
+ECStack = [GEC]  // 初始状态
+
+↓ 执行 name = 'why'
+GO.name = 'why'  // 变量赋值
+
+↓ 执行 bar 赋值  
+GO.bar = function(){...}  // 函数表达式赋值
+
+↓ 执行 foo()
+创建 FEC（函数执行上下文）推入栈
+ECStack = [FEC, GEC]
+
+↓ foo() 执行完毕
+FEC 出栈
+ECStack = [GEC]  // 回到全局上下文
+```
+
+#### 完整执行流程示例
+
+```javascript
+var a = 1;
+function outer() {
+    var b = 2;
+    function inner() {
+        var c = 3;
+        console.log(a + b + c);
+    }
+    inner();
+}
+outer();
+```
+
+**ECStack 变化过程：**
+
+```
+1. 编译阶段: ECStack = [GEC]
+   - GO: a = undefined, outer = function
+
+2. 执行 a = 1: ECStack = [GEC]
+   - GO.a = 1
+
+3. 调用 outer(): ECStack = [outerFEC, GEC]
+   - outerFEC: b = 2, inner = function
+
+4. 调用 inner(): ECStack = [innerFEC, outerFEC, GEC]
+   - innerFEC: c = 3
+
+5. inner() 执行完毕: ECStack = [outerFEC, GEC]
+
+6. outer() 执行完毕: ECStack = [GEC]
+```
+
+#### 变量提升规则总结
+
+##### 1. **函数声明** - 完全提升
+
+```javascript
+// 编译阶段：函数整体提升
+foo(); // 可以正常执行
+function foo() {
+    console.log('hello');
+}
+```
+
+##### 2. **var 变量** - 声明提升，赋值不提升
+
+```javascript
+// 编译阶段：变量声明提升，值为undefined
+console.log(name); // undefined
+var name = 'why';
+```
+
+##### 3. **函数表达式** - 按变量规则提升
+
+```javascript
+// 编译阶段：bar 提升为 undefined
+console.log(bar); // undefined
+var bar = function() {
+    console.log('world');
+};
+```
+
+##### 4. **let/const** - 存在暂时性死区
+
+```javascript
+console.log(a); // ReferenceError
+let a = 1;
+```
+
+#### V8 引擎完整执行流程
+
+```
+JS源代码
+     |
+     v
+词法分析 → Token流
+     |
+     v
+语法分析 → AST
+     |
+     v
+创建全局执行上下文 GEC
+     |--- 创建 GO 对象
+     |--- 变量/函数声明提升
+     |--- 推入 ECStack
+     |
+     v
+Ignition → 字节码
+     |
+     v
+执行阶段（逐行执行）
+     |--- 变量赋值
+     |--- 函数调用（创建新的 FEC）
+     |--- 作用域链解析
+     |
+     v
+运行结果
+```
+
+#### 关键要点
+
+1. **执行上下文栈**确保代码按正确的作用域顺序执行
+2. **变量提升**发生在编译阶段，只提升声明不提升赋值
+3. **函数声明**优先于变量声明提升
+4. 每个函数调用都会创建新的函数执行上下文
+5. 执行完毕的执行上下文会从栈中弹出，释放内存
+
+
+
+### 函数提升
+
+在语法分析生成AST抽象语法树后，V8引擎开始创建全局执行上下文（GEC），在创建全局对象（GO）的过程中会为函数声明分配内存并创建完整的函数对象，该对象包含函数的父级作用域引用和函数体代码，同时将全局变量声明初始化为undefined；接着将完整的GEC（包含GO引用）推入ECStack执行上下文栈，此时代码不会立即执行，而是通过Ignition解释器将AST转换为字节码，字节码逐行执行时进行变量赋值操作，当遇到函数调用时会创建对应的函数执行上下文（FEC）并推入ECStack，此时GEC的执行状态暂停，转而执行FEC中的指令，由于ECStack采用后进先出机制，FEC执行完毕后会从栈中弹出，恢复GEC继续执行，整个过程中作用域链的解析基于词法作用域在函数调用时动态构建。
+
+![image-20251027195601281](./img/image-20251027195601281.png)
+
+
+
+### 内存管理
+
+**JavaScript 会在定义变量时自动分配内存，但分配方式因数据类型而异。**
+
+#### 两种内存分配方式
+
+##### 基本数据类型
+
+- **存储位置**：直接在栈空间进行分配
+- **数据类型**：String、Number、Boolean、Undefined、Null、Symbol、BigInt
+- **特点**：访问速度快，大小固定，自动管理
+
+##### 复杂数据类型
+
+- **存储位置**：在堆内存中开辟空间
+- **数据类型**：Object、Array、Function、Date 等
+- **存储机制**：
+  - 在堆内存中分配实际存储空间
+  - 将这块空间的**指针（引用地址）** 返回给变量
+  - 变量实际存储的是指向堆内存的引用
+
+#### 内存结构
+
+##### 栈结构 (Stack)
+
+- 存储基本数据类型值
+- 存储变量的引用（指向堆内存的指针）
+- 按值访问，有序排列
+- 自动分配和释放
+
+##### 堆结构 (Heap)
+
+- 存储复杂数据类型的实际内容
+- 动态分配，大小不固定
+- 通过引用（指针）访问
+- 需要垃圾回收机制管理
+
+##### 关键理解
+
+变量本身存储在栈中，但对于复杂类型，变量存储的是**堆内存地址的引用**，而非实际数据本身。
+
+![image-20251028152359738](./img/image-20251028152359738.png)
+
+### 垃圾回收机制
+
+#### 定义
+
+- **GC**：Garbage Collection，自动回收程序不再使用的内存空间
+- **垃圾**：程序不再需要的内存或之前用过以后不会再用的内存
+- **特点**：JS引擎自动执行，对开发者相对无感
+
+```javascript
+let obj = {name: "obj"};  // 分配内存
+obj = null;               // 原对象成为垃圾，需要回收
+```
+
+
+
+#### 回收策略
+
+##### 标记清除算法
+
+**流程：**
+
+1. **标记阶段**：从根对象出发，标记所有可达对象
+2. **清除阶段**：回收所有未标记的对象
+
+**根对象包括：**
+
+- 全局对象（window）
+- 当前执行上下文中的变量
+- DOM树
+
+**缺点：**
+
+- 内存碎片化
+- 分配速度较慢
+
+
+
+
+
+##### 引用计数算法
+
+**原理：** 跟踪每个对象的引用次数，引用为0时立即回收
+
+**问题：**
+
+- 无法处理循环引用
+- 计数器占用空间大
+
+
+
+#### V8引擎回收
+
+##### 分代式垃圾回收
+
+将堆内存分为两个区域：
+
+**新生代**
+
+- **特点**：新产生的对象，容量小（1-8M）
+- **算法**：Scavenge算法（Cheney算法）
+- **过程**：
+  1. 使用区 → 标记活动对象
+  2. 复制到空闲区 → 排序整理
+  3. 角色互换 → 使用区↔空闲区
+- **晋升条件**：
+  - 经历多次GC仍存活
+  - 空闲区占用超过25%
+
+**老生代**
+
+- **特点**：存活时间长的对象，容量大
+- **算法**：标记清除 + 标记整理
+- **优化**：解决内存碎片问题
+
+
+
+#### 性能优化策略
+
+##### 并行回收
+
+- 主线程执行GC时，开启多个辅助线程同时回收
+- 主要用于新生代
+
+##### 增量标记
+
+- 将标记过程分成多个小步骤
+- 与JS执行交替进行，减少卡顿
+- **三色标记法**：
+  - 白色：未标记
+  - 灰色：自身标记，引用未标记
+  - 黑色：自身和引用都已标记
+
+##### 写屏障机制
+
+- 黑色对象引用白色对象时，强制将白色改为灰色
+- 保证增量标记的正确性
+
+##### 惰性清理
+
+- 标记完成后不立即清理
+- 按需分批清理，减少单次暂停时间
+
+##### 并发回收
+
+- 辅助线程在后台执行GC
+- 主线程继续执行JS，完全无阻塞
+
+
+
+#### ❗参考文章
+
+```txt
+https://juejin.cn/post/6981588276356317214?searchId=20251009093548BAF5BA141C1496307A9A
+```
+
+
+
+#### 内存结构
+
+```txt
+Global Environment (全局环境)
+├── Global Object (全局对象) → window
+│   ├── var 声明的变量
+│   ├── 内置属性 (document, console, etc.)
+│   └── ...
+├── Global Environment Record (全局环境记录)
+│   ├── Declarative Environment Record (声明式环境记录)
+│   │   ├── let 声明的变量
+│   │   ├── const 声明的变量  
+│   │   └── class 声明的类
+│   └── Object Environment Record (对象环境记录)
+│       └── var 声明的变量 (与window对象共享)
+└── Outer Environment Reference → null
+```
+
+
+
+### 闭包与内存泄露
+
+闭包是由两部分组成的：内部函数+可访问的自由变量
+
+其能保持外部函数的变量，会保存内部函数会用到的外部函数的AO中变量 
+
+闭包的作用：封装私有变量，保持上下文的数据，实现函数柯里化，节流防抖
+
+![image-20251029154214667](./img/image-20251029154214667.png)
+
+#### 内存泄漏
+
+参考下面两张图片，我在GO上的fn变量因调用foo()函数，在foo执行FEC时创建了AO，AO中声明并赋值了name，age，bar
+并且返回了bar的函数对象内存地址，此时FEC执行结束，
+如果不返回函数对象的地址，我foo的AO将被回收，同时只有foo的AO中保存了bar的内存对象地址
+所以理应foo的AO以及声明bar函数产生的bar函数对象二者都应当销毁，
+但是由于GO中的fn保存着bar内存对象的地址，又因为bar内存对象里还保存着父级作用域（foo的AO的地址），所以foo的AO与bar的函数对象都是可达的，不会被GC回收
+接着调用fn()就相当于执行bar，bar创建bar的AO并执行函数，通过bar函数对象中保存的父级作用域（foo的AO的地址），其创建的AO也会有foo的AO的地址，然后访问到AO中的变量，只要GO中的fn还指向foo中bar的内存对象地址，那么foo在执行时创建的AO就会一直保存，这就是一种内存泄漏
+
+
+
+总的来说，就是将声明内部函数时创建函数对象的地址赋给GO上的变量中，那么内部函数对象就会一直保存在内存中，而内部函数对象因为会保存父级作用域在执行时产生的AO地址，让他们俩始终是可达的，形成一个
+GO中的变量 → 内部函数对象 → 内部函数对象中的父级作用域属性 → 外层函数运行时生成的保存外层函数变量键值对与函数键值对的AO
+形成一个这样比较诡异的引用链，因为都可以访问到，所以GC不会回收
+
+
+
+V8引擎做了一些特殊的优化，外层函数的AO不会完全保留
+
+- 形成闭包时，不是整个AO都被保留
+- 只有闭包中实际使用的变量会被保留
+- 未使用的变量会被GC回收，这是引擎的智能优化
+
+![image-20251029162626236](./img/image-20251029162626236.png)
+
+![image-20251029162608415](./img/image-20251029162608415.png)
+
+
+
+### this详解
+
+```js
+// 定义一个函数
+function foo() {
+    console.log(this);
+}
+
+// 1.调用方式一：直接调用
+foo(); // window
+
+// 2.调用方式二：将foo放到一个对象中，再调用
+var obj = {
+    name: "why",
+    foo: foo
+}
+obj.foo() // obj对象
+
+// 3.调用方式三：通过call/apply调用
+foo.call("abc"); // String {"abc"}对象
+```
+
+全局调用 this 指向window
+
+作为对象的方法调用，指向obj对象
+
+被call绑定，其指向abc这个string对象
+
+
+
+#### 案例总结
+
+##### 执行过程分析
+
+```javascript
+var bar = obj.foo.bind("cba")
+bar()
+```
+
+也就是说显示绑定在内存中是创建了个新的函数并绑定固定的this，此时显示绑定的函数与原函数不是一个函数了，所以就算显示绑定的函数赋给其他变量，也只是赋给其他变量的地址，直接调用变量，这里有一个默认绑定与显示绑定的比较，此时，显示绑定会起作用
+
+##### 关键要点：
+
+- **`bind` 创建新函数**：`obj.foo.bind("cba")` 在内存中创建了全新的函数对象
+- **永久绑定**：新函数的 `this` 被硬编码指向 `"cba"`
+- **引用传递**：`bar` 变量存储的是新函数的引用地址
+- **优先级胜出**：调用 `bar()` 时，显式绑定覆盖了默认绑定规则
+
+##### 执行结果：
+- ❌ **不是**指向 `window`（默认绑定的结果）
+- ✅ **而是**指向 `"cba"`（显式绑定的结果）
+
+---
+
+#### 绑定优先级
+
+##### 1. new 绑定
+```javascript
+var obj = new Constructor()
+// this → 新创建的对象
+```
+
+##### 2. 显式绑定
+```javascript
+func.call(ctx)     // 立即执行，this → ctx
+func.apply(ctx)    // 立即执行，this → ctx  
+func.bind(ctx)()   // 创建新函数，this → ctx（永久）
+```
+
+##### 3. 隐式绑定
+```javascript
+obj.method()
+// this → obj（调用上下文对象）
+```
+
+##### 4. 默认绑定
+```javascript
+function() 
+// this → window（非严格模式）/ undefined（严格模式）
+```
+
+##### 特殊规则说明
+- **箭头函数**：无自己的 `this`，继承外层作用域的 `this`
+- **忽略 null/undefined**：在显式绑定中会被替换为默认绑定
+
+
+
+#### new绑定
+
+```js
+var obj = {
+    name: "obj",
+    foo: function() {
+        console.log(this)
+    }
+}
+
+var f = new obj.foo()
+console.log(f) // 输出新创建的对象实例
+```
+
+也就是说，new会强行将foo的this绑定到我创建的新对象上，然后foo的调用才会被执行，执行打印的也是那个对象，之后新创建的对象才会赋值给f，让我们可以通过f来访问那个新创建的对象，虽然新创建的对象里啥也没有，只有一个继承来的constructor，让其指回构造函数
+
+控制台输出两个foo，是因为控制台美化了，自动解析了，聪明的智商又占领高地了
+
+
+
+
+
+###  `new` 操作符核心机制
+
+```js
+function Person(name, age) {
+    // this 指向新创建的对象
+    this.name = name
+    this.age = age
+    this.greet = function() {
+        return `Hello, I'm ${this.name}`
+    }
+}
+
+var person1 = new Person("Alice", 25)
+var person2 = new Person("Bob", 30)
+
+console.log(person1.greet()) // "Hello, I'm Alice"
+console.log(person2.greet()) // "Hello, I'm Bob"
+```
+
+里面new就是在堆中创建了一个对象，然后将构造函数中的this指向了这个对象并且在对象中添加了对象原型指回构造函数的原型对象，并且继承来constructor属性指回构造函数，之后调用构造函数，相当于我们手动使用对象名.属性名 = 属性值这样，巧妙地利用了new会修改this的指向，使用 new创建的对象.属性名 = 属性值，new创建的对象.方法名 = 函数 这样来为实例化的对象创建和构造函数一样解构的属性名和属性值，然后再将new创建的对象的地址赋给引用数据类型的变量，如果我new一次后打印构造函数的this值，那指向的应该是刚刚创建的对象
+
+#### `new` 操作符执行流程
+
+##### 完整执行步骤：
+1. **内存分配** - 在堆内存创建新的空对象
+2. **原型设置** - 设置对象的 `[[Prototype]]` 指向构造函数的 `prototype`
+3. **this绑定** - 将构造函数内的 `this` 指向新创建的对象
+4. **属性初始化** - 执行构造函数代码，通过 `this` 添加属性和方法
+5. **返回实例** - 将新对象的引用赋值给变量
+
+#### 代码示例与验证
+
+```javascript
+function Person(name, age) {
+    // 步骤3: this 绑定到新对象
+    console.log("构造函数内 this:", this)
+    
+    // 步骤4: 属性初始化
+    this.name = name
+    this.age = age
+    this.greet = function() {
+        return `Hello, I'm ${this.name}`
+    }
+}
+
+// 步骤1,2,5: 创建实例
+var person1 = new Person("Alice", 25)
+```
+
+#### 关键理解要点
+
+##### 1. `this` 指向机制
+- 构造函数内的 `this` 指向新创建的实例对象
+- `new` 绑定优先级高于其他绑定方式
+- 实例完成前 `this` 就已指向新对象
+
+##### 2. 原型链建立
+- 实例通过原型链继承构造函数的 `prototype`
+- 默认继承 `constructor` 属性指向原构造函数
+- 实现实例类型识别和共享方法
+
+##### 3. 实际应用价值
+- **对象工厂模式**：批量创建相似结构对象
+- **状态封装**：每个实例维护独立状态
+- **代码复用**：统一初始化逻辑
+
+#### 执行顺序验证
+
+```javascript
+function Demo() {
+    console.log("1. 构造函数开始")
+    console.log("2. this 已是实例:", this instanceof Demo)
+    console.log("3. 原型已设置:", Object.getPrototypeOf(this) === Demo.prototype)
+    
+    this.value = "初始化完成"
+    
+    console.log("4. 属性设置后:", this)
+}
+
+var instance = new Demo()
+console.log("5. 最终实例:", instance)
+```
+
+#### 核心价值
+
+- **自动化对象创建**：无需手动创建和返回对象
+- **标准化初始化**：统一的对象构建流程
+- **清晰的实例关系**：明确的构造函数-实例关联
+
+这种机制是 JavaScript 面向对象编程的基石，理解了它就掌握了对象创建的核心原理！
+
+
+
+### 常见面试题
+
+
+
+#### 变量函数提升
+
+##### 代码段 1：全局变量修改
+```javascript
+var n = 100
+function foo() {
+    n = 200
+}
+
+foo()
+console.log(n) // 输出：200
+```
+**解释**：函数 `foo` 内部修改的是全局变量 `n`，因为函数内部没有用 `var` 重新声明 `n`，所以操作的是外部的 `n`。
+
+---
+
+##### 代码段 2：变量提升
+```javascript
+var a = 100
+function foo() {
+    console.log(a) // 输出：undefined
+    return
+    var a = 100
+}
+
+foo()
+```
+**解释**：由于变量提升，函数内部的 `var a` 会被提升到函数顶部，但赋值不会。所以 `console.log(a)` 输出 `undefined`，`return` 语句后面的代码不会执行。
+
+---
+
+##### 代码段 3：局部变量遮蔽
+```javascript
+function foo() {
+    console.log(n) // 输出：undefined
+    var n = 200
+    console.log(n) // 输出：200
+}
+
+var n = 100
+foo()
+```
+**解释**：函数内部的 `var n` 会提升到函数顶部，在第一个 `console.log` 时 `n` 已声明但未赋值（`undefined`），第二个 `console.log` 时已赋值为 `200`。函数内部的 `n` 遮蔽了外部的全局变量 `n`。
+
+---
+
+##### 代码段 4：隐式全局变量
+```javascript
+function foo() {
+    var a = b = 100
+}
+
+foo()
+console.log(a) // 报错：a is not defined
+console.log(b) // 输出：100
+```
+**解释**：`var a = b = 100` 等价于 `b = 100; var a = b;`。`b` 没有用 `var` 声明，成为隐式全局变量。`a` 用 `var` 声明，是函数局部变量，外部无法访问。
+
+---
+
+##### 代码段 5：作用域链
+
+```javascript
+var n = 100
+function foo1() {
+    console.log(n) // 输出：100
+}
+
+function foo2() {
+    var n = 200
+    console.log(n) // 输出：200
+    foo1()
+}
+
+foo2()
+console.log(n) // 输出：100
+```
+**解释**：
+1. `foo2()` 内部的 `n` 是局部变量，输出 `200`
+2. `foo1()` 在全局作用域定义，它内部的 `n` 指向全局变量 `n`（值为 `100`）
+3. 最后的 `console.log` 输出全局变量 `n`（仍然是 `100`）
+
+作用域在函数定义时确定，而不是调用时确定。
 
 
 
