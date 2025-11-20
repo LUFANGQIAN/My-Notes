@@ -8288,6 +8288,52 @@ JavaScript 中的数值类型与数学中的数字是一样的，分为正数、
 
 
 
+#### BigInt大整数类型
+
+- **定义**：表示任意精度的整数，用于安全地处理超过 JavaScript Number 类型安全范围（2^53 - 1）的大整数
+
+- **语法**：`BigInt(value)` 或在整数字面量后添加 `n` 后缀
+
+- **原理**：`BigInt` 是 ES2020 引入的基本数据类型，它允许表示任意大小的整数而不会丢失精度。与 `Number` 类型不同，`BigInt` 值只能是整数，不支持小数部分。`BigInt` 与 `Number` 不能直接混合运算或比较（使用 `===` 时类型不同），但可以使用 `==` 进行值比较。不支持 `Math` 对象的方法，且不能使用一元 `+` 运算符。
+
+- **示例**：
+
+  ```javascript
+  // 创建 BigInt
+  const bigIntLiteral = 9007199254740991n; // 使用 n 后缀
+  const bigIntConstructor = BigInt(9007199254740991); // 使用构造函数
+  const bigIntFromString = BigInt("9007199254740991"); // 从字符串创建
+  
+  // 超出 Number 安全范围的计算
+  const maxSafeInt = Number.MAX_SAFE_INTEGER; // 9007199254740991
+  console.log(maxSafeInt + 1 === maxSafeInt + 2); // 输出: true (精度丢失)
+  
+  const bigInt1 = BigInt(maxSafeInt) + 1n;
+  const bigInt2 = BigInt(maxSafeInt) + 2n;
+  console.log(bigInt1 === bigInt2); // 输出: false (保持精度)
+  
+  // 运算示例
+  const result = 10n * 20n; // 200n
+  const remainder = 25n % 4n; // 1n
+  const power = 2n ** 53n; // 9007199254740992n (超过 Number.MAX_SAFE_INTEGER)
+  
+  // 与 Number 交互 (需要显式转换)
+  const num = 10;
+  const big = 10n;
+  console.log(big + BigInt(num)); // 20n (正确：显式转换)
+  // console.log(big + num); // TypeError: Cannot mix BigInt and other types
+  
+  // 比较
+  console.log(5n == 5); // true (值相等)
+  console.log(5n === 5); // false (类型不同)
+  
+  // 实际应用场景：金融计算
+  const cents = 10n; // 代表 $0.10
+  const totalCents = cents * 3n; // 30n (精确表示 30 美分)
+  ```
+
+
+
 #### 字符串类型
 
 通过单引号（ `''`） 、双引号（ `""`）或反引号包裹的数据都叫字符串，单引号和双引号没有本质上的区别，推荐使用单引号。
@@ -8616,7 +8662,134 @@ arr.toString()
 
 
 
+#### 空值合并运算符
 
+- **定义**：一个逻辑运算符，当左侧操作数为 `null` 或 `undefined` 时，返回右侧操作数；否则返回左侧操作数
+
+- **语法**：`leftExpr ?? rightExpr`
+
+- **原理**：`??` 运算符提供了一种安全的方式来处理 `null` 和 `undefined` 值。与逻辑或运算符 `||` 不同，它**只**在左侧值为 `null` 或 `undefined` 时才使用右侧默认值，而不会将其他"假值"（如 0、false、空字符串、NaN）视为需要替换的值。这对于需要区分"无值"和"有意义的假值"的场景非常有用。
+
+- **示例**：
+
+  ```javascript
+  // 基本用法
+  const foo = null ?? 'default';
+  console.log(foo); // 输出: "default"
+  
+  const baz = 0 ?? 42;
+  console.log(baz); // 输出: 0 (0被视为有效值)
+  
+  const qux = '' ?? 'empty string';
+  console.log(qux); // 输出: "" (空字符串被视为有效值)
+  
+  // 与 || 运算符对比
+  const height = 0;
+  const width = null;
+  
+  console.log(height || 100); // 100 (0被视为falsy，被替换)
+  console.log(width || 100); // 100
+  
+  console.log(height ?? 100); // 0 (0被视为有效值，保留)
+  console.log(width ?? 100); // 100
+  
+  // 实际应用场景：配置对象
+  function createChart(options = {}) {
+    const config = {
+      width: options.width ?? 800,    // 只在options.width为null/undefined时使用默认值
+      height: options.height ?? 600,
+      showLegend: options.showLegend ?? true
+    };
+    return config;
+  }
+  
+  const chart1 = createChart({ width: 0, showLegend: false });
+  console.log(chart1); // { width: 0, height: 600, showLegend: false }
+  // 注意：width:0 和 showLegend:false 都被正确保留
+  
+  // 与可选链操作符?.结合使用
+  const user = {
+    name: 'Alice',
+    settings: {
+      notifications: false
+    }
+  };
+  
+  const notificationsEnabled = user?.settings?.notifications ?? true;
+  console.log(notificationsEnabled); // 输出: false (保留false值，而不是使用默认值true)
+  
+  const theme = user?.preferences?.theme ?? 'light';
+  console.log(theme); // 输出: "light" (因为user.preferences不存在)
+  ```
+
+
+
+#### 可选链操作符
+
+- **定义**：一种安全访问嵌套对象属性、数组元素或函数的语法，当访问路径中的某个属性为 `null` 或 `undefined` 时，不会抛出错误而是返回 `undefined`
+
+- **语法**：`obj?.prop`、`obj?.[expr]`、`arr?.[index]`、`func?.(args)`
+
+- **原理**：可选链操作符 `?.` 会在访问属性前检查左侧表达式是否为 `null` 或 `undefined`。如果是，整个表达式立即短路并返回 `undefined`；如果不是，则正常访问属性。它可以防止常见的"Cannot read property 'x' of undefined"错误，避免编写多层嵌套的条件检查代码。需要注意，它只检查 `null` 和 `undefined`，其他假值（如 0、false、空字符串）仍会继续访问。
+
+- **示例**：
+
+  ```javascript
+  // 基本属性访问
+  const user = {
+    name: 'Alice',
+    address: {
+      city: 'New York'
+    }
+  };
+  
+  console.log(user?.address?.city); // 输出: "New York"
+  console.log(user?.address?.zipCode); // 输出: undefined (而不是抛出错误)
+  console.log(user?.contact?.phone); // 输出: undefined (user.contact 不存在)
+  
+  // 数组元素访问
+  const users = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' }
+  ];
+  
+  console.log(users?.[0]?.name); // 输出: "Alice"
+  console.log(users?.[3]?.name); // 输出: undefined (索引3不存在)
+  
+  // 函数调用
+  const someObject = {
+    regularMethod: () => 'Hello',
+    optionalMethod: null
+  };
+  
+  console.log(someObject.regularMethod?.()); // 输出: "Hello"
+  console.log(someObject.optionalMethod?.()); // 输出: undefined (而不是抛出错误)
+  console.log(someObject.nonExistentMethod?.()); // 输出: undefined
+  
+  // 与空值合并运算符结合使用
+  const config = {
+    settings: {
+      theme: 'dark'
+    }
+  };
+  
+  const theme = config?.settings?.theme ?? 'light';
+  console.log(theme); // 输出: "dark"
+  
+  const fontSize = config?.settings?.fontSize ?? 16;
+  console.log(fontSize); // 输出: 16 (因为 config.settings.fontSize 不存在)
+  
+  // 安全地处理 API 响应
+  function getUserData(apiResponse) {
+    return {
+      name: apiResponse?.data?.user?.name ?? 'Guest',
+      email: apiResponse?.data?.user?.contact?.email ?? 'no-email@example.com'
+    };
+  }
+  
+  const userData = getUserData({}); // 即使响应为空对象也不会出错
+  console.log(userData); // { name: 'Guest', email: 'no-email@example.com' }
+  ```
 
 
 
@@ -8812,6 +8985,161 @@ console.log(num)
 注意**短路**行为，&&与：如果左边是假的，不看后面就是假的；||或：如果左边是真的，就不看后面，就是真的
 
 注意返回值，&&与：两边都是真时，运算结果返回&&后一值；||或：当第一个值为真时，运算结果返回||前一值
+
+
+
+#### 逻辑赋值运算符
+
+- **定义**：将逻辑运算符与赋值操作结合的运算符，允许在特定条件下对变量进行赋值，提供更简洁的条件赋值语法
+
+- **语法**：
+
+  ```javascript
+  x &&= y;  // 仅当 x 为真值时，x = y
+  x ||= y;  // 仅当 x 为假值时，x = y
+  x ??= y;  // 仅当 x 为 null 或 undefined 时，x = y
+  ```
+
+- **原理**：逻辑赋值运算符在 ES2021 (ES12) 中引入，提供了一种简洁的条件赋值方式。这些运算符是**短路**的，意味着只有在需要赋值时才会计算右侧表达式。`&&=` 仅在左侧为真值时赋值，`||=` 仅在左侧为假值时赋值，`??=` 仅在左侧为 nullish 值（null 或 undefined）时赋值。这避免了不必要的计算和副作用，同时使代码更加简洁明了。
+
+- **示例**：
+
+  ```javascript
+  // 与传统写法的对比
+  
+  // 1. 逻辑与赋值 (&&=)
+  let a = 10;
+  let b = 20;
+  
+  // 传统写法
+  if (a) {
+    a = b;
+  }
+  
+  // 使用 &&=
+  a &&= b;  // 仅当 a 为真值时，a = b
+  
+  // 2. 逻辑或赋值 (||=)
+  let config = { theme: null };
+  
+  // 传统写法
+  if (!config.theme) {
+    config.theme = 'light';
+  }
+  
+  // 使用 ||=
+  config.theme ||= 'light';  // 仅当 config.theme 为假值时赋值
+  
+  console.log(config.theme); // 'light'
+  
+  // 3. 空值合并赋值 (??=)
+  let userSettings = { fontSize: 0 };
+  
+  // 传统写法
+  if (userSettings.notifications === null || userSettings.notifications === undefined) {
+    userSettings.notifications = true;
+  }
+  
+  // 使用 ??=
+  userSettings.notifications ??= true;  // 仅当为 null 或 undefined 时赋值
+  
+  console.log(userSettings.notifications); // true
+  console.log(userSettings.fontSize); // 0 (保持原值，因为 0 不是 null/undefined)
+  
+  // 实际应用场景
+  
+  // 1. 初始化对象属性
+  function createUser(userData = {}) {
+    const user = {
+      id: userData.id || generateId(),
+      name: userData.name || 'Anonymous',
+      settings: userData.settings || {}
+    };
+    
+    // 使用逻辑赋值简化
+    user.settings.theme ??= 'light';      // 仅当未设置时
+    user.settings.fontSize ??= 16;         // 仅当未设置时
+    user.isAdmin &&= userData.isAdmin;     // 仅当原值为真时保留
+    
+    return user;
+  }
+  
+  // 2. 缓存模式
+  const cache = new Map();
+  
+  function getData(key) {
+    // 检查缓存，如果不存在则计算并缓存
+    if (!cache.has(key)) {
+      cache.set(key, computeExpensiveValue(key));
+    }
+    return cache.get(key);
+  }
+  
+  // 使用 ||= 简化
+  function getDataSimplified(key) {
+    let value = cache.get(key);
+    value ||= computeExpensiveValue(key);  // 仅当 value 为假值时计算
+    cache.set(key, value);
+    return value;
+  }
+  
+  // 3. 安全更新 DOM 元素
+  let element = document.getElementById('myElement');
+  
+  // 传统写法
+  if (element) {
+    element.textContent = 'Updated';
+  }
+  
+  // 使用 &&= 简化（注意：这与上面不完全等价，仅作演示）
+  element &&= Object.assign(element, { textContent: 'Updated' });
+  
+  // 4. 配置合并
+  function mergeConfig(defaultConfig, userConfig = {}) {
+    const config = { ...defaultConfig };
+    
+    // 仅当用户没有提供特定配置时，才使用默认值
+    config.apiEndpoint ??= defaultConfig.apiEndpoint;
+    config.timeout ??= defaultConfig.timeout;
+    config.retry ??= defaultConfig.retry;
+    
+    // 仅当启用分析时，才设置分析端点
+    config.analyticsEndpoint &&= config.enableAnalytics 
+      ? defaultConfig.analyticsEndpoint 
+      : null;
+      
+    return config;
+  }
+  
+  // 5. 重要区别：||= vs ??=
+  let value1 = 0;
+  let value2 = 0;
+  
+  value1 ||= 10;   // value1 变为 10，因为 0 是假值
+  value2 ??= 10;   // value2 保持 0，因为 0 不是 null/undefined
+  
+  console.log(value1); // 10
+  console.log(value2); // 0
+  
+  // 6. 惰性初始化
+  class DataManager {
+    constructor() {
+      this._cache = null;
+    }
+    
+    get cache() {
+      // 仅在首次访问且未初始化时创建
+      this._cache ??= new Map();
+      return this._cache;
+    }
+  }
+  
+  const manager = new DataManager();
+  console.log(manager.cache); // 初始化并返回 Map
+  console.log(manager.cache); // 直接返回已初始化的 Map
+  ```
+
+
 
 
 
@@ -10456,6 +10784,54 @@ console.log(sentence); // 'apple, banana, orange'
 
 
 
+#### flat数组展平
+
+- **定义**：将嵌套的数组结构展平为单一数组，可指定展开深度
+
+- **语法**：`array.flat([depth])`
+
+- **原理**：`flat` 方法按照指定的深度递归遍历数组，将所有元素与子数组中的元素合并为一个新数组。`depth` 参数指定展开深度（默认为1），使用 `Infinity` 可完全展平所有层级。该方法不会修改原数组，会移除数组中的空位（empty slots）。
+
+- **示例**：
+
+  ```javascript
+  const nestedArray = [1, 2, [3, 4, [5, 6]]];
+  console.log(nestedArray.flat()); // 输出: [1, 2, 3, 4, [5, 6]]
+  console.log(nestedArray.flat(2)); // 输出: [1, 2, 3, 4, 5, 6]
+  console.log(nestedArray.flat(Infinity)); // 输出: [1, 2, 3, 4, 5, 6]
+  
+  // 移除空位
+  const arrayWithHoles = [1, , 3, [4, , 6]];
+  console.log(arrayWithHoles.flat()); // 输出: [1, 3, 4, 6]
+  ```
+
+#### flatMap映射与展平
+
+- **定义**：先对数组每个元素执行映射函数，再将结果展平一层，形成新数组
+
+- **语法**：`array.flatMap(callback(currentValue[, index[, array]])[, thisArg])`
+
+- **原理**：`flatMap` 方法首先使用映射函数处理每个元素，然后将结果数组展平一层深度。它等价于 `map()` 后跟 `flat(1)`，但效率更高（避免创建中间数组）。回调函数必须返回数组（非数组值会被转换为数组）。
+
+- **示例**：
+
+  ```javascript
+  const numbers = [1, 2, 3, 4];
+  console.log(numbers.flatMap(x => [x * 2])); // 输出: [2, 4, 6, 8]
+  console.log(numbers.flatMap(x => [[x * 2]])); // 输出: [[2], [4], [6], [8]] (只展平一层)
+  
+  // 文本处理示例
+  const sentences = ["Hello world", "JavaScript is fun"];
+  const words = sentences.flatMap(sentence => sentence.split(' '));
+  console.log(words); // 输出: ["Hello", "world", "JavaScript", "is", "fun"]
+  
+  // 与 map().flat() 对比
+  const wordsAlt = sentences.map(sentence => sentence.split(' ')).flat();
+  console.log(wordsAlt); // 输出: ["Hello", "world", "JavaScript", "is", "fun"] (效果相同但效率较低)
+  ```
+
+
+
 #### 小节图
 
 ![image-20251011093426771](./img/image-20251011093426771.png)
@@ -11990,6 +12366,42 @@ null 也是 JavaScript 中数据类型的一种，通常只用它来表示不存
 
 
 
+#### fromEntries对象创建
+
+- **定义**：将键值对列表（如数组或Map）转换为一个普通对象
+
+- **语法**：`Object.fromEntries(iterable)`
+
+- **原理**：`fromEntries` 方法接收一个可迭代对象（如数组或Map），其中每个元素必须是包含两个元素的数组（[key, value]对），并将这些键值对转换为新对象的属性。它是 `Object.entries()` 的逆操作，不会修改原始可迭代对象。重复的键会被后面的值覆盖，非字符串键（除Symbol外）会被转换为字符串。
+
+- **示例**：
+
+  ```javascript
+  // 从数组转换
+  const entries = [['name', 'Alice'], ['age', 30]];
+  const obj = Object.fromEntries(entries);
+  console.log(obj); // 输出: { name: 'Alice', age: 30 }
+  
+  // 从Map转换
+  const map = new Map([['a', 1], ['b', 2], ['c', 3]]);
+  const objFromMap = Object.fromEntries(map);
+  console.log(objFromMap); // 输出: { a: 1, b: 2, c: 3 }
+  
+  // 实际应用场景：过滤和转换对象
+  const user = { name: 'John', age: 30, city: 'New York' };
+  const filteredUser = Object.fromEntries(
+    Object.entries(user).filter(([key]) => key !== 'city')
+  );
+  console.log(filteredUser); // 输出: { name: 'John', age: 30 }
+  
+  // 从URL参数创建对象
+  const params = new URLSearchParams('product=shirt&color=blue&size=m');
+  const product = Object.fromEntries(params);
+  console.log(product); // 输出: { product: 'shirt', color: 'blue', size: 'm' }
+  ```
+
+
+
 #### 遍历对象
 
 我们通常使用
@@ -13391,7 +13803,7 @@ const obj = Object.create(proto); // obj.__proto__ === proto
 
 ---
 
-##### 属性定义
+##### ❗属性定义
 
 语法：Object.defineProperty()
 
@@ -13470,6 +13882,42 @@ const grouped = Object.groupBy(fruits, ({qty}) => qty > 200 ? 'high' : 'low');
 
 > ✅ **特点**：ES2024新特性，返回分组对象，不改变原始数据
 
+
+
+##### fromEntries对象创建
+
+- **定义**：将键值对列表（如数组或Map）转换为一个普通对象
+
+- **语法**：`Object.fromEntries(iterable)`
+
+- **原理**：`fromEntries` 方法接收一个可迭代对象（如数组或Map），其中每个元素必须是包含两个元素的数组（[key, value]对），并将这些键值对转换为新对象的属性。它是 `Object.entries()` 的逆操作，不会修改原始可迭代对象。重复的键会被后面的值覆盖，非字符串键（除Symbol外）会被转换为字符串。
+
+- **示例**：
+
+  ```javascript
+  // 从数组转换
+  const entries = [['name', 'Alice'], ['age', 30]];
+  const obj = Object.fromEntries(entries);
+  console.log(obj); // 输出: { name: 'Alice', age: 30 }
+  
+  // 从Map转换
+  const map = new Map([['a', 1], ['b', 2], ['c', 3]]);
+  const objFromMap = Object.fromEntries(map);
+  console.log(objFromMap); // 输出: { a: 1, b: 2, c: 3 }
+  
+  // 实际应用场景：过滤和转换对象
+  const user = { name: 'John', age: 30, city: 'New York' };
+  const filteredUser = Object.fromEntries(
+    Object.entries(user).filter(([key]) => key !== 'city')
+  );
+  console.log(filteredUser); // 输出: { name: 'John', age: 30 }
+  
+  // 从URL参数创建对象
+  const params = new URLSearchParams('product=shirt&color=blue&size=m');
+  const product = Object.fromEntries(params);
+  console.log(product); // 输出: { product: 'shirt', color: 'blue', size: 'm' }
+  ```
+
 ---
 
 ##### 总结表
@@ -13482,6 +13930,8 @@ const grouped = Object.groupBy(fruits, ({qty}) => qty > 200 ? 'high' : 'low');
 | `Object.values()`  | 获取属性值数组       | ES2015 |
 | `Object.entries()` | 获取[key, value]数组 | ES2015 |
 | `Object.groupBy()` | 分组对象             | ES2024 |
+
+
 
 
 
@@ -18931,6 +19381,3380 @@ console.log("5. 最终实例:", instance)
 
 
 
+
+
+### 纯函数
+
+
+
+
+
+#### 纯函数的定义
+
+纯函数是一个满足以下两个核心条件的函数：
+
+- 相同的输入参数总是产生相同的返回值
+- 函数执行不会对外部状态产生任何可观察的影响
+
+#### 纯函数的符合条件
+
+##### 必须满足的条件：
+
+- 仅依赖于输入参数
+- 不修改任何外部状态
+- 不依赖任何外部状态
+- 相同的输入必然得到相同的输出
+
+##### 不能有的行为：
+
+- 修改全局变量
+- 修改传入的参数
+- 进行网络请求
+- 操作DOM
+- 读取/写入文件
+- 调用随机数生成器
+- 读取当前时间
+
+#### 经典案例对比
+
+##### 纯函数案例
+
+**数学运算**
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+function multiply(x, y) {
+  return x * y;
+}
+```
+
+**字符串处理**
+
+```javascript
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function reverseString(str) {
+  return str.split('').reverse().join('');
+}
+```
+
+**数组操作**
+
+```javascript
+function doubleArray(arr) {
+  return arr.map(item => item * 2);
+}
+
+function filterEvenNumbers(numbers) {
+  return numbers.filter(num => num % 2 === 0);
+}
+```
+
+**对象操作**
+
+```javascript
+function updateUser(user, newName) {
+  return {
+    ...user,
+    name: newName
+  };
+}
+```
+
+##### 非纯函数案例
+
+**依赖外部状态**
+
+```javascript
+let counter = 0;
+function increment() {
+  counter++;
+  return counter;
+}
+
+let taxRate = 0.1;
+function calculateTax(amount) {
+  return amount * taxRate;
+}
+```
+
+**修改输入参数**
+
+```javascript
+function updateProfile(user, newEmail) {
+  user.email = newEmail;
+  return user;
+}
+
+function addToCart(cart, item) {
+  cart.push(item);
+  return cart;
+}
+```
+
+**随机性操作**
+
+```javascript
+function generateId() {
+  return Math.random().toString(36);
+}
+
+function createOrder(order) {
+  return {
+    ...order,
+    id: Date.now()
+  };
+}
+```
+
+**副作用操作**
+
+```javascript
+function saveToDatabase(data) {
+  database.save(data);
+  return true;
+}
+
+function changeBackgroundColor(color) {
+  document.body.style.backgroundColor = color;
+  return color;
+}
+```
+
+#### 纯使用场景
+
+React组件开发
+
+函数式组件和工具函数
+
+
+
+Redux状态管理
+
+reducer函数处理状态更新
+
+
+
+数据处理管道
+
+数据过滤、转换、排序
+
+
+
+单元测试
+
+易于测试的函数逻辑
+
+
+
+性能优化
+
+函数记忆化缓存
+
+
+
+工具函数库
+
+通用的数据处理函数
+
+
+
+
+
+### 柯里化
+
+#### 定义
+
+**柯里化**是一种函数转换技术，它将一个接收多个参数的函数转换为**一系列接收单个参数**的函数。
+
+##### 核心特征：
+
+- **参数分解**：多参数 → 单参数函数链
+- **延迟执行**：分步接收参数，最后执行
+- **函数复用**：通过部分应用创建新函数
+
+人话来说就是将通用的函数转化成特定场景下专用的函数，预先填写一些参数并打包成专用的函数，类似于日志打印，可以分解成警告打印函数、错误打印函数等等专用话的函数
+
+
+
+#### 实现方式
+
+##### 基础手动实现
+
+```javascript
+// 三参数函数的柯里化示例
+function curry(fn) {
+    return function curried(...args) {
+        if (args.length >= fn.length) {
+            return fn.apply(this, args);
+        } else {
+            return function(...nextArgs) {
+                return curried.apply(this, args.concat(nextArgs));
+            };
+        }
+    };
+}
+
+// 使用示例
+function add(a, b, c) {
+    return a + b + c;
+}
+
+const curriedAdd = curry(add);
+console.log(curriedAdd(1)(2)(3)); // 6
+console.log(curriedAdd(1, 2)(3)); // 6
+```
+
+##### ES6 简洁实现
+
+```javascript
+const curry = fn => {
+    const curried = (...args) => 
+        args.length >= fn.length 
+            ? fn(...args)
+            : (...nextArgs) => curried(...args, ...nextArgs);
+    return curried;
+};
+```
+
+#### 应用场景
+
+##### 1. 参数复用与配置
+
+```javascript
+// 日志函数
+const log = level => message => timestamp => 
+    console.log(`[${level}] ${timestamp}: ${message}`);
+
+// 创建特定类型的日志函数
+const errorLog = log('ERROR');
+const warnLog = log('WARN');
+
+// 使用
+errorLog('Database connection failed')('2024-01-15 10:00:00');
+warnLog('Memory usage high')('2024-01-15 10:05:00');
+```
+
+##### 2. 函数工厂
+
+```javascript
+// 创建特定功能的函数
+const multiply = x => y => x * y;
+
+const double = multiply(2);
+const triple = multiply(3);
+
+console.log(double(5)); // 10
+console.log(triple(5)); // 15
+```
+
+##### 3. 事件处理
+
+```javascript
+// 创建灵活的事件处理器
+const handleEvent = type => element => callback => {
+    element.addEventListener(type, callback);
+};
+
+const handleClick = handleEvent('click');
+const handleButtonClick = handleClick(buttonElement);
+
+handleButtonClick(() => console.log('Clicked!'));
+```
+
+##### 4. API 构建
+
+```javascript
+// 构建可配置的API客户端
+const createAPI = baseURL => endpoint => params => 
+    fetch(`${baseURL}${endpoint}`, params);
+
+const api = createAPI('https://api.example.com');
+const getUser = api('/users');
+const getPosts = api('/posts');
+```
+
+##### 5. 数据验证
+
+```javascript
+// 创建可组合的验证器
+const createValidator = rule => value => rule(value);
+
+const isEmail = createValidator(val => /@/.test(val));
+const minLength = min => createValidator(val => val.length >= min);
+
+console.log(isEmail('test@example.com')); // true
+console.log(minLength(5)('hello')); // true
+```
+
+
+
+#### 总结
+
+柯里化是函数式编程中的重要技术，它通过**分解参数**和**延迟执行**提供了更好的函数组合性和代码复用性。虽然会增加一定的复杂性，但在构建可配置、可复用的函数库和处理复杂数据流程时，柯里化能显著提升代码质量和开发效率。
+
+**核心价值**：将复杂函数转换为简单函数的组合，让代码更加模块化、可测试和可维护。
+
+
+
+### 组合函数
+
+#### 基本概念
+
+- 将多个函数连接起来，形成新函数
+- 前一个函数的输出作为后一个函数的输入
+- 两种主要方式：`compose`（从右到左）和 `pipe`（从左到右）
+
+#### 核心实现
+
+```javascript
+// compose：从右到左执行
+const compose = (...fns) => (x) => 
+  fns.reduceRight((acc, fn) => fn(acc), x);
+
+// pipe：从左到右执行  
+const pipe = (...fns) => (x) => 
+  fns.reduce((acc, fn) => fn(acc), x);
+
+/**
+ * 通用组合函数 (从右到左执行)
+ * @param {...Function} fns - 要组合的函数
+ * @returns {Function} 组合后的新函数
+ */
+function compose(...fns) {
+  return function composed(initialValue) {
+    return fns.reduceRight((acc, fn) => fn(acc), initialValue);
+  };
+}
+
+/**
+ * 通用管道函数 (从左到右执行)
+ * @param {...Function} fns - 要组合的函数
+ * @returns {Function} 组合后的新函数
+ */
+function pipe(...fns) {
+  return function piped(initialValue) {
+    return fns.reduce((acc, fn) => fn(acc), initialValue);
+  };
+}
+```
+
+#### 简单示例
+
+```javascript
+const add = x => x + 2;
+const multiply = x => x * 3;
+const square = x => x * x;
+
+// 组合使用
+const result1 = compose(square, multiply, add)(5); // 441
+const result2 = pipe(add, multiply, square)(5);    // 441
+
+// 计算过程：((5 + 2) * 3) ^ 2 = 441
+```
+
+#### 实际应用场景
+
+##### 1. 数据处理管道
+```javascript
+const processText = pipe(
+  str => str.trim(),
+  str => str.toLowerCase(),
+  str => str.replace(/\s+/g, ' '),
+  str => str.charAt(0).toUpperCase() + str.slice(1)
+);
+
+processText('  hello WORLD  '); // "Hello world"
+```
+
+##### 2. 数据验证链
+```javascript
+const validateUser = pipe(
+  user => ({ ...user, valid: true }),
+  user => user.age >= 18 ? user : { ...user, valid: false },
+  user => user.email.includes('@') ? user : { ...user, valid: false }
+);
+```
+
+#### 优势特点
+
+**✅ 优点**
+
+- **可读性强**：代码像自然语言一样描述流程
+- **易于测试**：每个小函数都可以单独测试
+- **高度复用**：小函数可以在不同组合中重用
+- **维护简单**：修改局部不影响整体
+
+##### ⚠️ 注意事项
+- 保持函数纯净（无副作用）
+- 确保输入输出类型匹配
+- 避免过度组合影响可读性
+
+#### 常用模式
+
+##### 基础组合
+```javascript
+const process = compose(step3, step2, step1);
+const process = pipe(step1, step2, step3);
+```
+
+##### 带日志调试
+```javascript
+const trace = msg => x => {
+  console.log(msg, x);
+  return x;
+};
+
+const processWithLog = pipe(
+  step1,
+  trace('After step1:'),
+  step2,
+  trace('After step2:'),
+  step3
+);
+```
+
+**记忆口诀**
+
+> **"小函数，单一责，组合起来力量大"**
+>
+> **"compose右到左，pipe左到右"**
+>
+> **"输入输出要匹配，纯净函数好测试"**
+
+---
+
+**总结**：函数组合让复杂任务变简单，通过连接小函数构建大功能，是编写可维护代码的利器。
+
+
+
+### with 语句
+
+#### 基本概念
+- `with` 语句可以简化对同一对象多个属性的访问
+- 现在**不推荐使用**，有更好的替代方案
+
+#### 语法
+```javascript
+with (对象) {
+  // 直接使用对象属性，不用写"对象."
+}
+```
+
+#### 示例
+```javascript
+const user = {name: '小明', age: 20}
+
+// 使用 with
+with (user) {
+  console.log(name)  // "小明"
+  console.log(age)   // 20
+}
+
+// 现代替代方案（推荐）
+const {name, age} = user
+console.log(name, age)
+```
+
+#### 为什么不推荐？
+- ❌ 性能差
+- ❌ 代码难懂
+- ❌ 严格模式禁止使用
+- ❌ 容易出错
+
+#### 现代替代方案
+使用**对象解构**：
+```javascript
+const {name, age, email} = user
+```
+
+**结论**：不要使用 `with` 语句！
+
+
+
+### eval()函数
+
+#### 定义
+`eval()` 是一个 JavaScript 函数，**把字符串当作代码来执行**
+
+#### 基本用法
+```javascript
+eval('console.log("Hello")')  // 输出：Hello
+
+const result = eval('2 + 3')  // result = 5
+```
+
+#### 为什么危险？
+- ❌ **安全风险**：可能执行恶意代码
+- ❌ **性能差**：JavaScript 引擎无法优化
+- ❌ **难调试**：错误信息不明确
+- ❌ **严格模式限制**
+
+#### 现代替代方案
+```javascript
+// ❌ 不要这样
+eval('user.name = "小明"')
+
+// ✅ 应该这样
+user.name = "小明"
+
+// 解析 JSON 用这个
+JSON.parse('{"name": "小明"}')
+```
+
+**绝对不要使用 eval()！** 有更好的方法实现同样功能。
+
+
+
+### 严格模式
+
+#### 定义
+
+JavaScript 严格模式是一种**限制性更强的JavaScript运行模式**，通过抛出错误来消除代码中的一些不安全操作，帮助开发者编写更安全、更规范的代码。
+
+#### 使用方法
+
+##### 全局开启
+
+```javascript
+"use strict";
+// 整个脚本文件都会遵循严格模式规则
+
+// 示例
+"use strict";
+x = 10; // 报错：变量未声明
+```
+
+##### 函数内开启
+
+```javascript
+function strictFunction() {
+  "use strict";
+  // 只有这个函数内部遵循严格模式
+  
+  y = 20; // 报错：变量未声明
+}
+
+function normalFunction() {
+  z = 30; // 正常（如果在非严格模式下）
+}
+```
+
+##### 模块中自动启用
+
+```javascript
+// ES6 模块默认使用严格模式
+// 无需手动添加 "use strict"
+
+// module.js
+export function test() {
+  a = 10; // 报错：变量未声明
+}
+```
+
+#### 主要限制规则
+
+##### 1. 变量必须声明
+
+```javascript
+"use strict";
+x = 10; // ❌ ReferenceError
+```
+
+##### 2. 禁止删除变量/函数
+
+```javascript
+"use strict";
+let x = 10;
+delete x; // ❌ SyntaxError
+```
+
+##### 3. 参数不能重名
+
+```javascript
+"use strict";
+function test(a, a) { // ❌ SyntaxError
+}
+```
+
+##### 4. 禁止使用 with 语句
+
+```javascript
+"use strict";
+with (obj) { // ❌ SyntaxError
+}
+```
+
+##### 5. 只读属性不可写
+
+```javascript
+"use strict";
+const obj = {};
+Object.defineProperty(obj, "x", { value: 42, writable: false });
+obj.x = 9; // ❌ TypeError
+```
+
+##### 6. 禁止八进制语法
+
+```javascript
+"use strict";
+let n = 010; // ❌ SyntaxError
+```
+
+##### 7. eval 限制
+
+```javascript
+"use strict";
+eval("var x = 2;");
+console.log(x); // ❌ ReferenceError
+```
+
+##### 8. this 不自动转对象
+
+```javascript
+"use strict";
+function test() {
+  console.log(this); // undefined
+}
+test();
+```
+
+#### 检测严格模式
+
+```javascript
+function isStrictMode() {
+  return (function() { 
+    return !this; 
+  })();
+}
+
+console.log(isStrictMode()); // true 或 false
+```
+
+**总结**：严格模式是现代 JavaScript 开发的标准实践，应该在所有新项目中默认使用。
+
+
+
+### 对象详解
+
+
+
+#### 精确控制对象
+
+##### 定义
+
+`Object.defineProperty()` 是 JavaScript 中用于**精确控制对象属性**的方法，可以定义新属性或修改现有属性。
+
+##### 使用方法
+
+```javascript
+Object.defineProperty(对象, '属性名', {
+  // 配置选项
+  配置项: 值
+});
+```
+
+##### 主要配置项
+
+- **`value`** - 属性的值
+- **`writable`** - 是否可修改（默认 false）
+- **`enumerable`** - 是否可被遍历（默认 false）
+- **`configurable`** - 是否可被删除或修改配置（默认 false）
+- **`get`** - 获取属性值时执行的函数
+- **`set`** - 设置属性值时执行的函数
+
+##### 简单案例
+
+**案例1：创建只读属性**
+
+```javascript
+let person = {};
+Object.defineProperty(person, 'name', {
+  value: '张三',
+  writable: false  // 不可修改
+});
+
+console.log(person.name); // "张三"
+person.name = "李四";     // 修改无效
+console.log(person.name); // 还是"张三"
+```
+
+**案例2：隐藏属性（不可遍历）**
+
+```javascript
+let obj = {};
+Object.defineProperty(obj, 'secret', {
+  value: '隐藏数据',
+  enumerable: false  // 不可被遍历
+});
+
+console.log(obj.secret); // "隐藏数据" - 可直接访问
+console.log(Object.keys(obj)); // [] - 但遍历时看不到
+```
+
+**案例3：自动计算的属性**
+
+```javascript
+let user = {
+  firstName: '王',
+  lastName: '五'
+};
+
+Object.defineProperty(user, 'fullName', {
+  get() {
+    return this.firstName + this.lastName;
+  },
+  set(value) {
+    [this.firstName, this.lastName] = value.split(' ');
+  }
+});
+
+console.log(user.fullName); // "王五"
+user.fullName = "赵 六";
+console.log(user.firstName); // "赵"
+```
+
+
+
+
+
+### 标签模板字符串
+
+#### 定义
+
+- 模板字符串（` `` `）前加**函数名**（标签函数），本质是**函数调用**，非特殊结构函数
+- 语法：`tag` `字符串 ${变量} 字符串`
+
+#### 核心机制
+
+| 参数        | 说明                           | 示例（模板：`hello ${name}!`） |
+| ----------- | ------------------------------ | ------------------------------ |
+| `strings`   | 字符串数组（模板中非变量部分） | `["hello ", "!"]`              |
+| `...values` | 值数组（变量的值）             | `["小明"]`                     |
+
+#### 用途（最常用场景）
+
+1. **安全转义**（防XSS）  
+
+   ```javascript
+   // 安全转义函数（处理所有危险字符）
+   function escapeHtml(unsafe) {
+     return unsafe
+       .replace(/&/g, "&amp;")       // & → &amp;
+       .replace(/</g, "&lt;")        // < → &lt;
+       .replace(/>/g, "&gt;")        // > → &gt;
+       .replace(/"/g, "&quot;")      // " → &quot;
+       .replace(/'/g, "&#39;");      // ' → &#39;
+   }
+   
+   // 标签模板函数：安全处理HTML
+   function safeHtml(strings, ...values) {
+     return strings.reduce((prev, curr, i) => {
+       // 处理每个变量值（转义后）并拼接
+       return prev + curr + escapeHtml(values[i] || '');
+     }, '');
+   }
+   
+   // 使用示例
+   const userInput = "<script>alert('xss')</script>\" ' & < >";
+   const safeOutput = safeHtml`用户输入: ${userInput}`;
+   console.log(safeOutput);
+   ```
+
+   - 处理危险字符（`<` → `&lt;`，`>` → `&gt;`等）
+   - **真实项目必须完整转义**（推荐用现成库如`he`）
+
+2. **国际化（i18n）**  
+
+   ```javascript
+   // 语言配置（多语言支持）
+   const i18nConfig = {
+     en: {
+       welcome: "Welcome",
+       message: "Hello, {name}!",
+       goodbye: "Goodbye!"
+     },
+     zh: {
+       welcome: "欢迎",
+       message: "你好，{name}！",
+       goodbye: "再见！"
+     }
+   };
+   
+   // 标签模板函数：国际化处理
+   function i18n(strings, ...values) {
+     const lang = 'zh'; // 实际项目中从用户配置获取
+     const translations = i18nConfig[lang];
+     
+     return strings.reduce((prev, curr, i) => {
+       // 替换模板中的占位符
+       const formattedMessage = curr.replace(/{(\w+)}/g, (match, key) => {
+         return values[i] ? values[i][key] : match;
+       });
+       
+       // 处理变量值
+       const value = values[i] ? translations[values[i].key] : '';
+       
+       return prev + formattedMessage + value;
+     }, '');
+   }
+   
+   // 使用示例
+   const user = { name: "小明", key: "message" };
+   const greeting = i18n`${user.key} ${user}`;
+   console.log(greeting); 
+   // 输出: 你好，小明！
+   
+   // 多语言切换示例
+   const englishGreeting = i18n`message ${user}`;
+   console.log(englishGreeting); 
+   // 输出: Hello, 小明!
+   ```
+
+3. **自定义格式化**（如日期、数字）  
+
+   ```javascript
+   // 标签模板：日期格式化
+   function formatDate(strings, ...values) {
+     return strings.reduce((prev, curr, i) => {
+       const date = values[i];
+       
+       // 格式化日期：YYYY-MM-DD
+       const formattedDate = date.toLocaleDateString('zh-CN', {
+         year: 'numeric',
+         month: '2-digit',
+         day: '2-digit'
+       }).replace(/\//g, '-');
+       
+       return prev + curr + formattedDate;
+     }, '');
+   }
+   
+   // 标签模板：数字格式化（千位分隔符）
+   function formatNumber(strings, ...values) {
+     return strings.reduce((prev, curr, i) => {
+       const num = values[i];
+       const formattedNum = num.toLocaleString('zh-CN');
+       
+       return prev + curr + formattedNum;
+     }, '');
+   }
+   
+   // 使用示例
+   const today = new Date();
+   const orderAmount = 123456.78;
+   
+   const dateExample = formatDate`Today is ${today}.`;
+   console.log(dateExample); 
+   // 输出: Today is 2023-10-05.
+   
+   const numberExample = formatNumber`Order amount: ${orderAmount}元`;
+   console.log(numberExample); 
+   // 输出: Order amount: 123,456.78元
+   ```
+
+
+
+##### 通用封装工具
+
+```js
+// 项目通用安全工具
+const safe = {
+  html: (strings, ...values) => {
+    const escape = (unsafe) => unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+    
+    return strings.reduce((prev, curr, i) => 
+      prev + curr + (values[i] !== undefined ? escape(values[i].toString()) : ''), 
+    '');
+  },
+  
+  i18n: (lang, strings, ...values) => {
+    const translations = {
+      en: { hello: "Hello" },
+      zh: { hello: "你好" }
+    };
+    
+    return strings.reduce((prev, curr, i) => 
+      prev + curr + translations[lang][values[i]], 
+    '');
+  }
+};
+
+// 使用示例
+const username = "小明";
+const safeHtml = safe.html`Welcome, ${username}!`;
+const i18nGreeting = safe.i18n('zh', 'hello', 'username');
+
+console.log(safeHtml);    // Welcome, 你好!
+console.log(i18nGreeting); // 你好
+```
+
+#### 为什么用它？
+
+- ✅ **安全**：防XSS攻击（前端第一道防线）
+- ✅ **简洁**：一行代码替代多行`replace()`
+- ✅ **可读性高**：逻辑封装在函数中
+- ✅ **可复用**：函数全局使用（如`safeHtml`）
+
+#### 重要提醒
+
+- **不是"数据排序"**：用于字符串内容处理，非数据排序
+- **不是库**：是JavaScript语言特性（ES6标准），无需安装
+- **真实项目必须完整转义**：仅处理`<`是不安全的！
+
+> 💡 **一句话总结**：标签模板 = 语法糖 + 字符串处理器，让安全、国际化等操作变得简单高效。
+
+
+
+
+
+### 函数默认值
+
+#### ✅ 定义
+
+- 函数参数的默认值是指在函数定义时，为参数指定一个默认值
+- 当调用函数时，如果没有为该参数提供值（或提供`undefined`），则使用默认值
+- 语法：`function name(param = defaultValue) { ... }`
+
+#### 🔑 核心特点
+
+| 特点         | 说明                                           | 示例                                  |
+| ------------ | ---------------------------------------------- | ------------------------------------- |
+| **生效条件** | 仅当参数为`undefined`时生效                    | `func(2, undefined)` → 使用默认值     |
+| **假值处理** | `null`、`0`、`false`、`''`等假值不会触发默认值 | `func(2, 0)` → 0，不会使用默认值      |
+| **惰性求值** | 默认值表达式在每次调用时重新计算               | `function logTime(time = new Date())` |
+| **参数顺序** | 从右向左设置默认值（最好从参数列表末尾开始）   | `function func(a, b = 1, c = 2)`      |
+
+#### 💡 常见用法
+
+##### 1. 基本用法
+
+```javascript
+function greet(name = "Guest") {
+  console.log(`Hello, ${name}!`);
+}
+
+greet(); // "Hello, Guest!"
+greet("Alice"); // "Hello, Alice!"
+```
+
+##### 2. 与解构赋值结合
+
+```javascript
+function createUser({ name = "Guest", age = 0 } = {}) {
+  return { name, age };
+}
+
+createUser(); // { name: "Guest", age: 0 }
+createUser({ name: "Alice" }); // { name: "Alice", age: 0 }
+```
+
+##### 3. 参数引用
+
+```javascript
+function multiply(a, b = a * 2) {
+  return a * b;
+}
+
+multiply(3); // 3 * (3*2) = 18
+multiply(3, 4); // 3 * 4 = 12
+```
+
+#### ⚠️ 重要注意事项
+
+1. **默认值仅在参数为`undefined`时生效**
+
+   ```javascript
+   function test(x = 1) { return x; }
+   test(0); // 0 (不会使用默认值)
+   test(undefined); // 1 (使用默认值)
+   ```
+
+2. **从参数列表右侧开始设置默认值**
+
+   ```javascript
+   // 错误：不能跳过前面的参数
+   function example(a = 1, b) { return a + b; }
+   example(undefined, 2); // 正确：a=1, b=2
+   example(2); // 错误：a=2, b=undefined（会报错）
+   
+   // 正确：从右侧开始设置
+   function example(a, b = 2) { return a + b; }
+   example(1); // 1+2=3
+   ```
+
+3. **默认值表达式是惰性求值的**
+
+   ```javascript
+   function logTime(time = new Date()) {
+     console.log(time);
+   }
+   logTime(); // 会记录调用时的当前时间
+   ```
+
+#### 📌 最佳实践
+
+- **提供可选参数**：让函数更灵活
+- **配置对象默认值**：避免参数顺序错误
+- **避免副作用**：不要在默认值中使用可能改变状态的表达式
+- **从右向左设置**：保持参数顺序清晰
+
+#### 💡 总结
+
+> 函数默认值让函数调用更简洁，只需在参数后添加`= defaultValue`，但需注意：
+>
+> 1. 仅当参数为`undefined`时使用默认值
+> 2. 从参数列表右侧开始设置默认值
+> 3. 默认值表达式每次调用都会重新计算
+
+```javascript
+// 实际项目中的好用写法
+function fetchAPI(url, options = { timeout: 5000, method: 'GET' }) {
+  // 使用options
+}
+```
+
+
+
+### 数值进制与转换
+
+#### 一、基本概念
+
+JavaScript中数值的进制表示：
+
+- 十进制：默认表示方式（如 100）
+- 二进制：以 0b 开头（如 0b1100100）
+- 八进制：以 0o 开头（如 0o144，不推荐旧写法 0144）
+- 十六进制：以 0x 开头（如 0x64）
+
+JavaScript内部所有数值均以十进制存储。
+
+#### 二、进制转换方法
+
+##### 1. 十进制转其他进制（使用 toString()）
+
+```javascript
+// 十进制转二进制
+(100).toString(2); // "1100100"
+
+// 十进制转八进制
+(100).toString(8); // "144"
+
+// 十进制转十六进制
+(100).toString(16); // "64"
+```
+
+关键点：
+
+- toString() 接收进制参数（2-36）
+- 返回字符串类型
+- 仅处理整数（小数需先转换）
+
+##### 2. 其他进制转十进制（使用 parseInt()）
+
+```javascript
+// 二进制转十进制
+parseInt('1100100', 2); // 100
+
+// 八进制转十进制
+parseInt('144', 8); // 100
+
+// 十六进制转十进制
+parseInt('64', 16); // 100
+```
+
+关键点：
+
+- parseInt() 第二个参数指定原进制
+- 返回数字类型
+- 必须使用字符串参数
+
+#### 三、实用转换表
+
+| 转换方向          | 方法              | 示例                          |
+| ----------------- | ----------------- | ----------------------------- |
+| 十进制 → 二进制   | num.toString(2)   | (100).toString(2) → "1100100" |
+| 十进制 → 八进制   | num.toString(8)   | (100).toString(8) → "144"     |
+| 十进制 → 十六进制 | num.toString(16)  | (100).toString(16) → "64"     |
+| 二进制 → 十进制   | parseInt(str, 2)  | parseInt('1100100', 2) → 100  |
+| 八进制 → 十进制   | parseInt(str, 8)  | parseInt('144', 8) → 100      |
+| 十六进制 → 十进制 | parseInt(str, 16) | parseInt('64', 16) → 100      |
+
+#### 四、注意事项
+
+1. **小数转换不精确**：
+
+   ```javascript
+   (22.22).toString(2); 
+   // 返回不精确的二进制字符串（实际为10110.001110000101000111101011100001010001111010111）
+   ```
+
+2. **八进制表示**：
+
+   - 旧写法 0144 在严格模式下可能被解释为八进制
+   - 推荐使用新写法 0o144
+
+3. **进制范围**：
+
+   - toString() 和 parseInt() 均支持2-36进制
+   - 16进制使用a-f（不区分大小写）
+
+#### 五、实际应用示例
+
+##### 颜色值转换
+
+```javascript
+// 十进制转十六进制（颜色值）
+function decimalToHex(decimal) {
+  return decimal.toString(16).padStart(2, '0');
+}
+
+console.log(decimalToHex(255)); // "ff"
+console.log(decimalToHex(10));  // "0a"
+
+// 十六进制转十进制
+function hexToDecimal(hex) {
+  return parseInt(hex, 16);
+}
+
+console.log(hexToDecimal('ff')); // 255
+console.log(hexToDecimal('0a')); // 10
+```
+
+##### 二进制数据处理
+
+```javascript
+// 二进制字符串转十进制
+function binToDec(binStr) {
+  return parseInt(binStr, 2);
+}
+
+// 十进制转二进制
+function decToBin(decNum) {
+  return decNum.toString(2);
+}
+
+console.log(binToDec('1100100')); // 100
+console.log(decToBin(100));       // "1100100"
+```
+
+#### 六、总结
+
+- **十进制转其他进制**：使用 `toString(进制)`
+
+- **其他进制转十进制**：使用 `parseInt(字符串, 进制)`
+
+- 进制表示规范
+
+  ：
+
+  - 二进制：0b前缀（如 0b1100100）
+  - 八进制：0o前缀（如 0o144）
+  - 十六进制：0x前缀（如 0x64）
+
+- 最佳实践
+
+  ：
+
+  1. 优先使用原生方法（toString/parseInt）
+  2. 使用标准前缀（0b/0o/0x）避免歧义
+  3. 小数转换需先转为整数处理
+  4. 二进制/八进制表示避免使用前导0（如0144）
+
+
+
+
+
+### Symbol类型
+
+#### 一、定义
+
+- Symbol 是 ES6 引入的**原始数据类型**，用于创建**唯一标识符**
+- 语法：`const sym = Symbol([description]);`
+
+#### 二、核心特点
+
+1. **唯一性**：即使描述相同，Symbol 值也绝不相等
+2. **不可枚举**：作为对象属性时，不会被 `for...in` 或 `Object.keys()` 遍历到
+3. **不可转换**：不能转为字符串或数字
+
+#### 三、明显示例：解决属性名冲突
+
+```javascript
+// 模块A（第三方库）
+const MODULE_A_KEY = Symbol('moduleA');
+const user = { name: 'Alice' };
+user[MODULE_A_KEY] = 'User data from module A';
+
+// 模块B（另一个第三方库）
+const MODULE_B_KEY = Symbol('moduleB');
+user[MODULE_B_KEY] = 'User data from module B';
+
+// 主应用代码
+console.log(user.name); // "Alice"
+console.log(user[MODULE_A_KEY]); // "User data from module A"
+console.log(user[MODULE_B_KEY]); // "User data from module B"
+
+// 模块C（尝试使用相同属性名，但不会冲突）
+const MODULE_A_KEY = Symbol('moduleA'); // 不同的Symbol
+user[MODULE_A_KEY] = 'User data from module C'; // 不会覆盖模块A的值
+console.log(user[MODULE_A_KEY]); // "User data from module C"
+```
+
+**为什么这个例子明显？**
+
+- 模块A和模块C都使用了`Symbol('moduleA')`，但它们是**不同的Symbol**
+- 作为对象属性时，**不会互相覆盖**，解决了常见的属性名冲突问题
+- 模块B的`Symbol('moduleB')`与模块A的属性完全独立
+
+#### 四、常见用法
+
+##### 1. 创建Symbol
+
+```javascript
+const uniqueKey = Symbol('description');
+const uniqueKey2 = Symbol('description'); // 与uniqueKey不相等
+```
+
+##### 2. 作为对象属性
+
+```javascript
+const obj = {
+  [Symbol('id')]: 123,
+  name: 'John'
+};
+
+console.log(obj.name); // "John"
+console.log(obj[Symbol('id')]); // undefined（无法通过描述获取）
+```
+
+##### 3. 全局Symbol注册表（用于跨模块共享）
+
+```javascript
+// 模块A
+const GLOBAL_KEY = Symbol.for('globalKey');
+const obj = {};
+obj[GLOBAL_KEY] = 'Value from module A';
+
+// 模块B
+const GLOBAL_KEY = Symbol.for('globalKey');
+console.log(obj[GLOBAL_KEY]); // "Value from module A"
+```
+
+#### 五、重要提醒
+
+- **不要使用`new Symbol()`**：`Symbol`不是构造函数
+- **Symbol不是字符串**：不能直接用于字符串操作
+- **Symbol不被序列化**：`JSON.stringify`会忽略Symbol属性
+
+> 💡 **一句话总结**：Symbol用于创建唯一标识符，解决对象属性名冲突问题，是实现"私有"属性和模块间安全通信的利器。
+
+
+
+### Set集合
+
+#### 定义
+
+- Set是ES6引入的**唯一值的集合**数据结构
+- 用于存储不重复的值
+- 值可以是任意类型
+
+#### 核心特点
+
+- **唯一性**：自动去重，重复添加的值会被忽略
+- **无序性**：不维护插入顺序（但遍历时顺序与插入顺序一致）
+- **高效操作**：添加、删除、查找时间复杂度为O(1)
+- **可迭代**：支持`forEach`和`for...of`遍历
+
+#### 基本操作
+
+```javascript
+const mySet = new Set();
+
+// 添加元素
+mySet.add(1);
+mySet.add(2);
+mySet.add(2); // 自动去重
+
+// 检查元素
+mySet.has(2); // true
+
+// 获取大小
+mySet.size; // 2
+
+// 删除元素
+mySet.delete(1);
+
+// 遍历
+mySet.forEach(value => console.log(value));
+```
+
+#### 实用场景
+
+1. **数组去重**
+
+   ```javascript
+   const arr = [1, 2, 2, 3, 4, 4, 5];
+   const uniqueArr = [...new Set(arr)]; // [1, 2, 3, 4, 5]
+   ```
+
+2. **集合运算**
+
+   ```javascript
+   const a = new Set([1, 2, 3]);
+   const b = new Set([2, 3, 4]);
+   
+   // 并集
+   const union = new Set([...a, ...b]); // {1, 2, 3, 4}
+   
+   // 交集
+   const intersect = new Set([...a].filter(x => b.has(x))); // {2, 3}
+   ```
+
+一句话总结
+
+> **Set是唯一值的集合，用于处理不重复数据，特别适合数组去重和集合运算。**
+
+------
+
+### Map字典
+
+#### 定义
+
+- Map是ES6引入的**键值对存储**数据结构
+- 用于存储键值对，键可以是任意类型
+- 保留插入顺序
+
+#### 核心特点
+
+- **键的多样性**：键可以是字符串、数字、对象、函数等
+- **有序性**：保留键值对的插入顺序
+- **高效操作**：查找、插入、删除时间复杂度为O(1)
+- **内置大小**：`size`属性直接获取成员数量
+
+#### 基本操作
+
+```javascript
+const myMap = new Map();
+
+// 添加键值对
+myMap.set("name", "Alice");
+myMap.set(42, "The Answer");
+myMap.set({id: 1}, "User Data"); // 键可以是对象
+
+// 获取值
+myMap.get("name"); // "Alice"
+myMap.get(42); // "The Answer"
+
+// 检查键是否存在
+myMap.has(42); // true
+
+// 获取大小
+myMap.size; // 3
+
+// 遍历
+myMap.forEach((value, key) => console.log(`${key} -> ${value}`));
+```
+
+#### 实用场景
+
+1. **使用对象作为键**
+
+   ```javascript
+   const map = new Map();
+   const objKey = { id: 1 };
+   map.set(objKey, '用户数据');
+   console.log(map.get(objKey)); // '用户数据'
+   ```
+
+2. **词频统计**
+
+   ```javascript
+   function countWords(str) {
+     const words = str.split(' ');
+     const map = new Map();
+     for (const word of words) {
+       map.set(word, (map.get(word) || 0) + 1);
+     }
+     return map;
+   }
+   ```
+
+3. **缓存DOM节点数据**
+
+   ```javascript
+   const cache = new Map();
+   const element = document.getElementById('myElement');
+   cache.set(element, { data: 'some data' });
+   console.log(cache.get(element).data);
+   ```
+
+一句话总结
+
+> **Map是灵活的键值对存储，键可以是任意类型，特别适合需要键值对存储的场景。**
+
+
+
+### WeakSet集合
+
+#### 定义
+
+- WeakSet是ES6引入的**仅存储对象**的集合数据结构
+- 只能包含对象引用，不能包含原始值
+- 对象引用是**弱引用**，不阻止垃圾回收机制回收对象
+
+#### 核心特点
+
+- **对象限制**：只能存储对象，不能存储原始值（如字符串、数字、布尔值）
+- **弱引用**：不会阻止存储的对象被垃圾回收
+- **不可枚举**：不能遍历WeakSet，无size属性
+- **有限API**：仅有add()、delete()、has()方法，无clear()、forEach()等方法
+
+#### 基本操作
+
+```javascript
+const myWeakSet = new WeakSet();
+
+// 创建对象
+const obj1 = { name: 'Alice' };
+const obj2 = { name: 'Bob' };
+
+// 添加对象
+myWeakSet.add(obj1);
+myWeakSet.add(obj2);
+
+// 检查对象是否存在
+myWeakSet.has(obj1); // true
+
+// 删除对象
+myWeakSet.delete(obj1);
+
+// 以下操作不支持
+// myWeakSet.size; // undefined
+// myWeakSet.forEach(...); // 报错，不存在此方法
+// [...myWeakSet]; // 报错，不可迭代
+```
+
+#### 实用场景
+
+1. **对象标记/状态跟踪**
+
+   ```javascript
+   const processedObjects = new WeakSet();
+   
+   function process(obj) {
+     if (processedObjects.has(obj)) {
+       return; // 已处理过，跳过
+     }
+     
+     // 处理对象
+     // ...
+     
+     processedObjects.add(obj); // 标记为已处理
+   }
+   
+   // 当obj被垃圾回收，WeakSet中的引用也会自动清除
+   ```
+
+2. **私有数据存储**
+
+   ```javascript
+   const privateProps = new WeakSet();
+   
+   class User {
+     constructor(name) {
+       this.name = name;
+       privateProps.add(this); // 标记为有私有属性
+     }
+     
+     hasPrivateAccess() {
+       return privateProps.has(this);
+     }
+   }
+   ```
+
+一句话总结
+
+> **WeakSet是仅存储对象的集合，使用弱引用不会阻止垃圾回收，适合临时标记对象而不影响其生命周期。**
+
+------
+
+### WeakMap字典
+
+#### 定义
+
+- WeakMap是ES6引入的**键为对象**的键值对数据结构
+- 键必须是对象，不能是原始值
+- 键使用**弱引用**，不阻止垃圾回收，值可以是任意类型
+
+#### 核心特点
+
+- **键限制**：键必须是对象，不能是原始值
+- **弱引用**：对键的引用是弱引用，不阻止垃圾回收
+- **不可枚举**：不能遍历WeakMap，无size属性
+- **有限API**：仅有set()、get()、has()、delete()方法，无clear()、forEach()等方法
+
+#### 基本操作
+
+```javascript
+const myWeakMap = new WeakMap();
+
+// 创建对象作为键
+const obj1 = { id: 1 };
+const obj2 = { id: 2 };
+
+// 设置键值对
+myWeakMap.set(obj1, 'Alice');
+myWeakMap.set(obj2, 42);
+
+// 获取值
+myWeakMap.get(obj1); // 'Alice'
+
+// 检查键是否存在
+myWeakMap.has(obj1); // true
+
+// 删除键值对
+myWeakMap.delete(obj1);
+
+// 以下操作不支持
+// myWeakMap.size; // undefined
+// for (const [key, value] of myWeakMap) { ... } // 报错，不可迭代
+```
+
+#### 实用场景
+
+1. **私有数据存储**
+
+   ```javascript
+   const privateData = new WeakMap();
+   
+   class User {
+     constructor(name, age) {
+       privateData.set(this, { name, age }); // 私有数据
+     }
+     
+     getName() {
+       return privateData.get(this).name;
+     }
+     
+     getAge() {
+       return privateData.get(this).age;
+     }
+   }
+   
+   const user = new User('Alice', 30);
+   console.log(user.getName()); // 'Alice'
+   // 无法从外部访问 privateData 中的数据
+   ```
+
+2. **DOM节点元数据缓存**
+
+   ```javascript
+   const domMetadata = new WeakMap();
+   
+   function addMetadata(element, metadata) {
+     domMetadata.set(element, metadata);
+   }
+   
+   function getMetadata(element) {
+     return domMetadata.get(element);
+   }
+   
+   // 当DOM节点被移除，其元数据会自动被垃圾回收
+   ```
+
+3. **避免内存泄漏的缓存**
+
+   ```javascript
+   const cache = new WeakMap();
+   
+   function processHeavyObject(obj) {
+     if (cache.has(obj)) {
+       return cache.get(obj); // 返回缓存结果
+     }
+     
+     // 耗时计算
+     const result = /* ... */; 
+     cache.set(obj, result);
+     return result;
+   }
+   // 当obj不再被需要，缓存会自动清理
+   ```
+
+一句话总结
+
+> **WeakMap是以对象为键的键值对集合，键使用弱引用，适合存储对象的私有数据和元数据，避免内存泄漏。**
+
+
+
+也就是说 比如我在函数中创建了一个匿名对象并使用 我要给其记录一个student的标识 使用map进行标记在函数结束后会出现内存泄漏 而使用weakmap因为是弱绑定 不会出现泄漏
+
+```js
+// 全局Map（可能在模块或类中）
+const studentRecords = new Map();
+
+function processStudent() {
+  // 创建匿名对象
+  const student = { id: 1, name: '张三' };
+  
+  // 用Map标记这个对象
+  studentRecords.set(student, { 
+    isStudent: true,
+    enrollmentDate: new Date()
+  });
+  
+  // 函数执行完毕，student变量超出作用域
+  // 但studentRecords仍然强引用着这个对象
+  // 即使没有其他地方使用这个对象，它也不会被垃圾回收
+}
+
+// 调用函数
+processStudent();
+
+// 此时：student对象仍然存在于内存中，无法被垃圾回收
+// 如果这个函数被频繁调用，会积累大量无法回收的对象，导致内存泄漏
+
+// -----------------------------------------------------------------
+
+// 全局WeakMap
+const studentRecords = new WeakMap();
+
+function processStudent() {
+  // 创建匿名对象
+  const student = { id: 1, name: '张三' };
+  
+  // 用WeakMap标记这个对象
+  studentRecords.set(student, { 
+    isStudent: true,
+    enrollmentDate: new Date()
+  });
+  
+  // 函数执行完毕，student变量超出作用域
+  // 没有其他强引用指向student对象
+  // 垃圾回收器会回收student对象
+  // 同时，studentRecords中对应的条目也会自动被移除
+}
+
+// 调用函数
+processStudent();
+
+// 此时：student对象可以被垃圾回收
+// 不会导致内存泄漏，即使函数被频繁调用
+```
+
+
+
+
+
+
+
+### globalThis全局对象
+
+- **定义**：一个标准属性，提供统一的方式访问当前环境的全局对象，无需关心代码运行在浏览器、Node.js 还是其他 JavaScript 环境中
+
+- **语法**：`globalThis`
+
+- **原理**：在 JavaScript 不同环境中，全局对象有不同的名称（浏览器中是 `window` 或 `self`，Node.js 中是 `global`，Web Workers 中是 `self`）。`globalThis` 作为 ES2020 (ES11) 引入的标准属性，提供了一个跨环境的统一访问方式。它是一个访问器属性，指向当前环境的全局对象，在所有标准 JavaScript 环境中都可用。这解决了过去需要编写环境检测代码才能访问全局对象的问题。
+
+- **示例**：
+
+  ```javascript
+  // 基本使用 - 在任何环境中访问全局对象
+  console.log(globalThis); // 指向当前环境的全局对象
+  
+  // 添加全局属性（跨环境兼容）
+  globalThis.appVersion = '1.0.0';
+  console.log(window?.appVersion); // 浏览器中: "1.0.0"
+  console.log(global?.appVersion); // Node.js中: "1.0.0"
+  
+  // 跨环境功能检测
+  function isBrowser() {
+    return typeof globalThis.window !== 'undefined';
+  }
+  
+  function isNode() {
+    return typeof globalThis.process !== 'undefined';
+  }
+  
+  console.log('Is browser:', isBrowser());
+  console.log('Is Node.js:', isNode());
+  
+  // 创建跨环境工具函数
+  function getGlobalStorage() {
+    if (!globalThis.__appStorage__) {
+      globalThis.__appStorage__ = new Map();
+    }
+    return globalThis.__appStorage__;
+  }
+  
+  const storage = getGlobalStorage();
+  storage.set('user', { name: 'Alice' });
+  console.log(storage.get('user')); // { name: 'Alice' }
+  
+  // 传统方法 vs globalThis
+  // 传统方法（需要环境检测）:
+  const oldGlobal = (function() {
+    if (typeof window !== 'undefined') return window;
+    if (typeof global !== 'undefined') return global;
+    if (typeof self !== 'undefined') return self;
+    throw new Error('No global object found');
+  })();
+  
+  // 现代方法（统一使用 globalThis）:
+  const modernGlobal = globalThis;
+  
+  // 全局函数示例
+  globalThis.generateId = () => {
+    return Math.random().toString(36).substr(2, 9);
+  };
+  
+  console.log(globalThis.generateId()); // 生成随机ID，如: "x1y2z3a4b"
+  
+  // 在模块中安全使用
+  export function setGlobalTheme(theme) {
+    globalThis.__appTheme__ = theme;
+  }
+  
+  export function getGlobalTheme() {
+    return globalThis.__appTheme__ || 'light';
+  }
+  ```
+
+
+
+
+
+### FinalizationRegistry终结注册表
+
+- **定义**：一个用于在对象被垃圾回收时接收通知的注册表，允许执行清理操作（如释放外部资源），作为资源管理的最后保障机制
+
+- **语法**：
+
+  ```javascript
+  const registry = new FinalizationRegistry(cleanupCallback);
+  registry.register(target, heldValue[, unregisterToken]);
+  registry.unregister(unregisterToken);
+  ```
+
+  以下为伪代码示例
+
+  ```js
+  // 创建终结注册表，传入清理回调函数
+  const 注册表 = new FinalizationRegistry((持有的值) => {
+    console.log(`对象已被垃圾回收，执行清理操作: ${持有的值}`);
+    // 这里执行资源清理逻辑，例如:
+    // 释放文件句柄、断开网络连接、清除缓存等
+    // 注意：不能在此访问已被回收的对象
+  });
+  
+  // 定义要监控的对象
+  const 目标对象 = { 
+    数据: "重要资源",
+    关闭: function() {
+      console.log("显式关闭资源");
+      // 取消注册，避免后续不必要的清理回调
+      注册表.unregister(取消注册令牌);
+    }
+  };
+  
+  // 可选：创建专门的取消注册令牌（可以是任何对象，通常使用目标对象本身）
+  const 取消注册令牌 = 目标对象; 
+  
+  // 注册对象到终结注册表
+  // 参数1: 要监控的目标对象
+  // 参数2: 对象被回收时传递给回调的值（不应包含对目标对象的引用）
+  // 参数3: 可选，用于取消注册的令牌（通常与目标对象相同）
+  注册表.register(目标对象, "外部资源#123", 取消注册令牌);
+  
+  // ...正常使用目标对象...
+  console.log(目标对象.数据); // "重要资源"
+  
+  // 当不再需要对象时，应当显式清理（而非依赖垃圾回收）
+  目标对象.关闭();
+  
+  // 手动取消注册（如果之前没有在close()中取消）
+  // 注册表.unregister(取消注册令牌);
+  
+  // 如果不显式清理，当目标对象被垃圾回收时，会自动触发清理回调
+  // 注意：垃圾回收时机不确定，不应依赖此机制进行关键资源释放
+  目标对象 = null; // 移除引用，允许垃圾回收
+  ```
+
+  
+
+- **原理**：`FinalizationRegistry` 允许你注册对象，当垃圾回收器回收这些对象时，会异步调用指定的清理回调函数。它接收一个回调函数作为参数，当注册的对象被垃圾回收时，会将注册时提供的`heldValue`传递给回调。`register()`方法将目标对象与一个值关联，第三个参数`unregisterToken`用于后续取消注册。需要注意，垃圾回收的时间和是否会发生是**不确定的**，不能依赖此机制及时释放关键资源，仅应作为最后保障或用于调试目的。
+
+- **示例**：
+
+  ```javascript
+  // 基本用法
+  const registry = new FinalizationRegistry((heldValue) => {
+    console.log(`对象已被回收，清理资源: ${heldValue}`);
+    // 这里可以记录日志或执行非关键清理操作
+  });
+  
+  let obj = { name: 'test-object' };
+  registry.register(obj, '外部资源ID-123', obj); // 第三个参数用于后续取消注册
+  
+  obj = null; // 移除引用，对象可能被垃圾回收
+  // 注意：无法确定何时或是否会被回收
+  
+  // 实际应用场景：资源管理的最后保障
+  class FileHandler {
+    constructor(filename) {
+      this.filename = filename;
+      this.fileHandle = this.openFile(filename); // 假设打开文件返回句柄
+      
+      // 注册终结器作为备份
+      registry.register(this, filename, this);
+    }
+    
+    openFile(filename) {
+      console.log(`打开文件: ${filename}`);
+      return `handle-${filename}`;
+    }
+    
+    close() {
+      if (this.fileHandle) {
+        console.log(`显式关闭文件: ${this.filename}`);
+        // 实际关闭文件的操作
+        registry.unregister(this); // 取消注册，避免重复清理
+        this.fileHandle = null;
+      }
+    }
+  }
+  
+  // 正确使用方式
+  {
+    const handler = new FileHandler('document.txt');
+    // ...使用文件...
+    handler.close(); // 显式关闭，这是主要的资源释放方式
+  } // handler超出作用域
+  
+  // 错误使用方式（不应依赖）
+  {
+    const handler = new FileHandler('temp.txt');
+    // 没有调用close()，依赖终结器
+    // 无法保证何时或是否会被清理，可能导致资源泄漏
+  }
+  
+  // 内存泄漏检测工具
+  const leakDetector = new FinalizationRegistry((label) => {
+    console.warn(`潜在内存泄漏: ${label} 可能未被正确释放`);
+  });
+  
+  function createLargeData(label) {
+    const data = {
+      buffer: new ArrayBuffer(1024 * 1024), // 1MB数据
+      label: label
+    };
+    leakDetector.register(data, label);
+    return data;
+  }
+  
+  // 使用后正确释放
+  let myData = createLargeData('important-data');
+  myData = null; // 移除引用
+  
+  // 手动触发垃圾回收（仅在支持的环境如Node.js中）
+  if (typeof gc === 'function') {
+    setTimeout(() => {
+      gc(); // 尝试触发垃圾回收
+      console.log('垃圾回收已触发');
+    }, 1000);
+  }
+  ```
+
+> ⚠️ **重要提示**：  
+>
+> 1. **不要依赖**此机制释放关键资源（如文件句柄、数据库连接）  
+> 2. **始终优先使用**显式清理方法（如`close()`、`dispose()`）  
+> 3. 垃圾回收时机**不可预测**，回调可能永远不会被调用  
+> 4. 主要用途：调试内存泄漏、作为资源管理的**最后保障**、非关键资源的清理
+
+
+
+
+
+### WeakRef弱引用
+
+- **定义**：一个允许创建对对象的弱引用的对象，该引用不会阻止垃圾回收器回收目标对象，用于在不干扰内存回收的情况下临时访问对象
+
+- **语法**：
+
+  ```javascript
+  const weakRef = new WeakRef(target);
+  const obj = weakRef.deref(); // 返回目标对象或 undefined
+  ```
+
+- **原理**：`WeakRef` 创建对目标对象的弱引用，该引用不会将对象保留在内存中。当对象仅剩弱引用时，垃圾回收器可以随时回收它。调用 `deref()` 方法返回原始对象（如果尚未被回收）或 `undefined`（如果已被回收）。与 `WeakMap`/`WeakSet` 不同，`WeakRef` 允许程序显式检查对象是否存在并在存在时访问它。**重要**：不应依赖 `WeakRef` 进行关键操作，因为垃圾回收时机不可预测，且可能在不同 JavaScript 引擎中有不同行为。
+
+- **示例**：
+
+  ```javascript
+  // 基本用法
+  let obj = { name: 'test' };
+  const weakRef = new WeakRef(obj);
+  
+  console.log(weakRef.deref()); // { name: 'test' }
+  
+  obj = null; // 移除强引用
+  
+  // 可能仍然存在或已被回收，取决于垃圾回收时机
+  console.log(weakRef.deref()); // 可能是 { name: 'test' } 或 undefined
+  
+  // 缓存实现示例
+  class WeakCache {
+    constructor() {
+      this.cache = new Map();
+    }
+    
+    // 获取缓存项
+    get(key) {
+      const weakRef = this.cache.get(key);
+      if (!weakRef) return null;
+      
+      const value = weakRef.deref();
+      if (value) {
+        return value; // 对象仍然存在
+      }
+      
+      // 清理已失效的引用
+      this.cache.delete(key);
+      return null;
+    }
+    
+    // 设置缓存项
+    set(key, value) {
+      this.cache.set(key, new WeakRef(value));
+    }
+  }
+  
+  const cache = new WeakCache();
+  const largeData = { data: new Array(10000).fill('*') };
+  cache.set('userData', largeData);
+  
+  console.log(cache.get('userData')); // 返回缓存的数据
+  
+  largeData = null; // 移除强引用
+  
+  // 一段时间后（垃圾回收可能已经运行）
+  setTimeout(() => {
+    console.log(cache.get('userData')); // 如果对象已被回收，可能返回 null
+  }, 1000);
+  
+  // 与 FinalizationRegistry 结合使用
+  const registry = new FinalizationRegistry((heldValue) => {
+    console.log(`键为 "${heldValue.key}" 的对象已被垃圾回收`);
+  });
+  
+  class ManagedCache {
+    constructor() {
+      this.cache = new Map();
+    }
+    
+    set(key, value) {
+      const weakRef = new WeakRef(value);
+      const token = {}; // 唯一的取消注册令牌
+      this.cache.set(key, { weakRef, token });
+      
+      // 注册到终结注册表
+      registry.register(value, { key, token }, token);
+    }
+    
+    get(key) {
+      const entry = this.cache.get(key);
+      if (!entry) return null;
+      
+      const value = entry.weakRef.deref();
+      if (value) return value;
+      
+      // 如果对象已被回收，清理相关数据
+      registry.unregister(entry.token);
+      this.cache.delete(key);
+      return null;
+    }
+    
+    clear(key) {
+      const entry = this.cache.get(key);
+      if (entry) {
+        registry.unregister(entry.token);
+        this.cache.delete(key);
+      }
+    }
+  }
+  
+  // 常见陷阱和最佳实践
+  const criticalObject = { important: true };
+  const weakRefToCritical = new WeakRef(criticalObject);
+  
+  // ❌ 反模式：忙等待或不断检查
+  function badPractice() {
+    // 这可能会阻止优化和垃圾回收
+    while (weakRefToCritical.deref()) {
+      console.log('正在检查...');
+    }
+  }
+  
+  // ✅ 最佳实践：仅在需要时单次检查
+  function goodPractice() {
+    const current = weakRefToCritical.deref();
+    if (current) {
+      // 快速使用对象，不要长时间持有引用
+      console.log('对象存在:', current.important);
+      return current.important;
+    }
+    console.log('对象已被垃圾回收');
+    return null;
+  }
+  
+  // WeakRef 与 WeakMap 的对比
+  const weakMap = new WeakMap();
+  const keyObj = { id: 1 };
+  
+  weakMap.set(keyObj, 'metadata'); // WeakMap: 键是弱引用的
+  
+  const weakRefExample = new WeakRef(keyObj); // WeakRef: 对对象的直接弱引用
+  
+  // 关键区别：
+  // - WeakMap: 当键被垃圾回收时自动移除条目
+  // - WeakRef: 允许检查对象是否存在并在存在时访问它
+  // - 对于大多数用例，WeakMap 通常更安全且可预测
+  ```
+
+
+
+### Proxy 代理类
+
+#### 基本概念
+
+- **定义**：ES6引入的元编程特性，用于创建对象的代理，拦截并自定义基本操作
+
+- **用途**：属性访问控制、数据验证、观察者模式、API封装等
+
+- **核心**：通过handler对象定义"陷阱"(traps)来拦截目标对象的操作
+
+- 语法
+
+  ：
+
+  ```javascript
+  const proxy = new Proxy(target, handler);
+  ```
+
+  - `target`：被代理的目标对象（任何类型）
+  - `handler`：配置对象，定义拦截行为
+  - **返回值**：新创建的代理对象
+
+#### 陷阱方法详解
+
+Proxy handler定义14个标准陷阱方法，对应对象的内部操作：
+
+##### 基础属性操作
+
+- **`get(target, prop, receiver)`**：拦截属性读取
+- **`set(target, prop, value, receiver)`**：拦截属性赋值
+- **`has(target, prop)`**：拦截`in`操作符
+- **`deleteProperty(target, prop)`**：拦截`delete`操作
+- **`ownKeys(target)`**：拦截`Object.keys()`等获取键操作
+
+##### 属性描述符操作
+
+- **`getOwnPropertyDescriptor(target, prop)`**：拦截获取属性描述符
+- **`defineProperty(target, prop, descriptor)`**：拦截定义属性
+
+##### 原型操作
+
+- **`getPrototypeOf(target)`**：拦截获取原型
+- **`setPrototypeOf(target, prototype)`**：拦截设置原型
+
+##### 对象扩展性
+
+- **`isExtensible(target)`**：拦截检查对象是否可扩展
+- **`preventExtensions(target)`**：拦截防止对象扩展
+
+##### 函数专用
+
+- **`apply(target, thisArg, argumentsList)`**：拦截函数调用
+- **`construct(target, argumentsList, newTarget)`**：拦截`new`操作符
+
+
+
+#### 常用示例
+
+##### 数据验证
+
+```javascript
+const validator = {
+  set(obj, prop, value) {
+    if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+      throw new TypeError('年龄必须是非负数字');
+    }
+    return Reflect.set(obj, prop, value);
+  }
+};
+const person = new Proxy({}, validator);
+```
+
+##### 观察者模式
+
+```javascript
+function observe(target, callback) {
+  return new Proxy(target, {
+    set(target, prop, value, receiver) {
+      const oldValue = target[prop];
+      const result = Reflect.set(target, prop, value, receiver);
+      if (oldValue !== value) callback(prop, oldValue, value);
+      return result;
+    }
+  });
+}
+```
+
+##### 可撤销代理
+
+```javascript
+const { proxy, revoke } = Proxy.revocable(target, handler);
+// 使用代理...
+revoke(); // 撤销代理，之后所有操作抛出TypeError
+```
+
+#### 与Reflect的关系
+
+- **互补关系**：Reflect API提供与Proxy陷阱对应的方法
+
+- 最佳实践
+
+  ：在陷阱中使用Reflect方法保持默认行为
+
+  ```javascript
+  const handler = {
+    get(target, prop, receiver) {
+      console.log(`读取属性: ${prop}`);
+      return Reflect.get(target, prop, receiver); // 保持默认行为
+    }
+  };
+  ```
+
+- **优势**：正确处理`this`绑定、原型链和getter/setter
+
+#### 应用场景
+
+- **数据验证**：确保属性值符合业务规则
+- **访问控制**：限制敏感属性的访问和修改
+- **观察者模式**：响应数据变化（如Vue 3响应式系统）
+- **性能监控**：记录函数执行时间或操作频率
+- **API封装**：增强第三方库功能或提供兼容层
+- **虚拟代理**：延迟加载资源（如大型对象）
+- **安全沙箱**：创建受限执行环境
+- **调试工具**：记录所有对象操作
+
+#### 注意事项
+
+- **性能影响**：每个操作都有额外开销，避免在性能敏感代码中过度使用
+- **兼容性**：IE不支持，无法完全polyfill
+- **一层代理**：不会自动代理嵌套对象，需要递归处理
+- **this绑定**：陷阱中使用`receiver`参数确保正确绑定
+- **不可代理对象**：某些内置对象(如Date)的部分内部方法无法完全代理
+- **必需陷阱**：某些操作要求实现特定陷阱，否则会抛出错误
+- **框架应用**：Vue 3、MobX 6、Immer等现代框架广泛使用Proxy实现核心功能
+
+
+
+### Reflect API 详解
+
+#### 基本概念
+
+- **定义**：ES6引入的内置对象，提供一系列静态方法用于对象操作
+
+- **设计目的**
+
+  将对象操作统一到单一命名空间
+
+  提供函数式API替代操作符
+
+  与Proxy API对称设计，每个Proxy陷阱都有对应的Reflect方法
+
+- **特点**
+
+  所有方法都是静态的（不能通过new创建实例）
+
+  操作结果以返回值形式提供（而非抛出异常）
+
+  命名更符合直觉（如Reflect.get替代obj[prop]）
+
+#### 核心方法
+
+Reflect共有14个静态方法，与Proxy陷阱一一对应：
+
+##### 属性操作
+
+- **`Reflect.get(target, propertyKey[, receiver])`**
+  等同于 `target[propertyKey]`，安全获取属性值
+
+  ```javascript
+  const obj = { x: 1 };
+  Reflect.get(obj, 'x'); // 1
+  ```
+
+- **`Reflect.set(target, propertyKey, value[, receiver])`**
+  等同于 `target[propertyKey] = value`，设置属性值
+
+  ```javascript
+  const obj = {};
+  Reflect.set(obj, 'x', 10); // true（成功）
+  ```
+
+- **`Reflect.has(target, propertyKey)`**
+  等同于 `propertyKey in target`，检查属性是否存在
+
+  ```javascript
+  const obj = { x: 1 };
+  Reflect.has(obj, 'x'); // true
+  ```
+
+- **`Reflect.deleteProperty(target, propertyKey)`**
+  等同于 `delete target[propertyKey]`，删除属性
+
+  ```javascript
+  const obj = { x: 1 };
+  Reflect.deleteProperty(obj, 'x'); // true
+  ```
+
+##### 属性描述符
+
+- **`Reflect.getOwnPropertyDescriptor(target, propertyKey)`**
+  等同于 `Object.getOwnPropertyDescriptor()`，获取属性描述符
+
+  ```javascript
+  const obj = { x: 1 };
+  Reflect.getOwnPropertyDescriptor(obj, 'x');
+  // { value: 1, writable: true, enumerable: true, configurable: true }
+  ```
+
+- **`Reflect.defineProperty(target, propertyKey, attributes)`**
+  等同于 `Object.defineProperty()`，定义属性
+
+  ```javascript
+  const obj = {};
+  Reflect.defineProperty(obj, 'x', { value: 1, writable: false });
+  ```
+
+##### 对象原型
+
+- **`Reflect.getPrototypeOf(target)`**
+  等同于 `Object.getPrototypeOf()`，获取原型
+
+  ```javascript
+  const obj = {};
+  Reflect.getPrototypeOf(obj) === Object.prototype; // true
+  ```
+
+- **`Reflect.setPrototypeOf(target, prototype)`**
+  等同于 `Object.setPrototypeOf()`，设置原型
+
+  ```javascript
+  const obj = {};
+  Reflect.setPrototypeOf(obj, Array.prototype); // true
+  ```
+
+##### 对象扩展性
+
+- **`Reflect.isExtensible(target)`**
+  等同于 `Object.isExtensible()`，检查对象是否可扩展
+
+  ```javascript
+  const obj = {};
+  Reflect.isExtensible(obj); // true
+  ```
+
+- **`Reflect.preventExtensions(target)`**
+  等同于 `Object.preventExtensions()`，阻止对象扩展
+
+  ```javascript
+  const obj = {};
+  Reflect.preventExtensions(obj); // true
+  ```
+
+##### 键与枚举
+
+- `Reflect.ownKeys(target)`
+
+  等同于 
+
+  ```
+  Object.getOwnPropertyNames() + Object.getOwnPropertySymbols()
+  ```
+
+  ，获取所有自身属性键
+
+  ```javascript
+  const obj = { x: 1 };
+  Reflect.ownKeys(obj); // ['x']
+  ```
+
+##### 函数调用
+
+- **`Reflect.apply(target, thisArgument, argumentsList)`**
+  等同于 `Function.prototype.apply()`，调用函数
+
+  ```javascript
+  Reflect.apply(Math.floor, undefined, [1.75]); // 1
+  ```
+
+- **`Reflect.construct(target, argumentsList[, newTarget])`**
+  等同于 `new target(...argumentsList)`，构造实例
+
+  ```javascript
+  class Person { constructor(name) { this.name = name; } }
+  const person = Reflect.construct(Person, ['John']);
+  ```
+
+
+
+#### 与Proxy的协同工作
+
+Reflect是Proxy的完美搭档，通常在Proxy陷阱中使用Reflect保持默认行为：
+
+```javascript
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`获取属性: ${prop}`);
+    // 使用Reflect保持默认行为，正确处理getter和原型链
+    return Reflect.get(target, prop, receiver);
+  },
+  
+  set(target, prop, value, receiver) {
+    console.log(`设置属性: ${prop} = ${value}`);
+    // 验证后使用Reflect设置值
+    if (typeof value !== 'number') {
+      throw new TypeError('必须是数字');
+    }
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const proxy = new Proxy({}, handler);
+```
+
+#### 对比传统方法的优势
+
+##### 1. 统一API风格
+
+```javascript
+// 传统方式（混合操作符和方法）
+delete obj.x;
+'x' in obj;
+Object.defineProperty(obj, 'x', { value: 1 });
+
+// Reflect方式（统一函数式API）
+Reflect.deleteProperty(obj, 'x');
+Reflect.has(obj, 'x');
+Reflect.defineProperty(obj, 'x', { value: 1 });
+```
+
+##### 2. 错误处理
+
+```javascript
+// 传统方式：Object.defineProperty在失败时抛出异常
+try {
+  Object.defineProperty(frozenObj, 'x', { value: 1 });
+} catch (e) {
+  console.log('失败');
+}
+
+// Reflect方式：失败时返回false
+const success = Reflect.defineProperty(frozenObj, 'x', { value: 1 });
+if (!success) {
+  console.log('失败');
+}
+```
+
+##### 3. 函数式操作符
+
+```javascript
+// 传统方式：无法作为函数参数传递
+function operate(obj, operation) {
+  // 无法直接传递in操作符
+}
+
+// Reflect方式：可以传递操作
+function operate(obj, operation, prop) {
+  return operation(obj, prop);
+}
+operate(obj, Reflect.has, 'x');
+```
+
+#### 实际应用场景
+
+##### 1. 安全的属性访问
+
+```javascript
+function getSafe(obj, path) {
+  return path.split('.').reduce((current, key) => {
+    return current === undefined ? undefined : Reflect.get(current, key);
+  }, obj);
+}
+
+const user = { profile: { name: 'John' } };
+getSafe(user, 'profile.name'); // 'John'
+getSafe(user, 'profile.address.city'); // undefined
+```
+
+##### 2. 类型安全的API
+
+```javascript
+function createTypeSafe(target, schema) {
+  return new Proxy(target, {
+    set(obj, prop, value) {
+      if (schema[prop] && typeof value !== schema[prop]) {
+        throw new TypeError(`属性 ${prop} 必须是 ${schema[prop]} 类型`);
+      }
+      return Reflect.set(obj, prop, value);
+    }
+  });
+}
+
+const person = createTypeSafe({}, { age: 'number' });
+person.age = 30; // 成功
+person.age = 'thirty'; // 抛出TypeError
+```
+
+##### 3. 装饰器模式
+
+```javascript
+function logOperations(target) {
+  return new Proxy(target, {
+    get(obj, prop, receiver) {
+      console.log(`读取: ${prop}`);
+      return Reflect.get(obj, prop, receiver);
+    },
+    set(obj, prop, value, receiver) {
+      console.log(`写入: ${prop} = ${value}`);
+      return Reflect.set(obj, prop, value, receiver);
+    }
+  });
+}
+
+const data = logOperations({ count: 0 });
+data.count++; // 记录读取和写入操作
+```
+
+
+
+###  响应式对象
+
+> **保留您的原理解释**： *"利用proxy来拦截并对get与set改造 通过收集所有get的操作记录下来然后通过reflect来完成默认行为 set会先使用reflect完成默认行为 再通过调用自定义的一些方法来实现依赖对应数据的操作进行重新执行，这是响应式对象的大体实现思路。"*
+
+这是现代响应式框架（Vue 3, React, MobX等）的核心思想
+
+####  核心概念总结
+
+##### **什么是响应式对象？**
+
+**定义**：一个特殊对象，当它的属性被修改时，**自动更新**所有使用该属性的地方。
+
+**核心特性**：
+
+- 🔄 **自动追踪依赖**：系统知道哪些代码使用了哪些数据
+- ⚡ **自动更新**：数据变化时，只更新真正受影响的部分
+- 🎯 **细粒度响应**：精确到属性级别，不是整个对象
+
+##### **核心工作原理**
+
+![image-20251120203856013](./img/image-20251120203856013.png)
+
+**三个关键步骤**：
+
+1. **拦截**：用Proxy拦截对象的get/set操作
+2. **收集**：在getter中自动记录"谁在使用这个数据"
+3. **触发**：在setter中先更新数据，再通知所有使用者
+
+##### **核心概念关系**
+
+```
+响应式对象 = Proxy(原始对象) + 依赖收集系统 + 副作用管理
+```
+
+| 概念        | 作用         | 类比                       |
+| ----------- | ------------ | -------------------------- |
+| **Proxy**   | 拦截对象操作 | 交通摄像头，监控所有访问   |
+| **Getter**  | 收集依赖     | 记录"谁看了这个数据"       |
+| **Setter**  | 触发更新     | 广播"这个数据变了，请更新" |
+| **Effect**  | 副作用函数   | 自动执行的更新任务         |
+| **Track**   | 依赖收集     | 建立"数据-使用者"关系      |
+| **Trigger** | 触发更新     | 通知所有相关使用者         |
+
+------
+
+#### 简单案例说明
+
+##### 案例1：年龄显示（最简版）
+
+```html
+<div id="app">
+  <input type="number" id="ageInput" placeholder="输入年龄...">
+  <div>当前年龄: <span id="ageDisplay">0</span></div>
+</div>
+
+<script>
+// 创建响应式状态
+const state = {
+  age: 0
+};
+
+// 模拟响应式系统（简化版）
+const reactiveState = new Proxy(state, {
+  get(target, key) {
+    console.log(`🔍 收集依赖: 有人在读取 ${key}`);
+    return target[key];
+  },
+  set(target, key, value) {
+    console.log(`🔄 更新数据: ${key} 从 ${target[key]} 变为 ${value}`);
+    target[key] = value;
+    
+    // 模拟触发更新
+    document.getElementById('ageDisplay').textContent = value;
+    return true;
+  }
+});
+
+// 绑定输入事件
+document.getElementById('ageInput').addEventListener('input', (e) => {
+  const age = parseInt(e.target.value) || 0;
+  reactiveState.age = age; // 修改响应式数据
+});
+</script>
+```
+
+##### 案例2：购物车计算（展示依赖关系）
+
+```javascript
+// 响应式购物车
+const cart = reactive({
+  items: [
+    { name: '苹果', price: 5, quantity: 2 },
+    { name: '香蕉', price: 3, quantity: 3 }
+  ]
+});
+
+// 副作用1：显示总金额
+effect(() => {
+  const total = cart.items.reduce((sum, item) => 
+    sum + (item.price * item.quantity), 0);
+  console.log(`💰 总金额: ${total}元`);
+});
+
+// 副作用2：显示商品数量
+effect(() => {
+  const count = cart.items.reduce((sum, item) => 
+    sum + item.quantity, 0);
+  console.log(`📦 商品总数: ${count}件`);
+});
+
+// 修改数据
+cart.items[0].quantity = 5; 
+// 输出:
+// 🔍 收集依赖: items
+// 🔍 收集依赖: quantity (苹果)
+// 🔍 收集依赖: quantity (香蕉)
+// 🔄 更新数据: quantity 从 2 变为 5
+// 💰 总金额: 34元  (只更新总金额，因为商品数量没变)
+```
+
+------
+
+#### 关键要点总结
+
+##### **核心思想**
+
+- **数据驱动**：只关注"数据应该是什么"，而不是"如何更新视图"
+- **自动同步**：数据变化 → 自动更新相关视图
+- **精准更新**：只更新真正受影响的部分，不是整个页面
+
+##### **工作流程**
+
+```mermaid
+flowchart TD
+    A[创建响应式对象] --> B[首次执行副作用]
+    B --> C[访问属性时收集依赖]
+    C --> D[修改属性时触发更新]
+    D --> E[重新执行相关副作用]
+    E --> F[视图自动更新]
+```
+
+##### **与传统方式对比**
+
+| 传统方式           | 响应式方式       |
+| ------------------ | ---------------- |
+| ❌ 手动调用更新函数 | ✅ 自动更新       |
+| ❌ 容易遗漏更新     | ✅ 不会遗漏依赖   |
+| ❌ 代码分散难维护   | ✅ 逻辑集中声明   |
+| ❌ 需要关心更新时机 | ✅ 只关心数据状态 |
+
+**传统方式**：
+
+```javascript
+// 需要手动管理更新
+let count = 0;
+function updateDisplay() {
+  document.getElementById('count').textContent = count;
+}
+
+// 每次修改都要记得调用
+count = 5;
+updateDisplay(); // 忘记调用就会出错！
+```
+
+**响应式方式**：
+
+```javascript
+const state = reactive({ count: 0 });
+
+effect(() => {
+  document.getElementById('count').textContent = state.count;
+});
+
+// 修改时自动更新
+state.count = 5; // 无需手动调用任何函数！
+```
+
+**记住这个公式**：
+
+```
+响应式 = Proxy + 依赖收集 + 副作用自动执行
+```
+
+
+
+### 响应式对象案例
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>响应式待办事项应用</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .stats-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+        
+        #newTodo {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        #newTodo:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .btn-filter {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn-filter.active {
+            background: #e9ecef;
+            color: #4facfe;
+            border-color: #4facfe;
+        }
+        
+        .btn-delete {
+            background: #ff7675;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #ff5252;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .todos-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .todo-item.completed {
+            border-left-color: #6c757d;
+            opacity: 0.7;
+        }
+        
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        
+        .todo-checkbox {
+            width: 22px;
+            height: 22px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #4facfe;
+        }
+        
+        .todo-text {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #212529;
+            transition: color 0.3s;
+        }
+        
+        .delete-btn {
+            background: none;
+            color: #ff7675;
+            padding: 8px 12px;
+            border-radius: 8px;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover {
+            opacity: 1;
+            background: rgba(255, 118, 117, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            color: #e9ecef;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .header {
+                padding: 20px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>✨ 响应式待办事项</h1>
+            <div class="stats">
+                <div class="stats-item">总任务: <span id="total-count">0</span></div>
+                <div class="stats-item">已完成: <span id="completed-count">0</span></div>
+                <div class="stats-item">未完成: <span id="pending-count">0</span></div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-group">
+                <input type="text" id="newTodo" placeholder="添加新任务..." autofocus>
+                <button id="addTodo" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    添加
+                </button>
+            </div>
+            
+            <div class="filters">
+                <button class="btn btn-filter active" data-filter="all">全部</button>
+                <button class="btn btn-filter" data-filter="pending">未完成</button>
+                <button class="btn btn-filter" data-filter="completed">已完成</button>
+                <button class="btn btn-delete" id="clearCompleted">清除已完成</button>
+            </div>
+            
+            <ul id="todosList" class="todos-list">
+                <!-- 任务将在这里动态生成 -->
+            </ul>
+            
+            <div id="emptyState" class="empty-state">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                <p>暂无任务，添加第一个任务吧！</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>响应式对象示例 - 数据变化自动更新视图</p>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ===== 简化但完整的响应式系统实现 =====
+         * 修复了之前版本的问题，确保100%可运行
+         */
+        
+        // 全局变量：跟踪当前活跃的副作用
+        let activeEffect = null;
+        
+        // 依赖映射表: target -> key -> Set<effect>
+        const targetMap = new WeakMap();
+        
+        // 依赖收集函数
+        function track(target, key) {
+            if (!activeEffect) return; // 没有活跃的副作用，不收集
+            
+            // 获取或创建依赖映射
+            let depsMap = targetMap.get(target);
+            if (!depsMap) {
+                depsMap = new Map();
+                targetMap.set(target, depsMap);
+            }
+            
+            // 获取或创建这个属性的依赖集合
+            let dep = depsMap.get(key);
+            if (!dep) {
+                dep = new Set();
+                depsMap.set(key, dep);
+            }
+            
+            // 添加当前活跃的副作用到依赖集合
+            dep.add(activeEffect);
+            // 记录这个副作用依赖的属性，用于后续清理
+            activeEffect.deps.push(dep);
+        }
+        
+        // 触发更新函数
+        function trigger(target, key) {
+            const depsMap = targetMap.get(target);
+            if (!depsMap) return;
+            
+            const dep = depsMap.get(key);
+            if (dep) {
+                // 创建副本避免遍历过程中修改集合
+                const effects = [...dep];
+                effects.forEach(effectFn => {
+                    // 如果有调度器，使用调度器
+                    if (effectFn.scheduler) {
+                        effectFn.scheduler();
+                    } 
+                    // 否则直接执行
+                    else if (effectFn !== activeEffect) {
+                        effectFn();
+                    }
+                });
+            }
+        }
+        
+        // 清理副作用的依赖
+        function cleanup(effectFn) {
+            // 从所有依赖集合中移除该副作用
+            effectFn.deps.forEach(dep => {
+                dep.delete(effectFn);
+            });
+            // 清空依赖列表
+            effectFn.deps.length = 0;
+        }
+        
+        // 创建副作用函数
+        function effect(fn, options = {}) {
+            // 包装原始函数，添加依赖追踪能力
+            function effectFn() {
+                // 清理旧依赖
+                cleanup(effectFn);
+                // 设置当前活跃副作用
+                activeEffect = effectFn;
+                // 执行原始函数（会触发数据访问，收集新依赖）
+                const result = fn();
+                // 重置活跃副作用
+                activeEffect = null;
+                return result;
+            }
+            
+            // 初始化依赖列表
+            effectFn.deps = [];
+            
+            // 添加配置选项
+            Object.assign(effectFn, options);
+            
+            // 首次执行，收集初始依赖
+            effectFn();
+            return effectFn;
+        }
+        
+        // 创建响应式对象
+        function reactive(target) {
+            // 处理基本类型
+            if (typeof target !== 'object' || target === null) {
+                return target;
+            }
+            
+            // 检查是否已经是响应式对象
+            if (isReactive(target)) {
+                return target;
+            }
+            
+            // 处理数组
+            if (Array.isArray(target)) {
+                return new Proxy(target, {
+                    get(target, key, receiver) {
+                        const result = Reflect.get(target, key, receiver);
+                        // 对数组长度和索引操作进行特殊处理
+                        if (typeof key === 'string' && ['length'].includes(key)) {
+                            track(target, key);
+                        } else if (!isNaN(parseInt(key))) {
+                            track(target, key);
+                        }
+                        return typeof result === 'object' && result !== null 
+                            ? reactive(result) 
+                            : result;
+                    },
+                    
+                    set(target, key, value, receiver) {
+                        const oldValue = target[key];
+                        const result = Reflect.set(target, key, value, receiver);
+                        if (value !== oldValue) {
+                            trigger(target, key);
+                        }
+                        return result;
+                    }
+                });
+            }
+            
+            // 处理普通对象
+            return new Proxy(target, {
+                get(target, key, receiver) {
+                    const result = Reflect.get(target, key, receiver);
+                    track(target, key); // 依赖收集
+                    return typeof result === 'object' && result !== null 
+                        ? reactive(result) 
+                        : result;
+                },
+                
+                set(target, key, value, receiver) {
+                    const oldValue = target[key];
+                    const result = Reflect.set(target, key, value, receiver);
+                    if (value !== oldValue) {
+                        trigger(target, key); // 触发更新
+                    }
+                    return result;
+                }
+            });
+        }
+        
+        // 检查是否是响应式对象
+        function isReactive(value) {
+            return value && typeof value === 'object' && value.hasOwnProperty('__v_isReactive');
+        }
+        
+        // 创建计算属性
+        function computed(getter) {
+            let dirty = true; // 脏标记，表示值需要重新计算
+            let value;
+            let getterResult;
+            
+            // 创建一个副作用，但不立即执行
+            const effectFn = effect(getter, {
+                lazy: true, // 懒执行
+                scheduler: () => {
+                    dirty = true;
+                    // 当依赖变化时，重新执行getter
+                    if (onComputedChange) {
+                        onComputedChange();
+                    }
+                }
+            });
+            
+            // 存储onComputedChange回调
+            let onComputedChange = null;
+            
+            const obj = {
+                get value() {
+                    if (dirty) {
+                        value = effectFn(); // 重新计算值
+                        dirty = false;
+                    }
+                    return value;
+                },
+                // 内部方法，用于注册变更回调
+                _onChanged(fn) {
+                    onComputedChange = fn;
+                }
+            };
+            
+            // 初始计算
+            value = effectFn();
+            dirty = false;
+            
+            return obj;
+        }
+        
+        /**
+         * ===== 应用逻辑 =====
+         */
+        
+        // 1. 创建响应式状态
+        const state = reactive({
+            todos: [],
+            filter: 'all', // all, pending, completed
+            newTodo: ''
+        });
+        
+        // 2. 计算属性：过滤后的任务
+        const filteredTodos = computed(() => {
+            console.log("重新计算过滤后的任务");
+            switch (state.filter) {
+                case 'pending':
+                    return state.todos.filter(todo => !todo.completed);
+                case 'completed':
+                    return state.todos.filter(todo => todo.completed);
+                default:
+                    return state.todos;
+            }
+        });
+        
+        // 3. 计算属性：统计信息
+        const stats = computed(() => {
+            console.log("重新计算统计信息");
+            const total = state.todos.length;
+            const completed = state.todos.filter(todo => todo.completed).length;
+            const pending = total - completed;
+            return { total, completed, pending };
+        });
+        
+        // 3.5 确保计算属性在变化时触发更新
+        filteredTodos._onChanged(() => {
+            renderTodos();
+        });
+        
+        stats._onChanged(() => {
+            updateStats();
+        });
+        
+        // 4. 渲染任务列表
+        function renderTodos() {
+            const todosList = document.getElementById('todosList');
+            const emptyState = document.getElementById('emptyState');
+            
+            // 清空列表
+            todosList.innerHTML = '';
+            
+            // 获取过滤后的任务
+            const todos = filteredTodos.value;
+            
+            // 显示或隐藏空状态
+            emptyState.style.display = todos.length === 0 ? 'block' : 'none';
+            
+            // 渲染每个任务
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.dataset.id = todo.id;
+                
+                li.innerHTML = `
+                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+                    <span class="todo-text">${todo.text}</span>
+                    <button class="btn delete-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                `;
+                
+                todosList.appendChild(li);
+            });
+        }
+        
+        // 5. 更新统计信息
+        function updateStats() {
+            const { total, completed, pending } = stats.value;
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('pending-count').textContent = pending;
+        }
+        
+        // 6. 事件处理：添加新任务
+        function addTodo() {
+            const text = state.newTodo.trim();
+            if (text) {
+                state.todos.push({
+                    id: Date.now(),
+                    text: text,
+                    completed: false
+                });
+                state.newTodo = '';
+                document.getElementById('newTodo').value = '';
+            }
+        }
+        
+        // 7. 事件处理：切换任务完成状态
+        function toggleTodo(id) {
+            const todo = state.todos.find(t => t.id === parseInt(id));
+            if (todo) {
+                todo.completed = !todo.completed;
+            }
+        }
+        
+        // 8. 事件处理：删除任务
+        function deleteTodo(id) {
+            state.todos = state.todos.filter(todo => todo.id !== parseInt(id));
+        }
+        
+        // 9. 事件处理：清除已完成任务
+        function clearCompleted() {
+            state.todos = state.todos.filter(todo => !todo.completed);
+        }
+        
+        // 10. 事件处理：设置过滤器
+        function setFilter(filter) {
+            state.filter = filter;
+        }
+        
+        // 11. 副作用：更新过滤按钮状态
+        effect(() => {
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === state.filter);
+            });
+        });
+        
+        // 12. 初始化示例数据
+        function initSampleData() {
+            state.todos = [
+                { id: 1, text: '学习响应式原理', completed: true },
+                { id: 2, text: '完成项目任务', completed: false },
+                { id: 3, text: '阅读技术文档', completed: false },
+                { id: 4, text: '编写示例代码', completed: true }
+            ];
+        }
+        
+        /**
+         * ===== 事件绑定 =====
+         */
+        
+        // 1. 绑定添加按钮
+        document.getElementById('addTodo').addEventListener('click', addTodo);
+        
+        // 2. 绑定回车键
+        document.getElementById('newTodo').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+        
+        // 3. 动态事件委托：任务列表
+        document.getElementById('todosList').addEventListener('click', (e) => {
+            const todoItem = e.target.closest('.todo-item');
+            if (!todoItem) return;
+            
+            const id = todoItem.dataset.id;
+            
+            if (e.target.classList.contains('todo-checkbox')) {
+                toggleTodo(id);
+            } else if (e.target.closest('.delete-btn')) {
+                deleteTodo(id);
+            }
+        });
+        
+        // 4. 绑定清除按钮
+        document.getElementById('clearCompleted').addEventListener('click', clearCompleted);
+        
+        // 5. 绑定过滤按钮
+        document.querySelectorAll('.btn-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setFilter(btn.dataset.filter);
+            });
+        });
+        
+        // 6. 输入框绑定（实时更新响应式状态）
+        document.getElementById('newTodo').addEventListener('input', (e) => {
+            state.newTodo = e.target.value;
+        });
+        
+        // 7. 初始化应用
+        function init() {
+            // 初始化示例数据
+            initSampleData();
+            
+            // 初始渲染
+            renderTodos();
+            updateStats();
+            
+            // 设置焦点
+            setTimeout(() => {
+                document.getElementById('newTodo').focus();
+            }, 100);
+        }
+        
+        // 等待DOM加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 常见面试题
 
 
@@ -19018,6 +22842,175 @@ console.log(n) // 输出：100
 3. 最后的 `console.log` 输出全局变量 `n`（仍然是 `100`）
 
 作用域在函数定义时确定，而不是调用时确定。
+
+
+
+#### Weak引用与内存管理
+
+##### 代码段 1：WeakMap 与垃圾回收
+
+```javascript
+let wm = new WeakMap();
+(function() {
+    let obj = { name: 'test' };
+    wm.set(obj, 'metadata');
+    
+    console.log(wm.has(obj)); // true
+})();
+// obj 已经超出作用域
+console.log(wm.has({ name: 'test' })); // false
+```
+
+**解释**：在匿名函数执行后，`obj` 没有其他强引用，所以它被垃圾回收，WeakMap 中对应的条目也会自动被移除。即使创建一个内容相同的新对象，也不会匹配原来的键，因为对象引用不同。
+
+------
+
+##### 代码段 2：WeakMap 无法遍历
+
+```javascript
+const wm = new WeakMap();
+const obj1 = { id: 1 };
+const obj2 = { id: 2 };
+
+wm.set(obj1, 'value1');
+wm.set(obj2, 'value2');
+
+// 尝试遍历（会失败）
+try {
+  for (const [key, value] of wm) {
+    console.log(key, value);
+  }
+} catch (e) {
+  console.log('WeakMap不可迭代'); // 会执行到这里
+}
+
+// 尝试获取大小
+console.log(wm.size); // undefined
+```
+
+**解释**：WeakMap 设计为不可枚举，没有 size 属性，也不能使用 for...of 遍历。这是因为弱引用的特性，其内容可能随时被垃圾回收，无法保证遍历的一致性和可靠性。
+
+------
+
+##### 代码段 3：WeakSet 与原始值
+
+```javascript
+const ws = new WeakSet();
+
+try {
+  ws.add('hello'); // 抛出 TypeError
+} catch (e) {
+  console.log('WeakSet只能存储对象'); // 会执行到这里
+}
+
+try {
+  ws.add(42); // 抛出 TypeError
+} catch (e) {
+  console.log('WeakSet只能存储对象'); // 会执行到这里
+}
+
+// 正确用法
+const obj = {};
+ws.add(obj); // 成功
+```
+
+**解释**：WeakSet 只能存储对象引用，不能存储原始值（字符串、数字、布尔值、null、undefined、Symbol）。尝试添加原始值会抛出 TypeError 异常。
+
+------
+
+##### 代码段 4：内存泄漏对比
+
+```javascript
+// 使用Map - 可能导致内存泄漏
+function createCacheWithMap() {
+  const cache = new Map();
+  return {
+    set: (key, value) => cache.set(key, value),
+    get: (key) => cache.get(key)
+  };
+}
+
+// 使用WeakMap - 避免内存泄漏
+function createCacheWithWeakMap() {
+  const cache = new WeakMap();
+  return {
+    set: (key, value) => cache.set(key, value),
+    get: (key) => cache.get(key)
+  };
+}
+
+// 测试
+const mapCache = createCacheWithMap();
+const weakCache = createCacheWithWeakMap();
+
+(function() {
+  const bigObject = { data: new Array(10000).fill('*') };
+  mapCache.set(bigObject, 'result1');
+  weakCache.set(bigObject, 'result2');
+  // bigObject作用域结束
+})();
+
+// 此时：
+// mapCache 仍然持有 bigObject 的强引用，无法被垃圾回收
+// weakCache 中的 bigObject 可以被垃圾回收，因为它只有弱引用
+```
+
+**解释**：Map 会强引用键，阻止垃圾回收，可能导致内存泄漏；而 WeakMap 只弱引用键，当对象没有其他强引用时会被垃圾回收，适合用于缓存和临时数据存储。
+
+------
+
+##### 代码段 5：私有数据实现方式对比
+
+```javascript
+// 闭包方式实现私有数据
+const UserClosure = (function() {
+  const privateData = new WeakMap();
+  
+  class User {
+    constructor(name) {
+      privateData.set(this, { name });
+    }
+    
+    getName() {
+      return privateData.get(this).name;
+    }
+  }
+  
+  return User;
+})();
+
+// Symbol方式实现私有数据
+const UserSymbol = (function() {
+  const nameSymbol = Symbol('name');
+  
+  return class User {
+    constructor(name) {
+      this[nameSymbol] = name;
+    }
+    
+    getName() {
+      return this[nameSymbol];
+    }
+  };
+})();
+
+// 测试
+const user1 = new UserClosure('Alice');
+const user2 = new UserSymbol('Bob');
+
+console.log(user1.getName()); // 'Alice'
+console.log(user2.getName()); // 'Bob'
+
+// 尝试访问私有数据
+console.log(Object.getOwnPropertySymbols(user2)); // [Symbol(name)] - Symbol可以被获取到
+// user1的私有数据无法从外部访问
+```
+
+**解释**：WeakMap实现的私有数据更安全，因为无法从类外部访问WeakMap。而Symbol方式虽然可以创建"伪私有"属性，但仍然可以通过`Object.getOwnPropertySymbols()`获取到Symbol键，安全性较低。WeakMap方式还具有自动垃圾回收的优势。
+
+
+
+
 
 
 

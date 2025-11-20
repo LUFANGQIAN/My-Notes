@@ -11,11 +11,11 @@
 ### **1. 创建 Vue 3 项目**
 在 PowerShell 中执行以下命令，使用 Vite 创建 Vue 3 项目：
 ```bash
-npm init vue@latest
+npm create vue@latest
 ```
 **步骤解析：**
 
-- **`npm init vue@latest`** 是 Vue 官方推荐的项目初始化方式（基于 Vite 模板）。
+- **`npm create vue@latest`** 是 Vue 官方推荐的项目初始化方式（基于 Vite 模板）。
 - 运行后会进入交互式配置界面，依次选择以下选项：
   - **项目名称**（如 `my-vue-app`）
   - **是否启用 TypeScript**
@@ -224,4 +224,8 @@ Vue 3 的响应式系统基于 `Proxy` 实现，通过 `ref` 和 `reactive` 等 
 5. **提及了状态管理方案**（Pinia/Vuex）。  
 6. **语言更完整，逻辑更清晰**，适合用于技术文档或项目说明。  
 
-如果需要进一步调整或补充特定内容，可以随时告诉我！
+
+
+
+
+## 规则怪谈
