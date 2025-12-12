@@ -16533,16 +16533,7 @@ window.addEventListener('popstate', (event) => {
 
 ##### 设置数据
 
-```javascript
-// 方法1：使用 setItem()
-localStorage.setItem('key', 'value');
 
-// 方法2：直接属性赋值
-localStorage.key = 'value';
-
-// 方法3：数组语法
-localStorage['key'] = 'value';
-```
 
 ##### 获取数据
 
@@ -22739,282 +22730,1802 @@ state.count = 5; // 无需手动调用任何函数！
 
 
 
+### Promise 异步对象
 
+Promise 是 JavaScript 中处理异步操作的对象，代表一个异步操作的最终完成或失败。它有三种状态：
 
+- **pending**（进行中）：初始状态
+- **fulfilled**（已成功）：操作成功完成
+- **rejected**（已失败）：操作失败
 
+状态只能从 pending 变为 fulfilled 或 rejected，且不可逆。
 
+#### 常见案例
 
+##### 1. 基本 Promise 示例
 
-
-
-
-
-
-
-
-
-
-
-### 常见面试题
-
-
-
-#### 变量函数提升
-
-##### 代码段 1：全局变量修改
 ```javascript
-var n = 100
-function foo() {
-    n = 200
-}
+// 创建一个 Promise
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    console.log('开始获取数据...');
+    setTimeout(() => {
+      const success = true; // 模拟成功/失败
+      if (success) {
+        resolve({ data: '成功获取的数据' }); // 成功时调用 resolve
+      } else {
+        reject(new Error('获取数据失败')); // 失败时调用 reject
+      }
+    }, 1000);
+  });
+};
 
-foo()
-console.log(n) // 输出：200
+// 使用 Promise
+fetchData()
+  .then(result => {
+    console.log('数据获取成功:', result);
+    return result.data; // 可以返回新值传递给下一个 then
+  })
+  .then(data => {
+    console.log('处理后的数据:', data);
+  })
+  .catch(error => {
+    console.error('捕获到错误:', error.message);
+  })
+  .finally(() => {
+    console.log('无论成功失败，清理工作都要执行');
+  });
 ```
-**解释**：函数 `foo` 内部修改的是全局变量 `n`，因为函数内部没有用 `var` 重新声明 `n`，所以操作的是外部的 `n`。
 
----
+##### 2. then 的第二个回调函数 vs catch
 
-##### 代码段 2：变量提升
 ```javascript
-var a = 100
-function foo() {
-    console.log(a) // 输出：undefined
-    return
-    var a = 100
-}
+// 方式1: 使用 then 的第二个参数
+fetchData()
+  .then(
+    result => console.log('成功:', result),
+    error => console.error('失败(在then中处理):', error) // 只捕获前面Promise的错误
+  );
 
-foo()
+// 方式2: 使用 catch
+fetchData()
+  .then(result => console.log('成功:', result))
+  .catch(error => console.error('失败(在catch中处理):', error)); // 捕获链上所有错误
+
+// 重要区别
+Promise.reject(new Error('初始错误'))
+  .then(
+    () => console.log('不会执行'),
+    err => {
+      console.log('捕获错误:', err.message);
+      return '恢复值'; // 返回一个非Promise值会创建已fulfilled的Promise
+    }
+  )
+  .then(result => {
+    console.log('继续执行，结果是:', result); // 会执行，因为上一个then的错误已被处理
+  })
+  .catch(err => {
+    console.log('不会执行到这里'); // 不会执行
+  });
+
+// 对比
+Promise.reject(new Error('初始错误'))
+  .then(() => console.log('不会执行'))
+  .catch(err => {
+    console.log('捕获错误:', err.message);
+    throw new Error('新错误'); // 抛出新错误
+  })
+  .then(() => {
+    console.log('不会执行'); // 不会执行，因为前一个catch抛出了错误
+  })
+  .catch(err => {
+    console.log('捕获新错误:', err.message); // 会执行
+  });
 ```
-**解释**：由于变量提升，函数内部的 `var a` 会被提升到函数顶部，但赋值不会。所以 `console.log(a)` 输出 `undefined`，`return` 语句后面的代码不会执行。
 
----
+#### 静态方法详解
 
-##### 代码段 3：局部变量遮蔽
+##### 1. Promise.resolve() 与 Promise.reject()
+
 ```javascript
-function foo() {
-    console.log(n) // 输出：undefined
-    var n = 200
-    console.log(n) // 输出：200
-}
+// Promise.resolve()
+// 将现有值转为已fulfilled的Promise
+const resolvedPromise = Promise.resolve('成功值');
+resolvedPromise.then(value => console.log(value)); // 输出: 成功值
 
-var n = 100
-foo()
+// 等同于
+new Promise(resolve => resolve('成功值'));
+
+// Promise.reject()
+// 创建已rejected的Promise
+const rejectedPromise = Promise.reject(new Error('失败原因'));
+rejectedPromise.catch(error => console.error(error.message)); // 输出: 失败原因
+
+// 等同于
+new Promise((_, reject) => reject(new Error('失败原因')));
 ```
-**解释**：函数内部的 `var n` 会提升到函数顶部，在第一个 `console.log` 时 `n` 已声明但未赋值（`undefined`），第二个 `console.log` 时已赋值为 `200`。函数内部的 `n` 遮蔽了外部的全局变量 `n`。
 
----
+##### 2. Promise.all()
 
-##### 代码段 4：隐式全局变量
+接受一个 Promise 可迭代对象，当所有 Promise 都 fulfilled 时，返回一个包含所有结果的数组。如果有任何一个 rejected，则整个 Promise 被 rejected，结果是第一个 rejected 的原因。
+
 ```javascript
-function foo() {
-    var a = b = 100
-}
+const promise1 = Promise.resolve(3);
+const promise2 = new Promise(resolve => setTimeout(() => resolve('foo'), 100));
+const promise3 = fetch('https://api.github.com/users/github');
 
-foo()
-console.log(a) // 报错：a is not defined
-console.log(b) // 输出：100
+Promise.all([promise1, promise2, promise3])
+  .then(values => {
+    console.log(values); // [3, 'foo', Response对象]
+  })
+  .catch(error => {
+    console.error('其中一个请求失败:', error);
+  });
+
+// 实际应用场景：同时获取多个数据
+function fetchUserData(userId) {
+  return Promise.all([
+    fetch(`/api/users/${userId}`),
+    fetch(`/api/users/${userId}/posts`),
+    fetch(`/api/users/${userId}/comments`)
+  ]).then(([userRes, postsRes, commentsRes]) => {
+    return Promise.all([
+      userRes.json(),
+      postsRes.json(),
+      commentsRes.json()
+    ]);
+  });
+}
 ```
-**解释**：`var a = b = 100` 等价于 `b = 100; var a = b;`。`b` 没有用 `var` 声明，成为隐式全局变量。`a` 用 `var` 声明，是函数局部变量，外部无法访问。
 
----
+##### 3. Promise.allSettled()
 
-##### 代码段 5：作用域链
+等待所有 Promise 都 settled（fulfilled 或 rejected），返回一个包含所有结果的对象数组，每个对象有 status 和对应 value/reason。
 
 ```javascript
-var n = 100
-function foo1() {
-    console.log(n) // 输出：100
-}
+const promise1 = Promise.resolve(3);
+const promise2 = new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('拒绝了')), 100)
+);
 
-function foo2() {
-    var n = 200
-    console.log(n) // 输出：200
-    foo1()
-}
+Promise.allSettled([promise1, promise2])
+  .then(results => {
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        console.log('成功:', result.value);
+      } else {
+        console.log('失败:', result.reason.message);
+      }
+    });
+    // 输出:
+    // 成功: 3
+    // 失败: 拒绝了
+  });
 
-foo2()
-console.log(n) // 输出：100
+// 应用场景：多个独立请求，需要知道每个的结果
+function checkAllServices() {
+  const services = ['auth', 'payment', 'notification'];
+  const serviceChecks = services.map(service => 
+    fetch(`/api/health/${service}`)
+      .then(res => res.ok)
+      .catch(() => false)
+  );
+  
+  return Promise.allSettled(serviceChecks)
+    .then(results => {
+      return services.map((service, index) => ({
+        name: service,
+        status: results[index].status === 'fulfilled' && results[index].value ? 'healthy' : 'down'
+      }));
+    });
+}
 ```
-**解释**：
-1. `foo2()` 内部的 `n` 是局部变量，输出 `200`
-2. `foo1()` 在全局作用域定义，它内部的 `n` 指向全局变量 `n`（值为 `100`）
-3. 最后的 `console.log` 输出全局变量 `n`（仍然是 `100`）
 
-作用域在函数定义时确定，而不是调用时确定。
+##### 4. Promise.race()
 
-
-
-#### Weak引用与内存管理
-
-##### 代码段 1：WeakMap 与垃圾回收
+返回一个 Promise，它会在第一个 Promise 状态改变（fulfilled 或 rejected）时，以相同的状态解决或拒绝。
 
 ```javascript
-let wm = new WeakMap();
-(function() {
-    let obj = { name: 'test' };
-    wm.set(obj, 'metadata');
+// 超时控制
+function withTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('请求超时')), ms);
+  });
+  
+  return Promise.race([promise, timeout]);
+}
+
+// 使用
+const dataPromise = fetch('https://api.example.com/data');
+withTimeout(dataPromise, 5000)
+  .then(data => console.log('数据获取成功'))
+  .catch(error => console.error(error.message)); // 5秒内未完成则超时
+
+// 多个源获取最快响应
+const primarySource = fetch('https://primary-api.com/data');
+const backupSource = fetch('https://backup-api.com/data');
+
+Promise.race([primarySource, backupSource])
+  .then(fastestResponse => fastestResponse.json())
+  .then(data => console.log('使用最快响应的数据:', data));
+```
+
+##### 5. Promise.any()
+
+接受一个 Promise 可迭代对象，当其中任意一个 Promise 变为 fulfilled 时，就会 fulfilled，值为第一个 fulfilled 的 Promise 的值。如果全部 rejected，会 rejected 一个 AggregateError。
+
+```javascript
+const promise1 = new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('第一个失败')), 300)
+);
+const promise2 = new Promise(resolve => 
+  setTimeout(() => resolve('第二个成功'), 200)
+);
+const promise3 = new Promise(resolve => 
+  setTimeout(() => resolve('第三个成功'), 100)
+);
+
+Promise.any([promise1, promise2, promise3])
+  .then(value => {
+    console.log('第一个成功的值:', value); // 输出: 第三个成功
+  })
+  .catch(errors => {
+    console.error('所有Promise都失败了', errors);
+  });
+
+// 应用场景：多源数据获取，只要有一个成功就行
+function getDataFromAnySource() {
+  const sources = [
+    fetch('https://primary-source.com/data'),
+    fetch('https://backup-source-1.com/data'),
+    fetch('https://backup-source-2.com/data')
+  ];
+  
+  return Promise.any(sources)
+    .then(response => response.json())
+    .catch(error => {
+      console.error('所有数据源都不可用:', error.errors);
+      throw new Error('无法获取数据：所有源都失败');
+    });
+}
+```
+
+#### .then(), .catch(), .finally() 详解
+
+##### 1. .then() 方法
+
+- 接收两个参数：onFulfilled（成功回调）和 onRejected（失败回调）
+- 返回一个新的 Promise
+- 回调函数的返回值会成为新 Promise 的值
+- 可以链式调用
+
+```javascript
+// then 链式调用与值传递
+Promise.resolve(1)
+  .then(val => {
+    console.log('第一个then:', val); // 1
+    return val + 1; // 返回值成为下一个then的输入
+  })
+  .then(val => {
+    console.log('第二个then:', val); // 2
+    return Promise.resolve(val + 1); // 返回Promise
+  })
+  .then(val => {
+    console.log('第三个then:', val); // 3
+    throw new Error('故意出错'); // 抛出错误
+  })
+  .then(
+    val => console.log('不会执行'),
+    err => {
+      console.log('捕获错误:', err.message); // 捕获上一个then的错误
+      return '恢复'; // 返回的值会成为下一个then的成功值
+    }
+  )
+  .then(val => {
+    console.log('错误恢复后:', val); // 恢复
+  });
+```
+
+##### 2. .catch() 方法
+
+- 等同于 `.then(undefined, onRejected)`
+- 捕获链上所有前面未处理的错误
+- 返回一个新的 Promise
+
+```javascript
+// catch 捕获链上错误
+Promise.resolve()
+  .then(() => {
+    throw new Error('步骤1错误');
+  })
+  .then(() => {
+    console.log('不会执行');
+  })
+  .catch(error => {
+    console.log('捕获错误:', error.message); // 捕获"步骤1错误"
+    return '从错误中恢复';
+  })
+  .then(value => {
+    console.log('继续执行:', value); // 继续执行
+  })
+  .catch(error => {
+    console.log('不会执行到这里');
+  });
+```
+
+##### 3. .finally() 方法
+
+- 无论 Promise 成功或失败都会执行
+- 不接收参数，不改变 Promise 的结果
+- 常用于清理工作，如隐藏加载指示器
+
+```javascript
+function loadData() {
+  showLoadingSpinner();
+  
+  return fetch('https://api.example.com/data')
+    .then(response => {
+      if (!response.ok) throw new Error('请求失败');
+      return response.json();
+    })
+    .finally(() => {
+      hideLoadingSpinner(); // 无论成功失败都隐藏加载指示器
+    });
+}
+
+// finally 不改变值
+Promise.resolve(42)
+  .finally(() => {
+    console.log('清理工作');
+    return Promise.resolve('这不会影响值'); // 这个返回值会被忽略
+  })
+  .then(value => {
+    console.log('最终值:', value); // 42，不是"这不会影响值"
+  });
+```
+
+#### then 的第二个回调
+
+```javascript
+// then的第二个回调只会捕获当前Promise的错误
+Promise.reject(new Error('初始错误'))
+  .then(
+    () => console.log('不会执行'),
+    err => {
+      console.log('在then中捕获错误1:', err.message);
+      return '恢复1'; // 返回一个值
+    }
+  )
+  .then(
+    value => {
+      console.log('执行成功回调，值为:', value); // 会执行，值为"恢复1"
+      throw new Error('新错误');
+    },
+    err => {
+      console.log('不会执行，因为上一个then没有错误'); // 不会执行
+    }
+  )
+  .then(
+    () => console.log('不会执行'),
+    err => {
+      console.log('在then中捕获错误2:', err.message); // 捕获"新错误"
+    }
+  );
+
+// 与catch的行为对比
+Promise.reject(new Error('初始错误'))
+  .then(() => console.log('不会执行'))
+  .catch(err => {
+    console.log('在catch中捕获错误:', err.message);
+    return '恢复2';
+  })
+  .then(value => {
+    console.log('catch后继续执行，值为:', value); // 会执行
+  });
+
+// 混合使用
+Promise.reject(new Error('错误A'))
+  .then(
+    () => {},
+    err => {
+      console.log('捕获错误A:', err.message);
+      throw new Error('错误B'); // 抛出新错误
+    }
+  )
+  .catch(err => {
+    console.log('捕获错误B:', err.message); // 会捕获到这里
+  });
+```
+
+#### 实际应用案例
+
+##### 1. 图片加载器
+
+```javascript
+function preloadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`无法加载图片: ${url}`));
+    img.src = url;
+  });
+}
+
+// 使用
+const imageUrls = [
+  'https://example.com/image1.jpg',
+  'https://example.com/image2.jpg',
+  'https://example.com/image3.jpg'
+];
+
+Promise.allSettled(imageUrls.map(url => preloadImage(url)))
+  .then(results => {
+    const loadedImages = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => result.value);
     
-    console.log(wm.has(obj)); // true
-})();
-// obj 已经超出作用域
-console.log(wm.has({ name: 'test' })); // false
+    console.log(`成功加载 ${loadedImages.length} 张图片`);
+    // 使用加载成功的图片
+  });
 ```
 
-**解释**：在匿名函数执行后，`obj` 没有其他强引用，所以它被垃圾回收，WeakMap 中对应的条目也会自动被移除。即使创建一个内容相同的新对象，也不会匹配原来的键，因为对象引用不同。
-
-------
-
-##### 代码段 2：WeakMap 无法遍历
+##### 2. 带重试机制的API请求
 
 ```javascript
-const wm = new WeakMap();
-const obj1 = { id: 1 };
-const obj2 = { id: 2 };
+function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+  return new Promise((resolve, reject) => {
+    const attempt = (retryCount) => {
+      fetch(url, options)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP错误! 状态: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => resolve(data))
+        .catch(error => {
+          if (retryCount <= 0) {
+            reject(error);
+            return;
+          }
+          
+          console.log(`请求失败，${retries - retryCount + 1}次重试:`, error.message);
+          setTimeout(() => attempt(retryCount - 1), delay);
+        });
+    };
+    
+    attempt(retries);
+  });
+}
 
-wm.set(obj1, 'value1');
-wm.set(obj2, 'value2');
+// 使用
+fetchWithRetry('https://api.example.com/data', {}, 3, 2000)
+  .then(data => console.log('获取数据成功:', data))
+  .catch(error => console.error('所有重试都失败:', error));
+```
 
-// 尝试遍历（会失败）
-try {
-  for (const [key, value] of wm) {
-    console.log(key, value);
+##### 3. 多步骤表单处理
+
+```javascript
+function processForm(formData) {
+  // 步骤1: 验证数据
+  return validateFormData(formData)
+    .then(validatedData => {
+      // 步骤2: 上传文件
+      return uploadFiles(validatedData.files)
+        .then(fileUrls => ({ ...validatedData, fileUrls }));
+    })
+    .then(dataWithFiles => {
+      // 步骤3: 提交表单
+      return submitFormData(dataWithFiles);
+    })
+    .catch(validationError => {
+      // 仅当验证失败时执行
+      console.error('表单验证失败:', validationError);
+      showValidationError(validationError);
+      throw validationError; // 重新抛出以便上层处理
+    })
+    .catch(submissionError => {
+      // 仅当提交失败时执行
+      console.error('表单提交失败:', submissionError);
+      if (submissionError.retryable) {
+        return retrySubmission(); // 尝试重试
+      }
+      throw submissionError;
+    });
+}
+```
+
+Promise 为 JavaScript 提供了强大而灵活的异步编程能力。理解各种静态方法和实例方法的细节，可以帮助我们编写更健壮、可维护的异步代码。
+
+
+
+### async/await 异步语法糖
+
+#### 基础概念
+
+async/await 是 ES2017 引入的语法糖，建立在 Promise 基础上，使异步代码以同步方式书写，提高可读性和可维护性。
+
+##### async 函数
+
+- 在函数声明前添加 `async` 关键字
+- 自动将返回值包装成 Promise
+- 允许在函数内使用 `await` 关键字
+
+```javascript
+// 声明方式
+async function fetchData() {
+  return '数据';
+}
+
+// 调用
+fetchData().then(data => console.log(data)); // 数据
+console.log(fetchData()); // Promise { '数据' }
+```
+
+##### await 操作符
+
+- 仅在 async 函数内有效
+- 暂停函数执行，等待 Promise 完成
+- 返回 Promise 的结果值（fulfilled 值或抛出 rejected 错误）
+
+```javascript
+async function getUserData(userId) {
+  const response = await fetch(`https://api.example.com/users/${userId}`);
+  const userData = await response.json();
+  return userData;
+}
+```
+
+#### try/catch 错误处理
+
+在 async/await 模式下，try/catch 是处理异步错误的首选方式。
+
+##### 基本用法
+
+```javascript
+async function fetchData() {
+  try {
+    const response = await fetch('https://api.example.com/data');
+    if (!response.ok) {
+      throw new Error(`HTTP错误! 状态: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('获取数据失败:', error.message);
+    throw error; // 重新抛出或返回默认值
+  } finally {
+    console.log('请求完成，清理资源');
   }
-} catch (e) {
-  console.log('WeakMap不可迭代'); // 会执行到这里
 }
-
-// 尝试获取大小
-console.log(wm.size); // undefined
 ```
 
-**解释**：WeakMap 设计为不可枚举，没有 size 属性，也不能使用 for...of 遍历。这是因为弱引用的特性，其内容可能随时被垃圾回收，无法保证遍历的一致性和可靠性。
+##### 错误捕获范围
 
-------
-
-##### 代码段 3：WeakSet 与原始值
+- 捕获代码块内所有同步和异步错误
+- await 表达式抛出的错误会被 catch 捕获
+- 未使用 await 的 Promise 错误不会被当前 try/catch 捕获
 
 ```javascript
-const ws = new WeakSet();
+async function example() {
+  try {
+    // 情况1: 同步错误
+    JSON.parse('invalid json'); // 会被捕获
+    
+    // 情况2: 异步错误 (正确使用await)
+    await Promise.reject(new Error('异步错误')); // 会被捕获
+    
+    // 情况3: 未使用await的Promise
+    Promise.reject(new Error('不会被捕获的错误')); // 不会被此try/catch捕获
+  } catch (error) {
+    console.error('捕获到错误:', error.message);
+  }
+}
+```
 
+#### 常见模式与最佳实践
+
+##### 并行执行 vs 顺序执行
+
+```javascript
+// 顺序执行 (一个接一个)
+async function sequentialProcessing() {
+  const user = await fetchUser();
+  const posts = await fetchPosts(user.id);
+  return { user, posts };
+}
+
+// 并行执行 (同时发起请求)
+async function parallelProcessing() {
+  const [user, posts] = await Promise.all([
+    fetchUser(),
+    fetchPosts()
+  ]);
+  return { user, posts };
+}
+```
+
+##### 错误处理策略
+
+```javascript
+// 策略1: 局部恢复
+async function getUserProfile(userId) {
+  try {
+    return await fetchUserProfile(userId);
+  } catch (error) {
+    console.warn(`获取用户${userId}资料失败，使用默认资料`);
+    return getDefaultUserProfile(); // 提供备选数据
+  }
+}
+
+// 策略2: 重试机制
+async function fetchWithRetry(url, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+```
+
+##### 超时处理
+
+```javascript
+// 超时函数
+function timeout(ms, promise) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error(`操作超时: ${ms}ms`)), ms)
+    )
+  ]);
+}
+
+// 使用示例
+async function fetchWithTimeout(url) {
+  try {
+    const response = await timeout(5000, fetch(url)); // 5秒超时
+    return await response.json();
+  } catch (error) {
+    if (error.message.includes('超时')) {
+      return getCachedData(url); // 使用缓存数据
+    }
+    throw error;
+  }
+}
+```
+
+#### 常见陷阱与注意事项
+
+##### 忘记使用 await
+
+```javascript
+// 错误
+async function badExample() {
+  const data = fetch('https://api.example.com/data'); // data 是 Promise
+  console.log(data); // Promise { <pending> }
+}
+
+// 正确
+async function goodExample() {
+  const response = await fetch('https://api.example.com/data');
+  const data = await response.json();
+  console.log(data); // 实际数据
+}
+```
+
+##### 循环中错误使用 await
+
+```javascript
+// 低效：顺序执行
+async function slowProcessing(items) {
+  const results = [];
+  for (const item of items) {
+    const result = await processItem(item); // 每次等待
+    results.push(result);
+  }
+  return results;
+}
+
+// 高效：并行执行
+async function fastProcessing(items) {
+  return Promise.all(items.map(item => processItem(item)));
+}
+```
+
+##### try/catch 范围误区
+
+```javascript
+// 陷阱：无法捕获未 await 的 Promise 错误
+async function problematic() {
+  try {
+    Promise.reject(new Error('异步错误')); // 不会被捕获
+  } catch (error) {
+    console.log('永远不会执行到这里');
+  }
+}
+
+// 修正：使用 await
+async function correct() {
+  try {
+    await Promise.reject(new Error('异步错误')); // 会被捕获
+  } catch (error) {
+    console.log('捕获到错误:', error.message);
+  }
+}
+```
+
+#### 高级技巧
+
+##### 自定义错误类型
+
+```javascript
+class ApiError extends Error {
+  constructor(message, statusCode, response) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = statusCode;
+    this.response = response;
+  }
+}
+
+async function apiRequest(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiError(
+        errorData.message || `请求失败: ${response.status}`,
+        response.status,
+        errorData
+      );
+    }
+    return response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`API错误 [${error.statusCode}]: ${error.message}`);
+    }
+    throw error;
+  }
+}
+```
+
+##### 请求取消
+
+```javascript
+async function fetchWithCancel(url, { signal } = {}) {
+  try {
+    const response = await fetch(url, { signal });
+    return await response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.log('请求已取消');
+      return { cancelled: true };
+    }
+    throw error;
+  }
+}
+
+// 使用
+const controller = new AbortController();
+const requestPromise = fetchWithCancel('/data', { signal: controller.signal });
+
+// 取消请求
+controller.abort();
+```
+
+
+
+### throw 抖动抛出异常
+
+#### 基本概念
+
+- `throw` 用于**手动抛出异常**，中断程序正常执行流程
+- 基本语法：`throw expression;`
+- 抛出后如果未被捕获，将终止程序执行并显示错误
+
+#### 可抛出的值
+
+- 任何类型都可抛出，但
+
+  推荐使用 Error 对象：
+
+  ```javascript
+  throw new Error("标准错误");
+  throw new TypeError("类型错误");
+  throw new RangeError("范围错误");
+  ```
+
+- 避免抛出原始值：`throw "错误"`或`throw 404`
+
+#### 与 try/catch 配合
+
+```javascript
 try {
-  ws.add('hello'); // 抛出 TypeError
-} catch (e) {
-  console.log('WeakSet只能存储对象'); // 会执行到这里
+  // 可能出错的代码
+  if (invalid) throw new Error("验证失败");
+} catch (error) {
+  // 处理错误
+  console.error(error.message);
+} finally {
+  // 无论成功失败都会执行
+  cleanup();
+}
+```
+
+#### 常见使用场景
+
+- **参数验证**：检查函数参数是否有效
+- **业务规则验证**：验证业务逻辑条件
+- **API错误处理**：封装第三方API错误
+- **自定义错误类型**：创建特定领域错误类
+
+#### 最佳实践
+
+1. **始终使用 Error 对象**：`throw new Error("消息")` 而非 `throw "消息"`
+2. **提供有意义的错误消息**：清晰描述错误原因
+3. **使用特定错误类型**：根据错误性质选择合适的Error子类
+4. **不要静默忽略错误**：至少记录未处理的异常
+5. **异步代码中**：在async函数中throw会自动reject Promise
+
+#### 简单示例
+
+```javascript
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error("除数不能为零");
+  }
+  return a / b;
 }
 
+// 使用
 try {
-  ws.add(42); // 抛出 TypeError
-} catch (e) {
-  console.log('WeakSet只能存储对象'); // 会执行到这里
+  const result = divide(10, 0);
+} catch (error) {
+  console.error("计算失败:", error.message);
+  // 输出: 计算失败: 除数不能为零
 }
-
-// 正确用法
-const obj = {};
-ws.add(obj); // 成功
 ```
 
-**解释**：WeakSet 只能存储对象引用，不能存储原始值（字符串、数字、布尔值、null、undefined、Symbol）。尝试添加原始值会抛出 TypeError 异常。
 
-------
 
-##### 代码段 4：内存泄漏对比
+
+
+
+
+
+
+
+
+
+
+### Fetch API原生请求
+
+#### 基本概念
+
+Fetch API 是浏览器原生提供的网络请求接口，用于替代 XMLHttpRequest。它基于 Promise 设计，使异步操作更加直观。
+
+- 无需额外安装，现代浏览器原生支持
+- 基于 Promise，避免回调地狱
+- 采用更语义化的请求/响应对象模型
+- 支持 Service Workers 和跨域资源共享
 
 ```javascript
-// 使用Map - 可能导致内存泄漏
-function createCacheWithMap() {
-  const cache = new Map();
-  return {
-    set: (key, value) => cache.set(key, value),
-    get: (key) => cache.get(key)
-  };
-}
-
-// 使用WeakMap - 避免内存泄漏
-function createCacheWithWeakMap() {
-  const cache = new WeakMap();
-  return {
-    set: (key, value) => cache.set(key, value),
-    get: (key) => cache.get(key)
-  };
-}
-
-// 测试
-const mapCache = createCacheWithMap();
-const weakCache = createCacheWithWeakMap();
-
-(function() {
-  const bigObject = { data: new Array(10000).fill('*') };
-  mapCache.set(bigObject, 'result1');
-  weakCache.set(bigObject, 'result2');
-  // bigObject作用域结束
-})();
-
-// 此时：
-// mapCache 仍然持有 bigObject 的强引用，无法被垃圾回收
-// weakCache 中的 bigObject 可以被垃圾回收，因为它只有弱引用
+// 基本 GET 请求
+fetch('https://api.example.com/data')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
 ```
 
-**解释**：Map 会强引用键，阻止垃圾回收，可能导致内存泄漏；而 WeakMap 只弱引用键，当对象没有其他强引用时会被垃圾回收，适合用于缓存和临时数据存储。
+#### 核心选项与配置
 
-------
-
-##### 代码段 5：私有数据实现方式对比
+Fetch 接受第二个参数作为配置选项，允许自定义请求行为。
 
 ```javascript
-// 闭包方式实现私有数据
-const UserClosure = (function() {
-  const privateData = new WeakMap();
-  
-  class User {
-    constructor(name) {
-      privateData.set(this, { name });
+const options = {
+  method: 'POST',           // 请求方法
+  headers: {                // 请求头
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer token123'
+  },
+  body: JSON.stringify({    // 请求体
+    username: 'example',
+    password: 'pass123'
+  }),
+  mode: 'cors',             // cors, no-cors, same-origin
+  credentials: 'include',   // include, same-origin, omit
+  cache: 'no-cache',        // default, no-cache, reload等
+  redirect: 'follow',       // follow, error, manual
+  referrerPolicy: 'no-referrer', // no-referrer, origin等
+  signal: abortController.signal // 用于取消请求
+};
+
+fetch('/api/login', options)
+  .then(response => response.json())
+  .then(data => console.log('登录成功:', data));
+```
+
+#### 响应处理
+
+Fetch API 返回的 Response 对象提供了多种解析方法，适应不同类型的响应。
+
+```javascript
+fetch('/api/data')
+  .then(response => {
+    console.log('状态码:', response.status);
+    console.log('状态文本:', response.statusText);
+    console.log('Headers:', response.headers);
+    
+    // 根据返回内容类型选择解析方法
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType.includes('application/json')) {
+      return response.json();
+    } else if (contentType.includes('text/html')) {
+      return response.text();
+    } else if (contentType.includes('application/octet-stream')) {
+      return response.blob();
+    } else if (contentType.includes('application/pdf')) {
+      return response.arrayBuffer();
+    } else if (contentType.includes('image')) {
+      return response.blob().then(blob => URL.createObjectURL(blob));
+    }
+  })
+  .then(data => {
+    console.log('处理后的数据:', data);
+  });
+```
+
+#### 错误处理
+
+与 Axios 不同，Fetch API 仅在网络请求失败时 reject Promise，HTTP 错误状态码(如404、500)不会触发 catch，需要手动检查。
+
+```javascript
+// 正确的错误处理方式
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    
+    // 检查HTTP状态码
+    if (!response.ok) {
+      // 尝试解析错误响应
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = await response.text() || '未知错误';
+      }
+      
+      // 创建自定义错误
+      const error = new Error(errorData.message || `请求失败: ${response.status}`);
+      error.status = response.status;
+      error.response = errorData;
+      throw error;
     }
     
-    getName() {
-      return privateData.get(this).name;
+    return await response.json();
+  } catch (error) {
+    // 网络错误或自定义错误处理
+    if (!error.status) {
+      console.error('网络错误或请求被取消:', error);
+    }
+    throw error;
+  }
+}
+```
+
+#### 高级技巧
+
+##### 取消请求
+
+使用 AbortController 可以取消 Fetch 请求。
+
+```javascript
+const abortController = new AbortController();
+const signal = abortController.signal;
+
+// 启动请求
+fetch('/api/long-request', { signal })
+  .then(response => response.json())
+  .then(data => console.log('数据:', data))
+  .catch(error => {
+    if (error.name === 'AbortError') {
+      console.log('请求已取消');
+    } else {
+      console.error('请求失败:', error);
+    }
+  });
+
+// 5秒后取消请求
+setTimeout(() => {
+  abortController.abort();
+}, 5000);
+```
+
+##### 拦截器模拟
+
+虽然 Fetch 没有内置拦截器，但可以通过封装实现类似功能。
+
+```javascript
+class FetchClient {
+  constructor(baseURL = '') {
+    this.baseURL = baseURL;
+    this.requestInterceptors = [];
+    this.responseInterceptors = [];
+  }
+  
+  // 添加请求拦截器
+  useRequest(interceptor) {
+    this.requestInterceptors.push(interceptor);
+  }
+  
+  // 添加响应拦截器
+  useResponse(interceptor) {
+    this.responseInterceptors.push(interceptor);
+  }
+  
+  // 处理拦截器
+  async processInterceptors(chain, type) {
+    for (const interceptor of (type === 'request' ? this.requestInterceptors : this.responseInterceptors)) {
+      chain = await interceptor(chain);
+      if (!chain) break; // 允许中断链
+    }
+    return chain;
+  }
+  
+  // 请求方法
+  async request(url, config = {}) {
+    // 应用请求拦截器
+    let requestConfig = { url, ...config };
+    requestConfig = await this.processInterceptors(requestConfig, 'request');
+    
+    if (!requestConfig) return null; // 拦截器中断了请求
+    
+    const fullUrl = this.baseURL + requestConfig.url;
+    const options = {
+      method: requestConfig.method || 'GET',
+      headers: requestConfig.headers || {},
+      ...requestConfig
+    };
+    
+    try {
+      // 发送请求
+      const response = await fetch(fullUrl, options);
+      
+      // 创建统一响应格式
+      const result = {
+        data: null,
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        config: options,
+        request: { url: fullUrl }
+      };
+      
+      // 根据Content-Type解析响应
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        result.data = await response.json();
+      } else {
+        result.data = await response.text();
+      }
+      
+      // 应用响应拦截器
+      let finalResult = result;
+      finalResult = await this.processInterceptors(finalResult, 'response');
+      
+      // 处理HTTP错误状态
+      if (!response.ok) {
+        const error = new Error(`请求失败: ${response.status}`);
+        error.response = finalResult;
+        throw error;
+      }
+      
+      return finalResult.data;
+    } catch (error) {
+      throw error;
     }
   }
   
-  return User;
-})();
-
-// Symbol方式实现私有数据
-const UserSymbol = (function() {
-  const nameSymbol = Symbol('name');
+  // 快捷方法
+  get(url, config = {}) {
+    return this.request(url, { ...config, method: 'GET' });
+  }
   
-  return class User {
-    constructor(name) {
-      this[nameSymbol] = name;
-    }
-    
-    getName() {
-      return this[nameSymbol];
-    }
-  };
-})();
+  post(url, data, config = {}) {
+    return this.request(url, { 
+      ...config, 
+      method: 'POST', 
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.headers || {})
+      }
+    });
+  }
+}
 
-// 测试
-const user1 = new UserClosure('Alice');
-const user2 = new UserSymbol('Bob');
+// 使用示例
+const api = new FetchClient('https://api.example.com');
+api.useRequest(config => {
+  console.log('发送请求:', config.url);
+  // 添加认证token
+  config.headers = config.headers || {};
+  config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+  return config;
+});
 
-console.log(user1.getName()); // 'Alice'
-console.log(user2.getName()); // 'Bob'
+api.useResponse(response => {
+  console.log('收到响应:', response.status);
+  // 统一处理错误
+  if (response.status === 401) {
+    console.log('认证过期，重新登录');
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+  return response;
+});
 
-// 尝试访问私有数据
-console.log(Object.getOwnPropertySymbols(user2)); // [Symbol(name)] - Symbol可以被获取到
-// user1的私有数据无法从外部访问
+// 发送请求
+api.get('/users')
+  .then(users => console.log('用户列表:', users))
+  .catch(error => console.error('请求失败:', error));
 ```
 
-**解释**：WeakMap实现的私有数据更安全，因为无法从类外部访问WeakMap。而Symbol方式虽然可以创建"伪私有"属性，但仍然可以通过`Object.getOwnPropertySymbols()`获取到Symbol键，安全性较低。WeakMap方式还具有自动垃圾回收的优势。
+##### 文件上传
+
+```javascript
+async function uploadFile(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('description', '用户上传的文件');
+  
+  try {
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData, // 不需要设置Content-Type，浏览器会自动设置并包含boundary
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`上传失败: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('上传出错:', error);
+    throw error;
+  }
+}
+
+// 使用
+const fileInput = document.querySelector('input[type="file"]');
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  try {
+    const result = await uploadFile(file);
+    console.log('上传成功:', result);
+  } catch (error) {
+    console.error('上传失败:', error);
+  }
+});
+```
+
+#### 优缺点与使用场景
+
+##### 优点
+
+- 原生支持，无需额外依赖
+- 基于 Promise，与现代 JavaScript 特性兼容
+- 标准化 API，各浏览器实现一致
+- 支持流式处理 (Response.body.getReader())
+- 可与 Service Workers 配合实现离线功能
+
+##### 缺点
+
+- 不支持 IE
+- 默认不携带 cookie (需要设置 credentials: 'include')
+- HTTP 错误状态不会 reject Promise
+- 没有内置超时机制
+- 没有内置拦截器/请求转换机制
+
+##### 适用场景
+
+- 现代化应用，不需支持旧浏览器
+- 需要流式处理大文件
+- 与 Service Workers 集成的 PWA 应用
+- 轻量级项目，不想引入额外库
+
+### Axios 请求 
+
+#### 基本概念
+
+Axios 是一个基于 Promise 的 HTTP 客户端，用于浏览器和 Node.js 环境。它提供了更丰富的功能和更简洁的 API，是 Fetch API 的流行替代品。
+
+- 支持浏览器和 Node.js
+- 自动转换 JSON 数据
+- 支持请求/响应拦截
+- 内置 CSRF 保护
+- 客户端支持防止 XSRF
+- 支持上传/下载进度跟踪
+
+```javascript
+// 基本 GET 请求
+axios.get('https://api.example.com/data')
+  .then(response => {
+    console.log('数据:', response.data);
+  })
+  .catch(error => {
+    console.error('请求失败:', error);
+  });
+
+// 使用 async/await
+async function getData() {
+  try {
+    const response = await axios.get('/api/data');
+    return response.data;
+  } catch (error) {
+    console.error('获取数据失败:', error);
+    throw error;
+  }
+}
+```
+
+#### 配置选项
+
+Axios 提供了丰富的配置选项，可以通过全局配置、实例配置或请求配置进行设置。
+
+```javascript
+// 全局配置
+axios.defaults.baseURL = 'https://api.example.com';
+axios.defaults.timeout = 5000; // 5秒超时
+axios.defaults.headers.common['Authorization'] = 'Bearer token123';
+axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+// 创建实例
+const api = axios.create({
+  baseURL: 'https://api.example.com/v1',
+  timeout: 10000, // 10秒超时
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest'
+  }
+});
+
+// 请求配置
+api.get('/users', {
+  params: { // URL 参数
+    page: 1,
+    limit: 10,
+    sort: 'name'
+  },
+  headers: { // 覆盖实例配置
+    'Custom-Header': 'value'
+  },
+  timeout: 15000, // 覆盖实例的超时设置
+  withCredentials: true, // 跨域请求时携带cookie
+  responseType: 'json' // 预期响应类型: 'json', 'text', 'blob', 'arraybuffer'
+})
+.then(response => console.log('用户列表:', response.data));
+```
+
+#### 请求方法与快捷方式
+
+Axios 提供了多种请求方法和快捷方式，便于不同场景使用。
+
+```javascript
+// 通用请求方法
+axios({
+  method: 'post',
+  url: '/user',
+  data: {
+    firstName: 'Fred',
+    lastName: 'Flintstone'
+  }
+});
+
+// 快捷方法
+axios.request(config) // 通用方法
+axios.get(url[, config])
+axios.delete(url[, config])
+axios.head(url[, config])
+axios.options(url[, config])
+axios.post(url[, data[, config]])
+axios.put(url[, data[, config]])
+axios.patch(url[, data[, config]])
+
+// 使用示例
+// GET 带参数
+axios.get('/user', {
+  params: {
+    ID: 12345
+  }
+});
+
+// POST 发送数据
+axios.post('/user', {
+  firstName: 'Fred',
+  lastName: 'Flintstone'
+});
+
+// 并发请求
+function getUserAccount() {
+  return axios.get('/user/12345');
+}
+
+function getUserPermissions() {
+  return axios.get('/user/12345/permissions');
+}
+
+// 并行发送多个请求
+axios.all([getUserAccount(), getUserPermissions()])
+  .then(axios.spread((account, permissions) => {
+    // 处理结果
+    console.log('账户:', account.data);
+    console.log('权限:', permissions.data);
+  }));
+
+// 或者使用 Promise.all
+Promise.all([getUserAccount(), getUserPermissions()])
+  .then(([account, permissions]) => {
+    console.log('账户:', account.data);
+    console.log('权限:', permissions.data);
+  });
+```
+
+#### 拦截器
+
+拦截器是 Axios 最强大的功能之一，允许在请求发送前或响应返回后进行拦截和修改。
+
+```javascript
+// 添加请求拦截器
+axios.interceptors.request.use(
+  config => {
+    // 在发送请求前做些什么
+    console.log('发送请求:', config.url);
+    
+    // 添加认证token
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    // 添加时间戳防止缓存
+    if (config.method === 'get') {
+      config.params = config.params || {};
+      config.params.timestamp = new Date().getTime();
+    }
+    
+    return config;
+  },
+  error => {
+    // 对请求错误做些什么
+    console.error('请求配置失败:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 添加响应拦截器
+axios.interceptors.response.use(
+  response => {
+    // 对响应数据做点什么
+    console.log('收到响应:', response.config.url, response.status);
+    
+    // 统一处理成功响应
+    return response.data; // 直接返回数据部分
+  },
+  error => {
+    // 对响应错误做点什么
+    if (error.response) {
+      // 服务器返回了错误状态码
+      switch (error.response.status) {
+        case 401: // 未授权
+          console.log('认证过期，重新登录');
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          break;
+        case 403: // 禁止访问
+          console.error('没有权限访问此资源');
+          break;
+        case 404: // 未找到
+          console.error('请求的资源不存在');
+          break;
+        case 500: // 服务器错误
+          console.error('服务器内部错误');
+          break;
+        default:
+          console.error(`请求失败: ${error.response.status}`);
+      }
+      return Promise.reject(error.response.data);
+    } else if (error.request) {
+      // 请求已发送，但没有收到响应
+      console.error('网络错误，没有收到服务器响应');
+      return Promise.reject({ message: '网络错误', code: 'NETWORK_ERROR' });
+    } else {
+      // 请求配置错误
+      console.error('请求配置错误:', error.message);
+      return Promise.reject({ message: error.message, code: 'CONFIG_ERROR' });
+    }
+  }
+);
+
+// 也可以为实例添加拦截器
+const api = axios.create();
+api.interceptors.request.use(config => {
+  console.log('实例请求拦截器');
+  return config;
+});
+
+// 移除拦截器
+const myInterceptor = axios.interceptors.request.use(config => config);
+axios.interceptors.request.eject(myInterceptor);
+```
+
+#### 错误处理
+
+Axios 的错误处理比 Fetch 更全面，所有类型的错误（网络错误、HTTP错误状态、超时等）都会触发 catch。
+
+```javascript
+// 全面的错误处理
+async function apiRequest(url, options = {}) {
+  try {
+    const response = await axios(url, options);
+    return response;
+  } catch (error) {
+    // 统一错误处理
+    let errorInfo = {
+      message: '请求失败',
+      code: 'API_ERROR'
+    };
+    
+    if (error.response) {
+      // 服务器返回了响应，但状态码不是2xx
+      errorInfo = {
+        message: error.response.data?.message || `服务器错误: ${error.response.status}`,
+        code: `SERVER_ERROR_${error.response.status}`,
+        status: error.response.status,
+        data: error.response.data
+      };
+      
+      // 记录服务器错误
+      console.error(`API错误 [${error.response.status}]: ${errorInfo.message}`);
+    } else if (error.request) {
+      // 请求已发送，但没有收到响应
+      errorInfo = {
+        message: '网络连接失败，请检查网络',
+        code: 'NETWORK_ERROR'
+      };
+      
+      console.error('网络错误:', error.message);
+    } else {
+      // 请求配置错误
+      errorInfo = {
+        message: error.message || '请求配置错误',
+        code: 'CONFIG_ERROR'
+      };
+      
+      console.error('请求配置错误:', error.message);
+    }
+    
+    // 抛出标准化错误
+    const customError = new Error(errorInfo.message);
+    Object.assign(customError, errorInfo);
+    throw customError;
+  }
+}
+
+// 使用
+apiRequest('/api/data')
+  .then(data => console.log('成功获取数据:', data))
+  .catch(error => {
+    // 处理标准化错误
+    console.error(`错误 [${error.code}]: ${error.message}`);
+    showErrorNotification(error.message);
+  });
+```
+
+#### 高级技巧
+
+##### 取消请求
+
+Axios 支持使用 CancelToken 或 AbortController 取消请求。
+
+```javascript
+// 使用 CancelToken (旧方法，已废弃但兼容)
+const CancelToken = axios.CancelToken;
+const source = CancelToken.source();
+
+axios.get('/api/data', {
+  cancelToken: source.token
+}).catch(thrown => {
+  if (axios.isCancel(thrown)) {
+    console.log('请求已取消:', thrown.message);
+  } else {
+    // 处理错误
+    console.error('请求失败:', thrown);
+  }
+});
+
+// 取消请求 (message 参数是可选的)
+source.cancel('操作被用户取消');
+
+// 使用 AbortController (推荐)
+const controller = new AbortController();
+const signal = controller.signal;
+
+axios.get('/api/long-request', {
+  signal: signal // 传递 AbortSignal
+})
+.then(response => {
+  console.log('请求成功:', response.data);
+})
+.catch(error => {
+  if (axios.isCancel(error)) {
+    console.log('请求被取消', error.message);
+  } else {
+    console.error('请求失败:', error);
+  }
+});
+
+// 5秒后取消
+setTimeout(() => {
+  controller.abort();
+}, 5000);
+```
+
+##### 上传与下载进度
+
+Axios 支持跟踪上传和下载进度，非常适合文件操作。
+
+```javascript
+// 上传进度
+function uploadFile(file, onProgress) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  return axios.post('/api/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    onUploadProgress: progressEvent => {
+      if (onProgress) {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onProgress(percentCompleted);
+      }
+    }
+  });
+}
+
+// 使用示例
+const fileInput = document.querySelector('input[type="file"]');
+const progressBar = document.querySelector('.progress-bar');
+
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  try {
+    await uploadFile(file, percent => {
+      progressBar.style.width = `${percent}%`;
+      progressBar.textContent = `${percent}%`;
+    });
+    console.log('上传成功');
+  } catch (error) {
+    console.error('上传失败:', error);
+  }
+});
+
+// 下载进度
+function downloadFile(url, onProgress) {
+  return axios.get(url, {
+    responseType: 'blob', // 重要：设置响应类型为blob
+    onDownloadProgress: progressEvent => {
+      if (onProgress) {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onProgress(percentCompleted);
+      }
+    }
+  });
+}
+
+// 使用示例
+downloadFile('/api/files/report.pdf', percent => {
+  console.log(`下载进度: ${percent}%`);
+})
+.then(response => {
+  // 创建下载链接
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'report.pdf');
+  document.body.appendChild(link);
+  link.click();
+  window.URL.revokeObjectURL(url);
+  link.remove();
+})
+.catch(error => {
+  console.error('下载失败:', error);
+});
+```
+
+##### 实例与模块化
+
+通过创建 Axios 实例并封装特定模块，可以实现代码的高度组织化。
+
+```javascript
+// apiClient.js - 基础客户端
+import axios from 'axios';
+
+const apiClient = axios.create({
+  baseURL: process.env.API_BASE_URL || 'https://api.example.com',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// 请求拦截器
+apiClient.interceptors.request.use(config => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// 响应拦截器
+apiClient.interceptors.response.use(
+  response => response.data,
+  error => {
+    if (error.response?.status === 401) {
+      // 令牌过期，清除本地存储并重定向到登录页
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error.response?.data || error.message);
+  }
+);
+
+export default apiClient;
+
+// auth.js - 认证模块
+import apiClient from './apiClient';
+
+export default {
+  login(credentials) {
+    return apiClient.post('/auth/login', credentials)
+      .then(response => {
+        localStorage.setItem('auth_token', response.token);
+        return response;
+      });
+  },
+  
+  logout() {
+    return apiClient.post('/auth/logout')
+      .finally(() => {
+        localStorage.removeItem('auth_token');
+      });
+  },
+  
+  register(userData) {
+    return apiClient.post('/auth/register', userData);
+  },
+  
+  forgotPassword(email) {
+    return apiClient.post('/auth/forgot-password', { email });
+  }
+};
+
+// users.js - 用户模块
+import apiClient from './apiClient';
+
+export default {
+  getUsers(params = {}) {
+    return apiClient.get('/users', { params });
+  },
+  
+  getUser(id) {
+    return apiClient.get(`/users/${id}`);
+  },
+  
+  createUser(userData) {
+    return apiClient.post('/users', userData);
+  },
+  
+  updateUser(id, userData) {
+    return apiClient.put(`/users/${id}`, userData);
+  },
+  
+  deleteUser(id) {
+    return apiClient.delete(`/users/${id}`);
+  }
+};
+
+// 使用示例
+import authApi from './api/auth';
+import userApi from './api/users';
+
+// 登录
+authApi.login({ username: 'user1', password: 'pass123' })
+  .then(user => {
+    console.log('登录成功:', user);
+    // 获取用户列表
+    return userApi.getUsers({ page: 1, limit: 10 });
+  })
+  .then(users => {
+    console.log('用户列表:', users);
+  })
+  .catch(error => {
+    console.error('操作失败:', error);
+  });
+```
+
+#### 优缺点与使用场景
+
+##### 优点
+
+- 统一的错误处理，所有错误类型都会触发 catch
+- 内置请求/响应拦截器
+- 自动转换 JSON 数据
+- 支持客户端 XSRF 保护
+- 支持上传/下载进度跟踪
+- 取消请求的简单 API
+- 良好的浏览器兼容性 (包括 IE11)
+- 可在 Node.js 环境运行
+
+##### 缺点
+
+- 需要额外安装 (约 13KB 压缩后)
+- 功能丰富也意味着更大的学习曲线
+- 大型项目可能会增加包体积
+- 过度抽象可能导致调试困难
+
+##### 适用场景
+
+- 需要支持旧版浏览器 (包括 IE)
+- 需要拦截器功能的复杂应用
+- 需要进度跟踪的文件上传/下载
+- Node.js 后端服务
+- 需要统一错误处理的大型应用
+- 需要客户端 CSRF 保护的应用
+
+#### 与 Fetch API 比较
+
+| 特性           | Fetch API            | Axios                       |
+| -------------- | -------------------- | --------------------------- |
+| 原生支持       | 是                   | 否 (需要安装)               |
+| 浏览器兼容     | 现代浏览器           | 广泛 (包括 IE11)            |
+| Node.js 支持   | 有限 (需要 polyfill) | 是                          |
+| HTTP 错误处理  | 仅网络错误触发 catch | 所有错误触发 catch          |
+| 拦截器         | 无 (需自行实现)      | 内置支持                    |
+| 超时支持       | 需要手动实现         | 内置支持                    |
+| 取消请求       | AbortController      | CancelToken/AbortController |
+| 进度跟踪       | 需要手动实现         | 内置支持                    |
+| 自动 JSON 转换 | 需要手动调用 .json() | 自动转换                    |
+| CSRF 保护      | 无                   | 内置支持                    |
+| 体积           | 无额外体积           | 约 13KB (压缩后)            |
+| 流式处理       | 支持                 | 有限支持                    |
+
+选择建议：
+
+- 小型现代应用，不需要支持旧浏览器：Fetch API
+- 大型应用，需要拦截器和统一错误处理：Axios
+- 需要文件上传进度：Axios
+- 需要同时支持浏览器和 Node.js：Axios
+- 资源受限环境，关注包体积：Fetch API
 
 
 
-
-
-
-
-## **AJAX 方法笔记**
+### **AJAX 方法**
 
 #### **1. AJAX 概述**
 
@@ -23395,11 +24906,600 @@ app.listen(port, () => {
 
 
 
+### import 与 export
+
+#### 基本概念
+
+ES6 模块系统 (ESM) 是 JavaScript 的官方模块解决方案，提供 `import` 和 `export` 关键字，用于代码组织、复用和封装。
+
+- 每个文件是一个独立模块，拥有自己的作用域
+- 需要显式导出 (`export`) 才能被其他模块访问
+- 需要显式导入 (`import`) 才能使用其他模块的功能
+- 模块代码自动运行在严格模式 (`"use strict"`) 下
+- 模块加载是异步的，不会阻塞页面渲染
+
+```javascript
+// 必须在支持 ES 模块的环境中使用
+// HTML 中需要设置 type="module"
+<script type="module" src="app.js"></script>
+```
+
+#### export 语法
+
+##### 命名导出 (Named Exports)
+
+允许导出多个值，导入时名称必须匹配。
+
+```javascript
+// 导出变量
+export const name = "JavaScript";
+
+// 导出函数
+
+
+// 导出类
+export class Person {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+// 先定义后导出
+const age = 25;
+function greet() { /* ... */ }
+export { age, greet };
+
+// 批量导出 (常用在 index.js 中)
+export * from './utils.js'; // 导出全部
+export { default as Button } from './Button.js'; // 重命名导出
+```
+
+##### 默认导出 (Default Export)
+
+每个模块只能有一个默认导出，导入时可自定义名称。
+
+```javascript
+// 导出函数
+export default function() {
+  console.log("默认导出");
+}
+
+// 导出类
+export default class {
+  constructor() { /* ... */ }
+}
+
+// 导出表达式
+export default const config = { apiUrl: "/api" };
+
+// 先定义后导出
+function App() { /* ... */ }
+export default App;
+```
+
+#### import 语法
+
+##### 命名导入 (Named Imports)
+
+从模块中导入特定命名导出，名称必须匹配。
+
+```javascript
+// 导入特定成员
+import { name, sayHello, Person } from './module.js';
+
+// 重命名导入
+import { name as userName, sayHello as greet } from './module.js';
+
+// 导入全部为一个对象
+import * as myModule from './module.js';
+console.log(myModule.name);
+myModule.sayHello();
+```
+
+##### 默认导入 (Default Import)
+
+导入模块的默认导出，可自定义名称。
+
+```javascript
+// 导入默认导出
+import App from './App.js';
+import Button from './Button.js';
+
+// 同时导入默认导出和命名导出
+import React, { useState, useEffect } from 'react';
+```
+
+##### 混合导入
+
+```javascript
+// 同时导入默认导出和命名导出
+import DefaultExport, { namedExport1, namedExport2 } from './module.js';
+
+// 全部导入 (不推荐)
+import './module.js'; // 仅执行模块，不导入任何值
+```
+
+#### 动态导入 (Dynamic Import)
+
+使用 `import()` 函数动态加载模块，返回 Promise。
+
+```javascript
+// 基本用法
+button.addEventListener('click', async () => {
+  const module = await import('./utils.js');
+  module.doSomething();
+});
+
+// 条件加载
+if (featureFlag) {
+  import('./newFeature.js').then(module => {
+    module.init();
+  });
+}
+
+// 错误处理
+import('./module.js')
+  .then(module => module.init())
+  .catch(error => console.error('加载失败:', error));
+
+// 与 Promise.all 结合
+Promise.all([
+  import('./module1.js'),
+  import('./module2.js')
+]).then(([module1, module2]) => {
+  module1.doSomething();
+  module2.doSomethingElse();
+});
+```
+
+#### 最佳实践
+
+##### 模块组织
+
+- 一个文件一个功能/组件
+- 使用 `index.js` 聚合子模块
+- 保持导出接口稳定
+
+```javascript
+// components/index.js
+export { default as Button } from './Button.js';
+export { default as Modal } from './Modal.js';
+export { default as Form } from './Form.js';
+
+// 使用
+import { Button, Modal } from './components';
+```
+
+##### 导出策略
+
+- 优先使用命名导出 (增强代码可读性)
+- 组件/主要功能使用默认导出
+- 避免在同一个模块中混合大量默认导出和命名导出
+
+##### 导入策略
+
+- 避免深层路径：`import from '../../utils/helpers'`
+- 使用路径别名或配置 (如 webpack 的 resolve.alias)
+- 避免循环依赖
+
+#### 常见问题与解决方案
+
+##### 1. 路径问题
+
+```javascript
+// 错误 - 缺少文件扩展名
+import { func } from './module'; 
+
+// 正确
+import { func } from './module.js'; // 浏览器要求
+import { func } from './module';    // Node.js 支持省略
+```
+
+##### 2. 默认导出与命名导出混淆
+
+```javascript
+// CommonJS 转 ES 模块的常见问题
+import pkg from 'some-package'; // 正确 (默认导出)
+import { namedExport } from 'some-package'; // 错误 (可能是 CommonJS)
+
+// 解决方案：检查包的导出方式
+import pkg from 'some-package';
+const { namedExport } = pkg; // 通过默认导出访问
+```
+
+##### 3. 模块作用域
+
+```javascript
+// 模块内
+let privateVar = "仅在本模块可见";
+
+export function publicMethod() {
+  // 可以访问 privateVar
+  console.log(privateVar);
+}
+
+// 其他模块
+import { publicMethod } from './module.js';
+publicMethod(); // 正常工作
+console.log(privateVar); // 错误: privateVar 未定义
+```
+
+##### 4. 异步加载与执行顺序
+
+```javascript
+// a.js
+console.log("A 开始执行");
+export const value = "A的值";
+console.log("A 执行完成");
+
+// b.js
+console.log("B 开始执行");
+import { value } from './a.js';
+console.log("B 使用值:", value);
+console.log("B 执行完成");
+
+// 输出顺序:
+// A 开始执行
+// A 执行完成
+// B 开始执行
+// B 使用值: A的值
+// B 执行完成
+```
+
+#### 与 CommonJS 的区别
+
+| 特性           | ES Modules (import/export) | CommonJS (require/module.exports) |
+| -------------- | -------------------------- | --------------------------------- |
+| 加载方式       | 编译时静态分析，异步加载   | 运行时动态加载，同步执行          |
+| 导出           | 按名称导出，值是实时引用   | 导出值的拷贝                      |
+| this           | undefined                  | module.exports                    |
+| 循环引用       | 处理更优雅                 | 可能导致未定义值                  |
+| 顶级 await     | 支持                       | 不支持                            |
+| 浏览器原生支持 | 是 (需 type="module")      | 否 (需打包工具)                   |
+| 适用环境       | 现代浏览器、Node.js 12+    | Node.js、旧版环境                 |
+
+```javascript
+// ES Modules - 实时绑定
+// counter.js
+export let count = 0;
+export function increment() {
+  count++;
+}
+
+// app.js
+import { count, increment } from './counter.js';
+console.log(count); // 0
+increment();
+console.log(count); // 1 (值已更新)
+
+// CommonJS - 值拷贝
+// counter.js
+exports.count = 0;
+exports.increment = function() {
+  exports.count++;
+};
+
+// app.js
+const counter = require('./counter.js');
+console.log(counter.count); // 0
+counter.increment();
+console.log(counter.count); // 1
+```
+
+#### 实际应用示例
+
+```javascript
+// math.js - 模块定义
+export const PI = 3.14159;
+
+export function add(a, b) {
+  return a + b;
+}
+
+export function multiply(a, b) {
+  return a * b;
+}
+
+export default class Calculator {
+  constructor() {
+    this.history = [];
+  }
+  
+  calculate(operation, a, b) {
+    let result;
+    switch(operation) {
+      case 'add': result = add(a, b); break;
+      case 'multiply': result = multiply(a, b); break;
+      default: throw new Error('未知操作');
+    }
+    this.history.push({ operation, a, b, result });
+    return result;
+  }
+}
+
+// app.js - 模块使用
+import Calculator, { add, multiply, PI } from './math.js';
+
+// 使用默认导出
+const calc = new Calculator();
+console.log(calc.calculate('add', 5, 3)); // 8
+
+// 使用命名导出
+console.log(`5 + 3 = ${add(5, 3)}`); // 8
+console.log(`5 × 3 = ${multiply(5, 3)}`); // 15
+console.log(`圆周率: ${PI}`); // 3.14159
+
+// 按需加载额外功能
+document.getElementById('advanced-btn').addEventListener('click', async () => {
+  const { complexOperation } = await import('./advanced-math.js');
+  console.log(complexOperation(10));
+});
+```
 
 
 
+### 常见面试题
 
 
+
+#### 变量函数提升
+
+##### 代码段 1：全局变量修改
+
+```javascript
+var n = 100
+function foo() {
+    n = 200
+}
+
+foo()
+console.log(n) // 输出：200
+```
+
+**解释**：函数 `foo` 内部修改的是全局变量 `n`，因为函数内部没有用 `var` 重新声明 `n`，所以操作的是外部的 `n`。
+
+---
+
+##### 代码段 2：变量提升
+
+```javascript
+var a = 100
+function foo() {
+    console.log(a) // 输出：undefined
+    return
+    var a = 100
+}
+
+foo()
+```
+
+**解释**：由于变量提升，函数内部的 `var a` 会被提升到函数顶部，但赋值不会。所以 `console.log(a)` 输出 `undefined`，`return` 语句后面的代码不会执行。
+
+---
+
+##### 代码段 3：局部变量遮蔽
+
+```javascript
+function foo() {
+    console.log(n) // 输出：undefined
+    var n = 200
+    console.log(n) // 输出：200
+}
+
+var n = 100
+foo()
+```
+
+**解释**：函数内部的 `var n` 会提升到函数顶部，在第一个 `console.log` 时 `n` 已声明但未赋值（`undefined`），第二个 `console.log` 时已赋值为 `200`。函数内部的 `n` 遮蔽了外部的全局变量 `n`。
+
+---
+
+##### 代码段 4：隐式全局变量
+
+```javascript
+function foo() {
+    var a = b = 100
+}
+
+foo()
+console.log(a) // 报错：a is not defined
+console.log(b) // 输出：100
+```
+
+**解释**：`var a = b = 100` 等价于 `b = 100; var a = b;`。`b` 没有用 `var` 声明，成为隐式全局变量。`a` 用 `var` 声明，是函数局部变量，外部无法访问。
+
+---
+
+##### 代码段 5：作用域链
+
+```javascript
+var n = 100
+function foo1() {
+    console.log(n) // 输出：100
+}
+
+function foo2() {
+    var n = 200
+    console.log(n) // 输出：200
+    foo1()
+}
+
+foo2()
+console.log(n) // 输出：100
+```
+
+**解释**：
+
+1. `foo2()` 内部的 `n` 是局部变量，输出 `200`
+2. `foo1()` 在全局作用域定义，它内部的 `n` 指向全局变量 `n`（值为 `100`）
+3. 最后的 `console.log` 输出全局变量 `n`（仍然是 `100`）
+
+作用域在函数定义时确定，而不是调用时确定。
+
+
+
+#### Weak引用与内存管理
+
+##### 代码段 1：WeakMap 与垃圾回收
+
+```javascript
+let wm = new WeakMap();
+(function() {
+    let obj = { name: 'test' };
+    wm.set(obj, 'metadata');
+    
+    console.log(wm.has(obj)); // true
+})();
+// obj 已经超出作用域
+console.log(wm.has({ name: 'test' })); // false
+```
+
+**解释**：在匿名函数执行后，`obj` 没有其他强引用，所以它被垃圾回收，WeakMap 中对应的条目也会自动被移除。即使创建一个内容相同的新对象，也不会匹配原来的键，因为对象引用不同。
+
+------
+
+##### 代码段 2：WeakMap 无法遍历
+
+```javascript
+const wm = new WeakMap();
+const obj1 = { id: 1 };
+const obj2 = { id: 2 };
+
+wm.set(obj1, 'value1');
+wm.set(obj2, 'value2');
+
+// 尝试遍历（会失败）
+try {
+  for (const [key, value] of wm) {
+    console.log(key, value);
+  }
+} catch (e) {
+  console.log('WeakMap不可迭代'); // 会执行到这里
+}
+
+// 尝试获取大小
+console.log(wm.size); // undefined
+```
+
+**解释**：WeakMap 设计为不可枚举，没有 size 属性，也不能使用 for...of 遍历。这是因为弱引用的特性，其内容可能随时被垃圾回收，无法保证遍历的一致性和可靠性。
+
+------
+
+##### 代码段 3：WeakSet 与原始值
+
+```javascript
+const ws = new WeakSet();
+
+try {
+  ws.add('hello'); // 抛出 TypeError
+} catch (e) {
+  console.log('WeakSet只能存储对象'); // 会执行到这里
+}
+
+try {
+  ws.add(42); // 抛出 TypeError
+} catch (e) {
+  console.log('WeakSet只能存储对象'); // 会执行到这里
+}
+
+// 正确用法
+const obj = {};
+ws.add(obj); // 成功
+```
+
+**解释**：WeakSet 只能存储对象引用，不能存储原始值（字符串、数字、布尔值、null、undefined、Symbol）。尝试添加原始值会抛出 TypeError 异常。
+
+------
+
+##### 代码段 4：内存泄漏对比
+
+```javascript
+// 使用Map - 可能导致内存泄漏
+function createCacheWithMap() {
+  const cache = new Map();
+  return {
+    set: (key, value) => cache.set(key, value),
+    get: (key) => cache.get(key)
+  };
+}
+
+// 使用WeakMap - 避免内存泄漏
+function createCacheWithWeakMap() {
+  const cache = new WeakMap();
+  return {
+    set: (key, value) => cache.set(key, value),
+    get: (key) => cache.get(key)
+  };
+}
+
+// 测试
+const mapCache = createCacheWithMap();
+const weakCache = createCacheWithWeakMap();
+
+(function() {
+  const bigObject = { data: new Array(10000).fill('*') };
+  mapCache.set(bigObject, 'result1');
+  weakCache.set(bigObject, 'result2');
+  // bigObject作用域结束
+})();
+
+// 此时：
+// mapCache 仍然持有 bigObject 的强引用，无法被垃圾回收
+// weakCache 中的 bigObject 可以被垃圾回收，因为它只有弱引用
+```
+
+**解释**：Map 会强引用键，阻止垃圾回收，可能导致内存泄漏；而 WeakMap 只弱引用键，当对象没有其他强引用时会被垃圾回收，适合用于缓存和临时数据存储。
+
+------
+
+##### 代码段 5：私有数据实现方式对比
+
+```javascript
+// 闭包方式实现私有数据
+const UserClosure = (function() {
+  const privateData = new WeakMap();
+  
+  class User {
+    constructor(name) {
+      privateData.set(this, { name });
+    }
+    
+    getName() {
+      return privateData.get(this).name;
+    }
+  }
+  
+  return User;
+})();
+
+// Symbol方式实现私有数据
+const UserSymbol = (function() {
+  const nameSymbol = Symbol('name');
+  
+  return class User {
+    constructor(name) {
+      this[nameSymbol] = name;
+    }
+    
+    getName() {
+      return this[nameSymbol];
+    }
+  };
+})();
+
+// 测试
+const user1 = new UserClosure('Alice');
+const user2 = new UserSymbol('Bob');
+
+console.log(user1.getName()); // 'Alice'
+console.log(user2.getName()); // 'Bob'
+
+// 尝试访问私有数据
+console.log(Object.getOwnPropertySymbols(user2)); // [Symbol(name)] - Symbol可以被获取到
+// user1的私有数据无法从外部访问
+```
+
+**解释**：WeakMap实现的私有数据更安全，因为无法从类外部访问WeakMap。而Symbol方式虽然可以创建"伪私有"属性，但仍然可以通过`Object.getOwnPropertySymbols()`获取到Symbol键，安全性较低。WeakMap方式还具有自动垃圾回收的优势。
 
 
 
