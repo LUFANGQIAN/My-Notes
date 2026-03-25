@@ -3182,3 +3182,154 @@ console.log(metadata); // [true, false]
 > 3. 90% 场景用 `logParam` 和 `required` 两类即可  
 > 4. **重点**：参数装饰器**不能直接修改参数**，需替换方法  
 > 5. **谨慎使用**：参数装饰器使用较少，除非需要元数据（如框架）
+
+
+
+
+
+## 文件读写
+
+以下是 Node.js 中 `fs`、`path`、`os` 三个核心模块的常用 API，附带简要说明和代码示例（以异步 Promise 风格为主）。
+
+---
+
+### 1. path 模块 – 路径操作
+
+```javascript
+import * as path from 'path';
+
+// 拼接路径（自动处理平台分隔符）
+path.join('/foo', 'bar', 'baz/asdf', 'quux', '..');
+// 返回：'/foo/bar/baz/asdf'
+
+// 解析绝对路径（从右到左直到构建出绝对路径）
+path.resolve('dist', 'index.js');
+// 返回：当前工作目录 + '/dist/index.js'
+
+// 获取文件扩展名
+path.extname('index.html');     // '.html'
+
+// 获取文件名（不含路径）
+path.basename('/foo/bar/baz.txt');     // 'baz.txt'
+path.basename('/foo/bar/baz.txt', '.txt'); // 'baz'
+
+// 获取目录名
+path.dirname('/foo/bar/baz.txt');      // '/foo/bar'
+
+// 解析路径为对象
+path.parse('/home/user/file.txt');
+// 返回：{ root: '/', dir: '/home/user', base: 'file.txt', ext: '.txt', name: 'file' }
+
+// 格式化对象为路径（与parse相反）
+path.format({ dir: '/home/user', base: 'file.txt' }); // '/home/user/file.txt'
+
+// 检查是否为绝对路径
+path.isAbsolute('/foo/bar');   // true
+path.isAbsolute('./foo');      // false
+```
+
+---
+
+### 2. fs 模块 – 文件系统
+
+> 推荐使用 `fs.promises` API 以获得 Promise 支持（Node.js 10+）。
+
+```javascript
+import { promises as fs } from 'fs';
+import { createReadStream, createWriteStream } from 'fs';
+
+async function example() {
+    // 写入文件
+    await fs.writeFile('file.txt', 'Hello World', 'utf8');
+
+    // 读取文件
+    const content = await fs.readFile('file.txt', 'utf8');
+    console.log(content);
+
+    // 追加内容
+    await fs.appendFile('file.txt', '\nMore content', 'utf8');
+
+    // 删除文件
+    await fs.unlink('file.txt');
+
+    // 创建目录（递归）
+    await fs.mkdir('path/to/dir', { recursive: true });
+
+    // 删除目录
+    await fs.rmdir('path/to/dir');
+
+    // 读取目录内容
+    const files = await fs.readdir('path/to/dir');
+
+    // 获取文件/目录信息
+    const stats = await fs.stat('file.txt');
+    stats.isFile();
+    stats.isDirectory();
+    stats.size;
+
+    // 检查文件/目录是否存在
+    try {
+        await fs.access('file.txt');
+        console.log('存在');
+    } catch {
+        console.log('不存在');
+    }
+
+    // 重命名/移动
+    await fs.rename('old.txt', 'new.txt');
+
+    // 复制文件
+    await fs.copyFile('src.txt', 'dest.txt');
+
+    // 创建可读流（回调风格）
+    const readStream = createReadStream('large.txt', 'utf8');
+    readStream.on('data', (chunk) => console.log(chunk));
+
+    // 创建可写流（回调风格）
+    const writeStream = createWriteStream('output.txt');
+    writeStream.write('Hello');
+    writeStream.end();
+}
+```
+
+---
+
+### 3. os 模块 – 操作系统信息
+
+```javascript
+import * as os from 'os';
+
+// CPU 信息
+os.cpus();          // 返回每个CPU核心的信息（型号、速度、时间等）
+os.cpus().length;   // CPU 核心数
+
+// 内存
+os.totalmem();      // 总内存（字节）
+os.freemem();       // 空闲内存（字节）
+
+// 系统平台
+os.platform();      // 'win32', 'linux', 'darwin' 等
+os.type();          // 'Windows_NT', 'Linux', 'Darwin'
+os.release();       // 操作系统发行版号
+
+// 用户目录
+os.homedir();       // 当前用户的主目录（如 C:\Users\xxx 或 /home/xxx）
+
+// 临时目录
+os.tmpdir();        // 系统临时文件夹路径
+
+// 主机名
+os.hostname();
+
+// 网络接口
+os.networkInterfaces(); // 返回网络接口的详细信息（IP地址等）
+
+// 系统运行时间（秒）
+os.uptime();
+
+// 当前用户信息（Windows 可能返回有限信息）
+os.userInfo();      // { username, uid, gid, homedir, shell }
+```
+
+---
+
